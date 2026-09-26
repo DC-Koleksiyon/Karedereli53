@@ -2,17 +2,17 @@ import streamlit as st
 from supabase import create_client, Client
 import os
 from datetime import datetime
+import base64
 import pandas as pd
 
 st.set_page_config(page_title="Stok & Takip Sistemi - Supabase", page_icon="", layout="wide")
 
 # --- SUPABASE BAĞLANTISI ---
-SUPABASE_URL = "https://ccnfswuyrqmswykqlrkx.supabase.co"
-SUPABASE_KEY = "sb_publishable_66Oz4V6458-NDrWASXnavQ_qMSGywO3"
-
 @st.cache_resource
 def init_supabase():
-    return create_client(SUPABASE_URL, SUPABASE_KEY)
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+    return create_client(url, key)
 
 supabase: Client = init_supabase()
 
@@ -113,6 +113,13 @@ def para_metin_to_float(metin):
         return float(s)
     except:
         return 0.0
+
+def image_to_base64(image_path):
+    if image_path and os.path.exists(image_path):
+        with open(image_path, "rb") as image_file:
+            encoded = base64.b64encode(image_file.read()).decode()
+            return f"data:image/jpeg;base64,{encoded}"
+    return ""
 
 def supabase_baslangic_kontrol():
     try:
@@ -280,7 +287,7 @@ elif menu == " 1. Ürün Girişi":
         st.caption(f" Girilen Birim Fiyat: **{para_formatla(birim_fiyat)}**")
         kdv_durumu = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key="giris_kdv")
         
-    if st.session_state.giris_resim:
+    if st.session_state.giris_resim and os.path.exists(st.session_state.giris_resim):
         st.image(st.session_state.giris_resim, width=100, caption="Kayıtlı Ürün Görseli")
         
     resim_dosyasi = st.file_uploader("Ürün Görseli Yükle (Opsiyonel)", type=["png", "jpg", "jpeg"], key="giris_resim_yukle")
@@ -297,25 +304,11 @@ elif menu == " 1. Ürün Girişi":
             kdvli_birim = birim_fiyat * 1.20 if kdv_durumu == "KDV'siz" else birim_fiyat
             toplam_maliyet = kdvli_birim * adet
             resim_yolu = st.session_state.giris_resim
-            
-            # Supabase Storage'a Yükleme
             if resim_dosyasi:
-                try:
-                    dosya_adi = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{resim_dosyasi.name}"
-                    dosya_icerigi = resim_dosyasi.getvalue()
-                    
-                    # 'urun-gorselleri' bucket'ına yükleme yapılıyor
-                    supabase.storage.from_('urun-gorselleri').upload(
-                        path=dosya_adi,
-                        file=dosya_icerigi,
-                        file_options={"content-type": resim_dosyasi.type}
-                    )
-                    
-                    # Public URL alma
-                    resim_yolu = supabase.storage.from_('urun-gorselleri').get_public_url(dosya_adi)
-                except Exception as e:
-                    st.warning(f"Görsel buluta yüklenirken hata oluştu: {e}")
-
+                os.makedirs("uploads", exist_ok=True)
+                resim_yolu = os.path.join("uploads", resim_dosyasi.name)
+                with open(resim_yolu, "wb") as f: f.write(resim_dosyasi.getbuffer())
+            
             veri = {
                 "tarih": tarih,
                 "urun_kodu": g_kod,
@@ -407,8 +400,9 @@ elif menu == " 1. Ürün Girişi":
         for r in tum_urunler:
             resim_html = ""
             r_yolu = r.get("resim_yolu")
-            if r_yolu: 
-                resim_html = f'<img src="{r_yolu}" class="zoom-img">'
+            if r_yolu and os.path.exists(r_yolu):
+                b64_img = image_to_base64(r_yolu)
+                if b64_img: resim_html = f'<img src="{b64_img}" class="zoom-img">'
             
             maliyet_num = para_metin_to_float(r.get("toplam_maliyet"))
             tarih_dt = None
@@ -836,7 +830,8 @@ elif menu == " 4. Hepsi Burada":
             bekleyen_df = bekleyen_df[bekleyen_df['siparis_no'].astype(str).str.lower().str.contains(hb_arama) | bekleyen_df['musteri'].astype(str).str.lower().str.contains(hb_arama) | bekleyen_df['urun_adi'].astype(str).str.lower().str.contains(hb_arama)]
             tamamlanan_df = tamamlanan_df[tamamlanan_df['siparis_no'].astype(str).str.lower().str.contains(hb_arama) | tamamlanan_df['musteri'].astype(str).str.lower().str.contains(hb_arama) | tamamlanan_df['urun_adi'].astype(str).str.lower().str.contains(hb_arama)]
 
-        tab_hb1, tab_hb2 = st.tabs([" Gider Girişi Bekleyenler", " Gideri Tamamlananlar & Geçmiş"])
+        # --- YENİ EKLENEN SEKME: MALİYET VE BİLGİ DÜZENLEME ---
+        tab_hb1, tab_hb2, tab_hb3 = st.tabs([" Gider Girişi Bekleyenler", " Gideri Tamamlananlar & Geçmiş", "✏️ Sipariş ve Maliyet Düzenle"])
 
         with tab_hb1:
             if not bekleyen_df.empty:
@@ -932,6 +927,52 @@ elif menu == " 4. Hepsi Burada":
                     })
                 st.dataframe(pd.DataFrame(hb_tamamlanan_tablo), use_container_width=True, hide_index=True)
             else: st.info("Tamamlanmış Hepsi Burada sipariş kaydı bulunmuyor.")
+
+        with tab_hb3:
+            st.subheader("✏️ Hepsiburada Sipariş Maliyeti ve Bilgi Düzenleme")
+            st.write("Bu alandan kayıtlı Hepsiburada siparişlerinizin giriş maliyetini veya satış tutarını doğrudan güncelleyebilirsiniz.")
+            
+            hb_tum_liste_dict = {f"Sipariş No: {r['siparis_no']} | Müşteri: {r['musteri']} | Ürün: {r.get('urun_adi', '-')} | Maliyet: {para_formatla(r['maliyet'])}": r['id'] for _, r in hb_df.iterrows()}
+            
+            if hb_tum_liste_dict:
+                secilen_hb_etiket = st.selectbox("Düzenlemek İstediğiniz Siparişi Seçin:", list(hb_tum_liste_dict.keys()), key="hb_duzenle_selectbox")
+                secilen_hb_id = hb_tum_liste_dict[secilen_hb_etiket]
+                
+                secilen_hb_kayit = hb_df[hb_df['id'] == secilen_hb_id].iloc[0]
+                
+                with st.form("hb_kayit_guncelleme_formu"):
+                    st.write(f"**Seçilen Sipariş No:** {secilen_hb_kayit['siparis_no']}")
+                    
+                    yeni_hb_maliyet = st.number_input("Ürün Maliyeti (TL)", min_value=0.0, value=float(secilen_hb_kayit['maliyet']), format="%.2f")
+                    yeni_hb_satis = st.number_input("Satış Tutarı / Ciro (TL)", min_value=0.0, value=float(secilen_hb_kayit['satis_tutari']), format="%.2f")
+                    
+                    hb_guncelle_butonu = st.form_submit_button("Değişiklikleri Kaydet")
+                    
+                    if hb_guncelle_butonu:
+                        # Eğer giderler daha önceden girildiyse net kârı güncel maliyet ve satışa göre tekrar hesaplayalım
+                        guncel_net_kar = secilen_hb_kayit['net_kar_zarar']
+                        if secilen_hb_kayit['giderler_girildi'] == 1:
+                            gelen_odeme_val = float(secilen_hb_kayit.get('gelen_odeme') or 0.0)
+                            kampanya_val = float(secilen_hb_kayit.get('kampanya') or 0.0)
+                            komisyon_val = float(secilen_hb_kayit.get('komisyon') or 0.0)
+                            stopaj_val = float(secilen_hb_kayit.get('stopaj') or 0.0)
+                            kargo_val = float(secilen_hb_kayit.get('kargo') or 0.0)
+                            hizmet_val = float(secilen_hb_kayit.get('hizmet_bedeli') or 0.0)
+                            tahsilat_val = float(secilen_hb_kayit.get('tahsilat_yonetim') or 0.0)
+                            
+                            toplam_diger = komisyon_val + stopaj_val + kargo_val + hizmet_val + tahsilat_val
+                            guncel_net_kar = gelen_odeme_val + kampanya_val - yeni_hb_maliyet - toplam_diger
+
+                        supabase.table("hepsi_burada").update({
+                            "maliyet": yeni_hb_maliyet,
+                            "satis_tutari": yeni_hb_satis,
+                            "net_kar_zarar": guncel_net_kar
+                        }).eq("id", secilen_hb_id).execute()
+                        
+                        st.success("Hepsiburada sipariş bilgileri başarıyla güncellendi!")
+                        st.rerun()
+            else:
+                st.info("Düzenlenecek Hepsiburada kaydı bulunamadı.")
     else: st.info("Hepsi Burada satış kaydı bulunmuyor.")
 
 # --- 5. WEB SİTESİ ---
