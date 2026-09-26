@@ -163,7 +163,7 @@ if check_password():
         "🏠 0. Ana Panel", "📥 1. Ürün Girişi", "🛒 2. Satış İşlemleri", 
         "📦 3. Güncel Stok", "🛍️ 4. Hepsi Burada", "🌐 5. Web Sitesi",
         "🏪 6. Dükkan & Elden", "👥 7. Müşteri Analizi", "⚙️ 8. Tanımlamalar",
-        "📊 9. Raporlar ve Özet", "📅 10. Aylık Detaylı Raporlar"
+        "📊 9. Raporlar ve Özet", "📅 10. Aylık Rapor"
     ]
     
     if "aktif_menu" not in st.session_state:
