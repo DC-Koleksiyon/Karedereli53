@@ -1327,18 +1327,43 @@ if check_password():
             st.info("ℹ️ Raporlama için yeterli satış kaydı bulunmuyor.")
     
     # --- 10. AYLIK DETAYLI RAPORLAR ---
-    elif menu == "📅 10. Aylık Detaylı Raporlar":
-        st.header("📅 Tarih Aralıklı ve Aylık Detaylı Raporlar")
-        satis_res = supabase.table("satis").select("tarih, satis_adet, toplam_tutar").execute()
-        satis_df = pd.DataFrame(satis_res.data) if satis_res.data else pd.DataFrame()
-        
+   elif menu == "📅 Aylık Rapor":
+    st.header("📅 Aylık Rapor")
+    
+    # 1. Satış ve Alış verilerini Supabase'den çekiyoruz
+    satis_res = supabase.table("satis").select("tarih, satis_adet, toplam_tutar").execute()
+    satis_df = pd.DataFrame(satis_res.data) if satis_res.data else pd.DataFrame()
+    
+    # Alış verilerini çekiyoruz (Tablo adınız 'alis' veya 'urunler' olabilir, projeye göre uyarlanmıştır)
+    alis_res = supabase.table("alis").select("tarih, alinan_adet, alis_maliyeti").execute()
+    alis_df = pd.DataFrame(alis_res.data) if alis_res.data else pd.DataFrame()
+    
+    if not satis_df.empty or not alis_df.empty:
+        # Satış tarihlerini düzenle
         if not satis_df.empty:
             satis_df['Tarih_dt'] = pd.to_datetime(satis_df['tarih'], format="%d.%m.%Y", errors='coerce')
             satis_df = satis_df.dropna(subset=['Tarih_dt'])
+            satis_df['Tutar_Val'] = satis_df['toplam_tutar'].apply(para_metin_to_float)
+            satis_df['Ay'] = satis_df['Tarih_dt'].dt.strftime("%m.%Y")
             
-            st.subheader("🔍 Tarih Aralığı Filtreleme")
-            min_tarih = satis_df['Tarih_dt'].min().date()
-            max_tarih = satis_df['Tarih_dt'].max().date()
+        # Alış tarihlerini düzenle
+        if not alis_df.empty:
+            alis_df['Tarih_dt'] = pd.to_datetime(alis_df['tarih'], format="%d.%m.%Y", errors='coerce')
+            alis_df = alis_df.dropna(subset=['Tarih_dt'])
+            alis_df['Maliyet_Val'] = alis_df['alis_maliyeti'].apply(para_metin_to_float) if 'alis_maliyeti' in alis_df else 0
+            alis_df['Adet_Val'] = pd.to_numeric(alis_df['alinan_adet'], errors='fillna').fillna(0) if 'alinan_adet' in alis_df else 0
+            alis_df['Ay'] = alis_df['Tarih_dt'].dt.strftime("%m.%Y")
+
+        st.subheader("🔍 Tarih Aralığı Filtreleme")
+        
+        # Min/Max tarih belirleme için birleştirilmiş tarih havuzu
+        tum_ tarihler = []
+        if not satis_df.empty: tum_tarihler.extend(satis_df['Tarih_dt'])
+        if not alis_df.empty: tum_tarihler.extend(alis_df['Tarih_dt'])
+        
+        if tum_tarihler:
+            min_tarih = min(tum_tarihler).date()
+            max_tarih = max(tum_tarihler).date()
     
             col_t1, col_t2 = st.columns(2)
             with col_t1: baslangic_tarihi = st.date_input("Başlangıç Tarihi", value=min_tarih, min_value=min_tarih, max_value=max_tarih, key="rapor_bas_tarih")
@@ -1347,22 +1372,60 @@ if check_password():
             if baslangic_tarihi > bitis_tarihi:
                 st.error("⚠️ Başlangıç tarihi bitiş tarihinden sonra olamaz!")
             else:
-                filtreli_df = satis_df[(satis_df['Tarih_dt'].dt.date >= baslangic_tarihi) & (satis_df['Tarih_dt'].dt.date <= bitis_tarihi)].copy()
-                if not filtreli_df.empty:
-                    filtreli_df['Tutar_Val'] = filtreli_df['toplam_tutar'].apply(para_metin_to_float)
-                    c_m1, c_m2, c_m3 = st.columns(3)
-                    c_m1.metric("📦 Sipariş Sayısı", f"{len(filtreli_df)} Adet")
-                    c_m2.metric("🛍️ Satılan Ürün", f"{filtreli_df['satis_adet'].sum()} Adet")
-                    c_m3.metric("💵 Toplam Ciro", para_formatla(filtreli_df['Tutar_Val'].sum()))
-    
-                    st.divider()
-                    filtreli_df['Ay'] = filtreli_df['Tarih_dt'].dt.strftime("%m.%Y")
-                    aylik_ozet = filtreli_df.groupby('Ay').agg(
+                # Filtrelemeler
+                f_satis = satis_df[(satis_df['Tarih_dt'].dt.date >= baslangic_tarihi) & (satis_df['Tarih_dt'].dt.date <= bitis_tarihi)].copy() if not satis_df.empty else pd.DataFrame()
+                f_alis = alis_df[(alis_df['Tarih_dt'].dt.date >= baslangic_tarihi) & (alis_df['Tarih_dt'].dt.date <= bitis_tarihi)].copy() if not alis_df.empty else pd.DataFrame()
+                
+                # Aylık Satış Özetleri
+                if not f_satis.empty:
+                    aylik_satis = f_satis.groupby('Ay').agg(
                         Toplam_Siparis=('satis_adet', 'count'),
-                        Toplam_Adet=('satis_adet', 'sum'),
+                        Toplam_Satis_Adet=('satis_adet', 'sum'),
                         Toplam_Ciro=('Tutar_Val', 'sum')
-                    ).reset_index().sort_values(by='Ay', ascending=False)
-                    aylik_ozet['Toplam Ciro'] = aylik_ozet['Toplam_Ciro'].apply(para_formatla)
-                    st.dataframe(aylik_ozet.rename(columns={'Ay': 'Ay (AA.YYYY)', 'Toplam_Siparis': 'Toplam Sipariş', 'Toplam_Adet': 'Ürün Adeti'})[['Ay (AA.YYYY)', 'Toplam Sipariş', 'Ürün Adeti', 'Toplam Ciro']], use_container_width=True, hide_index=True)
-                else: st.info("ℹ️ Seçilen tarih aralığında satış kaydı bulunmamaktadır.")
-        else: st.info("ℹ️ Henüz raporlanacak satış kaydı bulunmuyor.")
+                    ).reset_index()
+                else:
+                    aylik_satis = pd.DataFrame(columns=['Ay', 'Toplam_Siparis', 'Toplam_Satis_Adet', 'Toplam_Ciro'])
+
+                # Aylık Alış Özetleri
+                if not f_alis.empty:
+                    aylik_alis = f_alis.groupby('Ay').agg(
+                        Alinan_Urun_Adeti=('Adet_Val', 'sum'),
+                        Alis_Maliyeti=('Maliyet_Val', 'sum')
+                    ).reset_index()
+                else:
+                    aylik_alis = pd.DataFrame(columns=['Ay', 'Alinan_Urun_Adeti', 'Alis_Maliyeti'])
+
+                # Verileri Ay bazında birleştir (Merge)
+                if not aylik_satis.empty or not aylik_alis.empty:
+                    aylik_ozet = pd.merge(aylik_satis, aylik_alis, on='Ay', how='outer').fillna(0)
+                    aylik_ozet = aylik_ozet.sort_values(by='Ay', ascending=False)
+                    
+                    # Kâr / Zarar Hesaplama (Ciro - Alış Maliyeti)
+                    aylik_ozet['Kar_Zarar'] = aylik_ozet['Toplam_Ciro'] - aylik_ozet['Alis_Maliyeti']
+                    
+                    # Formatlamalar
+                    aylik_ozet['Toplam Ciro Format'] = aylik_ozet['Toplam_Ciro'].apply(para_formatla)
+                    aylik_ozet['Alis Maliyeti Format'] = aylik_ozet['Alis_Maliyeti'].apply(para_formatla)
+                    aylik_ozet['Kar Zarar Format'] = aylik_ozet['Kar_Zarar'].apply(para_formatla)
+                    
+                    # Ekrana Yazdırılacak Tablo Sütunları
+                    gosterim_df = aylik_ozet[[
+                        'Ay', 'Alinan_Urun_Adeti', 'Alis Maliyeti Format', 
+                        'Toplam_Siparis', 'Toplam_Satis_Adet', 'Toplam Ciro Format', 'Kar Zarar Format'
+                    ]].rename(columns={
+                        'Ay': 'Ay (AA.YYYY)',
+                        'Alinan_Urun_Adeti': 'Alınan Ürün Adeti',
+                        'Alis Maliyeti Format': 'Alış Maliyeti',
+                        'Toplam_Siparis': 'Toplam Sipariş',
+                        'Toplam_Satis_Adet': 'Satılan Adet',
+                        'Toplam Ciro Format': 'Toplam Ciro',
+                        'Kar Zarar Format': 'Kâr / Zarar'
+                    })
+                    
+                    st.dataframe(gosterim_df, use_container_width=True, hide_index=True)
+                else: 
+                    st.info("ℹ️ Seçilen tarih aralığında veri bulunmamaktadır.")
+        else:
+            st.info("ℹ️ Tarih verisi bulunamadı.")
+    else: 
+        st.info("ℹ️ Henüz raporlanacak kayıt bulunmuyor.")
