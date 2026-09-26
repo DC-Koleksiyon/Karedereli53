@@ -1327,7 +1327,9 @@ if check_password():
             st.info("ℹ️ Raporlama için yeterli satış kaydı bulunmuyor.")
     
     # --- 10. AYLIK DETAYLI RAPORLAR ---
-   def aylik_detayli_rapor_goster(veri_tabani):
+    # --- 10. SEGMENT: AYLIK RAPOR GÜNCELLEMESİ ---
+
+def aylik_detayli_rapor_goster(veri_tabani):
     print("\n" + "="*40)
     print("         AYLIK RAPOR (GÜNCELLENDİ)         ")
     print("="*40)
@@ -1368,3 +1370,5 @@ if check_password():
         print(f"  * Kâr / Zarar Durumu     : {veriler['toplam_kar_zarar']:,.2f} TL ({kar_zarar_durumu})")
     
     print("\n" + "="*40)
+                else: st.info("ℹ️ Seçilen tarih aralığında satış kaydı bulunmamaktadır.")
+        else: st.info("ℹ️ Henüz raporlanacak satış kaydı bulunmuyor.")
