@@ -8,7 +8,6 @@ st.set_page_config(page_title="Stok & Takip Sistemi", layout="wide")
 # --- KULLANICI GİRİŞ KONTROLÜ ---
 def check_password():
     def password_entered():
-        # Belirttiğiniz kullanıcı adı ve şifre buraya tanımlandı:
         if (
             st.session_state["username"] == "Sedat-Burak"
             and st.session_state["password"] == "Zeus5341"
@@ -35,19 +34,25 @@ def check_password():
     else:
         return True
 
-# Giriş başarılı olursa uygulamanın kalanı çalışır:
+# --- ÖNEMLİ KISIM BURASI ---
+# Şifre doğru girilmeden aşağıdaki hiçbir kodun çalışmaması gerekir:
 if check_password():
     
-    # --- SUPABASE BAĞLANTISI ---
+    # Supabase bağlantısı ve diğer tüm uygulama kodlarınız BURADAN BAŞLAMALI 
+    # ve sağa doğru (bir tab içeride) yazılmalıdır:
+    
     @st.cache_resource
     def init_supabase():
         url = st.secrets["SUPABASE_URL"]
         key = st.secrets["SUPABASE_KEY"]
         return create_client(url, key)
 
-    supabase: Client = init_supabase()
-    
-    # --- DİĞER TÜM KODLARINIZ BURAYA GELECEK ---import streamlit as st
+    supabase = init_supabase()
+
+    # Örnek: Menüleriniz, sidebar kodlarınız, ana panel kodlarınız hep bu if bloğunun içinde olmalı.
+    st.sidebar.title("Menüler")
+    # ... (buraya kendi mevcut uygulama kodlarınızı koyun)                        
+
 import sqlite3
 import os
 from datetime import datetime
