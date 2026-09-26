@@ -7,12 +7,13 @@ import pandas as pd
 
 st.set_page_config(page_title="Stok & Takip Sistemi - Supabase", page_icon="", layout="wide")
 
-# --- SUPABASE BAĞLANTISI ---
+# --- SUPABASE BAĞLANTISI (Doğrudan Entegre Edildi) ---
+SUPABASE_URL = "https://ccnfswuyrqmswykqlrkx.supabase.co"
+SUPABASE_KEY = "sb_publishable_66Oz4V6458-NDrWASXnavQ_qMSGywO3"
+
 @st.cache_resource
 def init_supabase():
-    url = st.secrets["SUPABASE_URL"]
-    key = st.secrets["SUPABASE_KEY"]
-    return create_client(url, key)
+    return create_client(SUPABASE_URL, SUPABASE_KEY)
 
 supabase: Client = init_supabase()
 
@@ -121,7 +122,6 @@ def image_to_base64(image_path):
             return f"data:image/jpeg;base64,{encoded}"
     return ""
 
-# Supabase Başlangıç Kontrolü (Tanımlamalar tablosunda eksik varsa ekler)
 def supabase_baslangic_kontrol():
     try:
         res = supabase.table("tanimlar").select("*").eq("tip", "satilan_yer").execute()
@@ -538,17 +538,12 @@ elif menu == " 2. Satış İşlemleri":
             else:
                 toplam_giris = sum([row.get("adet", 0) for row in stok_girisleri])
                 
-                # Diğer satışları hesapla
                 satis_res = supabase.table("satis").select("satis_adet").eq("barkod_kod", sorgulanan_anahtar).execute()
                 diger_satislar = 0
                 for s_row in satis_res.data:
-                    if st.session_state.satis_duzenle_id:
-                        # Düzenleme modunda kendi id'sini hariç tut
-                        pass
                     diger_satislar += s_row.get("satis_adet", 0)
                 
                 if st.session_state.satis_duzenle_id:
-                    # Kendi eski satış miktarını çıkaralım
                     self_res = supabase.table("satis").select("satis_adet").eq("id", st.session_state.satis_duzenle_id).execute()
                     if self_res.data:
                         diger_satislar -= self_res.data[0].get("satis_adet", 0)
@@ -608,7 +603,6 @@ elif menu == " 2. Satış İşlemleri":
                     if st.session_state.satis_duzenle_id:
                         supabase.table("satis").update(satis_veri).eq("id", st.session_state.satis_duzenle_id).execute()
                         
-                        # Eski kanal kayıtlarını silip yenisini ekle
                         for tbl in ["hepsi_burada", "web_sitesi", "dukkan_elden"]:
                             supabase.table(tbl).delete().eq("siparis_no", d_siparis).eq("musteri", d_musteri).execute()
 
