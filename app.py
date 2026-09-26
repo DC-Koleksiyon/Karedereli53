@@ -232,110 +232,34 @@ elif menu == "📦 1. Ürün Girişi":
     if "giris_resim" not in st.session_state: st.session_state.giris_resim = ""
     if "duzenlenen_id" not in st.session_state: st.session_state.duzenlenen_id = None
 
-    conn = sqlite3.connect("stok_satis.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT deger FROM tanimlar WHERE tip='kategori_marka' ORDER BY deger ASC")
-    kategori_marka_listesi = [row[0] for row in cursor.fetchall()]
-    cursor.execute("SELECT deger FROM tanimlar WHERE tip='alinan_yer' ORDER BY deger ASC")
-    alinan_yer_listesi = [row[0] for row in cursor.fetchall()]
-    conn.close()
-    
-    if not kategori_marka_listesi: kategori_marka_listesi = ["Önce Tanımlamalardan Ekle"]
-    if not alinan_yer_listesi: alinan_yer_listesi = ["Önce Tanımlamalardan Ekle"]
-
-    def urun_giris_barkod_degisti():
-        b_val = st.session_state.get("input_giris_barkod", "").strip()
-        st.session_state.giris_barkod = b_val
-        if b_val:
-            try:
-                res = supabase.table("stoklar").select("urun_kodu, urun_adi, kategori_marka, resim_yolu").eq("barkod", b_val).order("id", desc=True).limit(1).execute()
-                if res.data:
-                    bulunan = res.data[0]
-                    st.session_state.giris_kod = bulunan.get("urun_kodu") or ""
-                    st.session_state.giris_ad = bulunan.get("urun_adi") or ""
-                    st.session_state.giris_kat = bulunan.get("kategori_marka") or ""
-                    st.session_state.giris_resim = bulunan.get("resim_yolu") or ""
-            except: pass
-
-    def urun_giris_kod_degisti():
-        k_val = st.session_state.get("input_giris_kod", "").strip()
-        st.session_state.giris_kod = k_val
-        if k_val:
-            try:
-                res = supabase.table("stoklar").select("barkod, urun_adi, kategori_marka, resim_yolu").eq("urun_kodu", k_val).order("id", desc=True).limit(1).execute()
-                if res.data:
-                    bulunan = res.data[0]
-                    st.session_state.giris_barkod = bulunan.get("barkod") or ""
-                    st.session_state.giris_ad = bulunan.get("urun_adi") or ""
-                    st.session_state.giris_kat = bulunan.get("kategori_marka") or ""
-                    st.session_state.giris_resim = bulunan.get("resim_yolu") or ""
-            except: pass
-
     if st.session_state.duzenlenen_id:
         st.info(f"✏️ Şu an ID: **{st.session_state.duzenlenen_id}** olan kayıt güncelleniyor modunda.")
         if st.button("❌ Düzenlemeyi İptal Et"):
             st.session_state.duzenlenen_id = None
-            st.session_state.giris_barkod = ""
-            st.session_state.giris_kod = ""
             st.session_state.giris_ad = ""
-            st.session_state.giris_kat = ""
-            st.session_state.giris_resim = ""
             st.rerun()
-
-    col_k1, col_k2 = st.columns(2)
-    with col_k1:
-        st.text_input("Ürün Barkodu * (Barkod Okuyucu Uyumlu)", key="input_giris_barkod", on_change=urun_giris_barkod_degisti, value=st.session_state.giris_barkod)
-    with col_k2:
-        st.text_input("Ürün Kodu *", key="input_giris_kod", on_change=urun_giris_kod_degisti, value=st.session_state.giris_kod)
 
     col1, col2 = st.columns(2)
     with col1:
-        tarih = st.text_input("Ürün Giriş Tarihi (GG.AA.YYYY) *", value=datetime.now().strftime("%d.%m.%Y"), key="giris_tarih")
-        kat_secim_Index = 0
-        if st.session_state.giris_kat in kategori_marka_listesi:
-            kat_secim_Index = kategori_marka_listesi.index(st.session_state.giris_kat)
-        secilen_kat_marka = st.selectbox("Kategori & Marka Seçimi *", kategori_marka_listesi, index=kat_secim_Index, key="giris_kategori")
-        secilen_alinan_yer = st.selectbox("Ürünün Alındığı Yer / Tedarikçi *", alinan_yer_listesi, key="giris_alinan_yer")
-        adet = st.number_input("Ürün Adeti *", min_value=1, value=1, key="giris_adet")
-    with col2:
         ham_urun_adi = st.text_input("Ürün Adı *", value=st.session_state.giris_ad, key="giris_urun_adi")
-        birim_fiyat = st.number_input("Birim Fiyatı (TL) *", min_value=0.0, format="%.2f", key="giris_birim_fiyat")
-        st.caption(f"📈 Girilen Birim Fiyat: **{para_formatla(birim_fiyat)}**")
-        kdv_durumu = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key="giris_kdv")
+        adet = st.number_input("Adet *", min_value=1, value=1, step=1, key="giris_adet")
+    with col2:
+        fiyat = st.number_input("Fiyat (TL) *", min_value=0.0, format="%.2f", key="giris_fiyat")
+        st.caption(f"📈 Girilen Fiyat: **{para_formatla(fiyat)}**")
         
-    if st.session_state.giris_resim and os.path.exists(st.session_state.giris_resim):
-        st.image(st.session_state.giris_resim, width=100, caption="Kayıtlı Ürün Görseli")
-        
-    resim_dosyasi = st.file_uploader("Ürün Görseli Yükle (Opsiyonel)", type=["png", "jpg", "jpeg"], key="giris_resim_yukle")
-    
-    buton_metni = "Ürünü Güncelle (Supabase)" if st.session_state.duzenlenen_id else "Hesapla ve Supabase'e Ekle"
+    buton_metni = "Ürünü Güncelle (Supabase)" if st.session_state.duzenlenen_id else "Ürünü Supabase'e Ekle"
     if st.button(buton_metni, type="primary"):
         urun_adi = ham_urun_adi.strip().title()
-        g_barkod = st.session_state.get("input_giris_barkod", "").strip()
-        g_kod = st.session_state.get("input_giris_kod", "").strip()
         
-        if not tarih or not g_barkod or not g_kod or not urun_adi or birim_fiyat <= 0:
-            st.error("⚠️ Eksik alanlar var!")
+        if not urun_adi or fiyat <= 0:
+            st.error("⚠️ Lütfen ürün adını ve geçerli bir fiyat girin!")
         else:
-            kdvli_birim = birim_fiyat * 1.20 if kdv_durumu == "KDV'siz" else birim_fiyat
-            toplam_maliyet = kdvli_birim * adet
-            resim_yolu = st.session_state.giris_resim
-            if resim_dosyasi:
-                os.makedirs("uploads", exist_ok=True)
-                resim_yolu = os.path.join("uploads", resim_dosyasi.name)
-                with open(resim_yolu, "wb") as f: f.write(resim_dosyasi.getbuffer())
-            
             try:
                 sup_veri = {
-                    "tarih": tarih,
-                    "urun_kodu": g_kod,
                     "urun_adi": urun_adi,
                     "adet": int(adet),
-                    "alinan_yer": secilen_alinan_yer,
-                    "toplam_maliyet": para_formatla(toplam_maliyet),
-                    "resim_yolu": resim_yolu if resim_yolu else "",
-                    "kategori_marka": secilen_kat_marka,
-                    "barkod": g_barkod
+                    "fiyat": float(fiyat),
+                    "olusturma_tarihi": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }
 
                 if st.session_state.duzenlenen_id:
@@ -347,132 +271,10 @@ elif menu == "📦 1. Ürün Girişi":
                     basari_mesaji = "Ürün başarıyla Supabase'e eklendi!"
                 
                 st.success(basari_mesaji)
-                st.session_state.giris_barkod = ""
-                st.session_state.giris_kod = ""
                 st.session_state.giris_ad = ""
-                st.session_state.giris_kat = ""
-                st.session_state.giris_resim = ""
                 st.rerun()
             except Exception as e:
                 st.error(f"Supabase kayıt hatası: {e}")
-
-    st.divider()
-    st.subheader("🔍 Düzenlenecek veya Silinecek Ürünü Arayın (Supabase)")
-    arama_metni = st.text_input("Aramak İstediğiniz Ürün Kodunu veya Barkodunu Yazın:", placeholder="Örn: KOD123 veya Barkod...", key="urun_giris_arama_input").strip()
-
-    secilen_islem_id = None
-    if arama_metni:
-        try:
-            res_arama = supabase.table("stoklar").select("id, urun_kodu, barkod, urun_adi").or_(f"urun_kodu.ilike.%{arama_metni}%,barkod.ilike.%{arama_metni}%,urun_adi.ilike.%{arama_metni}%").order("id", desc=True).limit(15).execute()
-            bulunan_sonuclar = res_arama.data if res_arama.data else []
-        except: bulunan_sonuclar = []
-
-        if bulunan_sonuclar:
-            secenekler_dict = {f"ID: {r.get('id')} | Kod: {r.get('urun_kodu')} | Barkod: {r.get('barkod') or '-'} | {r.get('urun_adi')}": r.get('id') for r in bulunan_sonuclar}
-            secilen_etiket = st.selectbox("Eşleşen Ürünler Arasından Seçin:", list(secenekler_dict.keys()), key="bulunan_urunler_box")
-            secilen_islem_id = secenekler_dict[secilen_etiket]
-        else:
-            st.warning("⚠️ Aradığınız kriterlere uygun ürün bulunamadı.")
-    else:
-        st.info("ℹ️ Ürün düzenlemek veya silmek için arama kutusuna kod veya barkod yazın.")
-
-    if secilen_islem_id:
-        islem_col1, islem_col2 = st.columns(2)
-        with islem_col1:
-            if st.button("✏️ Seçileni Düzenle", use_container_width=True):
-                try:
-                    res_sec = supabase.table("stoklar").select("*").eq("id", secilen_islem_id).execute()
-                    if res_sec.data:
-                        secilen_kayit = res_sec.data[0]
-                        st.session_state.duzenlenen_id = secilen_islem_id
-                        st.session_state.giris_barkod = secilen_kayit.get("barkod") or ""
-                        st.session_state.giris_kod = secilen_kayit.get("urun_kodu") or ""
-                        st.session_state.giris_ad = secilen_kayit.get("urun_adi") or ""
-                        st.session_state.giris_kat = secilen_kayit.get("kategori_marka") or ""
-                        st.session_state.giris_resim = secilen_kayit.get("resim_yolu") or ""
-                        st.rerun()
-                except Exception as e:
-                    st.error(f"Hata: {e}")
-        with islem_col2:
-            if st.button("🗑️ Seçileni Sil", type="primary", use_container_width=True):
-                try:
-                    supabase.table("stoklar").delete().eq("id", secilen_islem_id).execute()
-                    st.success(f"ID: {secilen_islem_id} olan ürün silindi!")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Silme hatası: {e}")
-
-    st.divider()
-    st.subheader("📋 Kayıtlı Ürünler Listesi (Supabase)")
-    
-    try:
-        res_list = supabase.table("stoklar").select("*").execute()
-        tum_urunler = res_list.data if res_list.data else []
-    except Exception as e:
-        tum_urunler = []
-        st.error(f"Veriler çekilirken hata oluştu: {e}")
-
-    if tum_urunler:
-        sira_col1, sira_col2 = st.columns(2)
-        with sira_col1:
-            siralama_kriteri = st.selectbox(
-                "↕️ Sıralama Kriteri Seçin:",
-                ["Ekleme Sırası (ID)", "Tarih", "Ürün Kodu", "Barkod", "Ürün Adı", "Adet", "Toplam Maliyet"],
-                key="giris_siralama_kriteri"
-            )
-        with sira_col2:
-            siralama_yonu = st.radio(
-                "🔄 Sıralama Yönü:",
-                ["Azalan / Yeniden Eskiye 🔽", "Artan / Eskiden Yeniye 🔼"],
-                horizontal=True,
-                key="giris_siralama_yonu"
-            )
-
-        tablo_verisi = []
-        for r in tum_urunler:
-            resim_html = ""
-            r_yolu = r.get('resim_yolu', '')
-            if r_yolu and os.path.exists(r_yolu):
-                b64_img = image_to_base64(r_yolu)
-                if b64_img: resim_html = f'<img src="{b64_img}" class="zoom-img">'
-            
-            maliyet_num = para_metin_to_float(r.get('toplam_maliyet', 0))
-            tarih_dt = None
-            try:
-                tarih_dt = datetime.strptime(str(r.get('tarih', '')).strip(), "%d.%m.%Y")
-            except: pass
-
-            tablo_verisi.append({
-                "ID": r.get('id'),
-                "Görsel": resim_html if resim_html else "📷 Yok",
-                "Tarih": r.get('tarih', ''),
-                "Tarih_dt": tarih_dt,
-                "Ürün Kodu": r.get('urun_kodu', '-') or "-",
-                "Barkod": r.get('barkod', '-') or "-",
-                "Ürün Adı": r.get('urun_adi', ''),
-                "Kategori": r.get('kategori_marka', '-'),
-                "Alınan Yer": r.get('alinan_yer', '-'),
-                "Adet": r.get('adet', 0),
-                "Toplam Maliyet": para_formatla(maliyet_num),
-                "Maliyet_Num": maliyet_num
-            })
-        
-        df_urunler = pd.DataFrame(tablo_verisi)
-        ascending = True if "Artan" in siralama_yonu else False
-
-        if siralama_kriteri == "Ekleme Sırası (ID)": df_urunler = df_urunler.sort_values(by="ID", ascending=ascending)
-        elif siralama_kriteri == "Tarih": df_urunler = df_urunler.sort_values(by="Tarih_dt", ascending=ascending)
-        elif siralama_kriteri == "Ürün Kodu": df_urunler = df_urunler.sort_values(by="Ürün Kodu", ascending=ascending)
-        elif siralama_kriteri == "Barkod": df_urunler = df_urunler.sort_values(by="Barkod", ascending=ascending)
-        elif siralama_kriteri == "Ürün Adı": df_urunler = df_urunler.sort_values(by="Ürün Adı", ascending=ascending)
-        elif siralama_kriteri == "Adet": df_urunler = df_urunler.sort_values(by="Adet", ascending=ascending)
-        elif siralama_kriteri == "Toplam Maliyet": df_urunler = df_urunler.sort_values(by="Maliyet_Num", ascending=ascending)
-
-        gosterim_df = df_urunler[["Görsel", "Tarih", "Ürün Kodu", "Barkod", "Ürün Adı", "Kategori", "Alınan Yer", "Adet", "Toplam Maliyet"]]
-        st.write(gosterim_df.to_html(escape=False, index=False), unsafe_allow_html=True)
-    else:
-        st.info("Henüz eklenmiş ürün yok.")
-
 # --- 2. SATIŞ İŞLEMLERİ ---
 elif menu == "🛒 2. Satış İşlemleri":
     st.header("Satış İşlemleri")
