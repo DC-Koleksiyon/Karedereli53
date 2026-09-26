@@ -831,11 +831,11 @@ elif menu == " 4. Hepsi Burada":
             tamamlanan_df = tamamlanan_df[tamamlanan_df['siparis_no'].astype(str).str.lower().str.contains(hb_arama) | tamamlanan_df['musteri'].astype(str).str.lower().str.contains(hb_arama) | tamamlanan_df['urun_adi'].astype(str).str.lower().str.contains(hb_arama)]
 
         # --- YENİ EKLENEN SEKME: MALİYET VE BİLGİ DÜZENLEME ---
-        tab_hb1, tab_hb2, tab_hb3 = st.tabs([" Gider Girişi Bekleyenler", " Gideri Tamamlananlar & Geçmiş", "✏️ Sipariş ve Maliyet Düzenle"])
+        tab_hb1, tab_hb2, tab_hb3 = st.tabs([" Gider Girişi Bekleyenler", " Gideri Tamamlananlar & Geçmiş", " Sipariş ve Maliyet Düzenle"])
 
         with tab_hb1:
             if not bekleyen_df.empty:
-                st.subheader(" Gider ve Kesinti Girişi Bekleyen Siparişler")
+                st.subheader(" Gider and Kesinti Girişi Bekleyen Siparişler")
                 c_bs1, c_bs2 = st.columns(2)
                 with c_bs1: bekleyen_sira = st.selectbox(" Sırala:", ["Ekleme Sırası (ID)", "Tarih (En Yeni)", "Satış Tutarı (En Yüksek)"], key="bekleyen_sira_secim")
                 with c_bs2: st.caption(" Bekleyen sipariş listesini sıralayın.")
@@ -929,7 +929,7 @@ elif menu == " 4. Hepsi Burada":
             else: st.info("Tamamlanmış Hepsi Burada sipariş kaydı bulunmuyor.")
 
         with tab_hb3:
-            st.subheader("✏️ Hepsiburada Sipariş Maliyeti ve Bilgi Düzenleme")
+            st.subheader(" Hepsiburada Sipariş Maliyeti ve Bilgi Düzenleme")
             st.write("Bu alandan kayıtlı Hepsiburada siparişlerinizin giriş maliyetini veya satış tutarını doğrudan güncelleyebilirsiniz.")
             
             hb_tum_liste_dict = {f"Sipariş No: {r['siparis_no']} | Müşteri: {r['musteri']} | Ürün: {r.get('urun_adi', '-')} | Maliyet: {para_formatla(r['maliyet'])}": r['id'] for _, r in hb_df.iterrows()}
@@ -949,7 +949,6 @@ elif menu == " 4. Hepsi Burada":
                     hb_guncelle_butonu = st.form_submit_button("Değişiklikleri Kaydet")
                     
                     if hb_guncelle_butonu:
-                        # Eğer giderler daha önceden girildiyse net kârı güncel maliyet ve satışa göre tekrar hesaplayalım
                         guncel_net_kar = secilen_hb_kayit['net_kar_zarar']
                         if secilen_hb_kayit['giderler_girildi'] == 1:
                             gelen_odeme_val = float(secilen_hb_kayit.get('gelen_odeme') or 0.0)
