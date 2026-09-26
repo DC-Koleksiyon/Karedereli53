@@ -2,12 +2,11 @@ import streamlit as st
 from supabase import create_client, Client
 import os
 from datetime import datetime
-import base64
 import pandas as pd
 
 st.set_page_config(page_title="Stok & Takip Sistemi - Supabase", page_icon="", layout="wide")
 
-# --- SUPABASE BAĞLANTISI (Doğrudan Entegre Edildi) ---
+# --- SUPABASE BAĞLANTISI ---
 SUPABASE_URL = "https://ccnfswuyrqmswykqlrkx.supabase.co"
 SUPABASE_KEY = "sb_publishable_66Oz4V6458-NDrWASXnavQ_qMSGywO3"
 
@@ -114,13 +113,6 @@ def para_metin_to_float(metin):
         return float(s)
     except:
         return 0.0
-
-def image_to_base64(image_path):
-    if image_path and os.path.exists(image_path):
-        with open(image_path, "rb") as image_file:
-            encoded = base64.b64encode(image_file.read()).decode()
-            return f"data:image/jpeg;base64,{encoded}"
-    return ""
 
 def supabase_baslangic_kontrol():
     try:
@@ -288,7 +280,7 @@ elif menu == " 1. Ürün Girişi":
         st.caption(f" Girilen Birim Fiyat: **{para_formatla(birim_fiyat)}**")
         kdv_durumu = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key="giris_kdv")
         
-    if st.session_state.giris_resim and os.path.exists(st.session_state.giris_resim):
+    if st.session_state.giris_resim:
         st.image(st.session_state.giris_resim, width=100, caption="Kayıtlı Ürün Görseli")
         
     resim_dosyasi = st.file_uploader("Ürün Görseli Yükle (Opsiyonel)", type=["png", "jpg", "jpeg"], key="giris_resim_yukle")
@@ -305,11 +297,25 @@ elif menu == " 1. Ürün Girişi":
             kdvli_birim = birim_fiyat * 1.20 if kdv_durumu == "KDV'siz" else birim_fiyat
             toplam_maliyet = kdvli_birim * adet
             resim_yolu = st.session_state.giris_resim
-            if resim_dosyasi:
-                os.makedirs("uploads", exist_ok=True)
-                resim_yolu = os.path.join("uploads", resim_dosyasi.name)
-                with open(resim_yolu, "wb") as f: f.write(resim_dosyasi.getbuffer())
             
+            # Supabase Storage'a Yükleme
+            if resim_dosyasi:
+                try:
+                    dosya_adi = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{resim_dosyasi.name}"
+                    dosya_icerigi = resim_dosyasi.getvalue()
+                    
+                    # 'urun-gorselleri' bucket'ına yükleme yapılıyor
+                    supabase.storage.from_('urun-gorselleri').upload(
+                        path=dosya_adi,
+                        file=dosya_icerigi,
+                        file_options={"content-type": resim_dosyasi.type}
+                    )
+                    
+                    # Public URL alma
+                    resim_yolu = supabase.storage.from_('urun-gorselleri').get_public_url(dosya_adi)
+                except Exception as e:
+                    st.warning(f"Görsel buluta yüklenirken hata oluştu: {e}")
+
             veri = {
                 "tarih": tarih,
                 "urun_kodu": g_kod,
@@ -401,9 +407,8 @@ elif menu == " 1. Ürün Girişi":
         for r in tum_urunler:
             resim_html = ""
             r_yolu = r.get("resim_yolu")
-            if r_yolu and os.path.exists(r_yolu):
-                b64_img = image_to_base64(r_yolu)
-                if b64_img: resim_html = f'<img src="{b64_img}" class="zoom-img">'
+            if r_yolu: 
+                resim_html = f'<img src="{r_yolu}" class="zoom-img">'
             
             maliyet_num = para_metin_to_float(r.get("toplam_maliyet"))
             tarih_dt = None
