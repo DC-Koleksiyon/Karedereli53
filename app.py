@@ -660,7 +660,7 @@ elif menu == " 2. Satış İşlemleri":
                 res_sil = supabase.table("satis").select("siparis_no, musteri, satilan_yer").eq("id", secilen_satis_id).execute()
                 if res_sil.data:
                     sil_bilgi = res_sil.data[0]
-                    s_sip, s_mus, s_yer = sil_bilgi.get("siparis_no"), sil_bilgi.get("musteri"), sil_bilgi.get("satilan_yer")
+                    s_sip, s_mus = sil_bilgi.get("siparis_no"), sil_bilgi.get("musteri")
                     supabase.table("satis").delete().eq("id", secilen_satis_id).execute()
                     
                     for tbl in ["hepsi_burada", "web_sitesi", "dukkan_elden"]:
@@ -830,12 +830,11 @@ elif menu == " 4. Hepsi Burada":
             bekleyen_df = bekleyen_df[bekleyen_df['siparis_no'].astype(str).str.lower().str.contains(hb_arama) | bekleyen_df['musteri'].astype(str).str.lower().str.contains(hb_arama) | bekleyen_df['urun_adi'].astype(str).str.lower().str.contains(hb_arama)]
             tamamlanan_df = tamamlanan_df[tamamlanan_df['siparis_no'].astype(str).str.lower().str.contains(hb_arama) | tamamlanan_df['musteri'].astype(str).str.lower().str.contains(hb_arama) | tamamlanan_df['urun_adi'].astype(str).str.lower().str.contains(hb_arama)]
 
-        # --- YENİ EKLENEN SEKME: MALİYET VE BİLGİ DÜZENLEME ---
-        tab_hb1, tab_hb2, tab_hb3 = st.tabs([" Gider Girişi Bekleyenler", " Gideri Tamamlananlar & Geçmiş", " Sipariş ve Maliyet Düzenle"])
+        tab_hb1, tab_hb2 = st.tabs([" Gider Girişi Bekleyenler", " Gideri Tamamlananlar & Geçmiş"])
 
         with tab_hb1:
             if not bekleyen_df.empty:
-                st.subheader(" Gider and Kesinti Girişi Bekleyen Siparişler")
+                st.subheader(" Gider ve Kesinti Girişi Bekleyen Siparişler")
                 c_bs1, c_bs2 = st.columns(2)
                 with c_bs1: bekleyen_sira = st.selectbox(" Sırala:", ["Ekleme Sırası (ID)", "Tarih (En Yeni)", "Satış Tutarı (En Yüksek)"], key="bekleyen_sira_secim")
                 with c_bs2: st.caption(" Bekleyen sipariş listesini sıralayın.")
@@ -927,51 +926,6 @@ elif menu == " 4. Hepsi Burada":
                     })
                 st.dataframe(pd.DataFrame(hb_tamamlanan_tablo), use_container_width=True, hide_index=True)
             else: st.info("Tamamlanmış Hepsi Burada sipariş kaydı bulunmuyor.")
-
-        with tab_hb3:
-            st.subheader(" Hepsiburada Sipariş Maliyeti ve Bilgi Düzenleme")
-            st.write("Bu alandan kayıtlı Hepsiburada siparişlerinizin giriş maliyetini veya satış tutarını doğrudan güncelleyebilirsiniz.")
-            
-            hb_tum_liste_dict = {f"Sipariş No: {r['siparis_no']} | Müşteri: {r['musteri']} | Ürün: {r.get('urun_adi', '-')} | Maliyet: {para_formatla(r['maliyet'])}": r['id'] for _, r in hb_df.iterrows()}
-            
-            if hb_tum_liste_dict:
-                secilen_hb_etiket = st.selectbox("Düzenlemek İstediğiniz Siparişi Seçin:", list(hb_tum_liste_dict.keys()), key="hb_duzenle_selectbox")
-                secilen_hb_id = hb_tum_liste_dict[secilen_hb_etiket]
-                
-                secilen_hb_kayit = hb_df[hb_df['id'] == secilen_hb_id].iloc[0]
-                
-                with st.form("hb_kayit_guncelleme_formu"):
-                    st.write(f"**Seçilen Sipariş No:** {secilen_hb_kayit['siparis_no']}")
-                    
-                    yeni_hb_maliyet = st.number_input("Ürün Maliyeti (TL)", min_value=0.0, value=float(secilen_hb_kayit['maliyet']), format="%.2f")
-                    yeni_hb_satis = st.number_input("Satış Tutarı / Ciro (TL)", min_value=0.0, value=float(secilen_hb_kayit['satis_tutari']), format="%.2f")
-                    
-                    hb_guncelle_butonu = st.form_submit_button("Değişiklikleri Kaydet")
-                    
-                    if hb_guncelle_butonu:
-                        guncel_net_kar = secilen_hb_kayit['net_kar_zarar']
-                        if secilen_hb_kayit['giderler_girildi'] == 1:
-                            gelen_odeme_val = float(secilen_hb_kayit.get('gelen_odeme') or 0.0)
-                            kampanya_val = float(secilen_hb_kayit.get('kampanya') or 0.0)
-                            komisyon_val = float(secilen_hb_kayit.get('komisyon') or 0.0)
-                            stopaj_val = float(secilen_hb_kayit.get('stopaj') or 0.0)
-                            kargo_val = float(secilen_hb_kayit.get('kargo') or 0.0)
-                            hizmet_val = float(secilen_hb_kayit.get('hizmet_bedeli') or 0.0)
-                            tahsilat_val = float(secilen_hb_kayit.get('tahsilat_yonetim') or 0.0)
-                            
-                            toplam_diger = komisyon_val + stopaj_val + kargo_val + hizmet_val + tahsilat_val
-                            guncel_net_kar = gelen_odeme_val + kampanya_val - yeni_hb_maliyet - toplam_diger
-
-                        supabase.table("hepsi_burada").update({
-                            "maliyet": yeni_hb_maliyet,
-                            "satis_tutari": yeni_hb_satis,
-                            "net_kar_zarar": guncel_net_kar
-                        }).eq("id", secilen_hb_id).execute()
-                        
-                        st.success("Hepsiburada sipariş bilgileri başarıyla güncellendi!")
-                        st.rerun()
-            else:
-                st.info("Düzenlenecek Hepsiburada kaydı bulunamadı.")
     else: st.info("Hepsi Burada satış kaydı bulunmuyor.")
 
 # --- 5. WEB SİTESİ ---
