@@ -1,11 +1,11 @@
 import streamlit as st
-from supabase import create_client
+from supabase import create_client, Client
 import os
 from datetime import datetime
 import base64
 import pandas as pd
 
-st.set_page_config(page_title="Stok & Takip Sistemi", layout="wide")
+st.set_page_config(page_title="Stok & Takip Sistemi", page_icon="", layout="wide")
 
 # --- KULLANICI GİRİŞ KONTROLÜ ---
 def check_password():
@@ -82,6 +82,7 @@ if check_password():
             position: relative;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
+        
         section[data-testid="stSidebar"] div.stButton > button {
             width: 100%;
             text-align: left;
@@ -92,6 +93,7 @@ if check_password():
             padding: 7px 12px;
             font-size: 13.5px;
         }
+        
         div[data-testid="column"] div.stButton > button {
             width: 100% !important;
             height: 120px !important;
@@ -107,11 +109,13 @@ if check_password():
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
         }
+        
         div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #00b09b, #96c93d) !important; }
         div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #11998e, #38ef7d) !important; }
         div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #f2994a, #f2c94c) !important; }
         div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #8e2de2, #4a00e0) !important; }
         div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #0ba360, #3cba92) !important; }
+    
         div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #2193b0, #6dd5ed) !important; }
         div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #eb3349, #f45c43) !important; }
         div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #56ab2f, #a8e063) !important; }
@@ -147,14 +151,14 @@ if check_password():
                 return f"data:image/jpeg;base64,{encoded}"
         return ""
     
-    # Varsayılan tanımları kontrol et/ekle
-    def veritabani_kur_supabase():
+    def veritabani_kontrol():
+        # Supabase tablolarının var olduğu varsayılır. Tanımlar tablosu boşsa varsayılanları ekleyelim:
         res = supabase.table("tanimlar").select("*").eq("tip", "satilan_yer").execute()
         if not res.data:
             for yer in ["Hepsi Burada", "Web Sitesi", "Dükkan & Elden"]:
                 supabase.table("tanimlar").insert({"tip": "satilan_yer", "deger": yer}).execute()
-                
-    veritabani_kur_supabase()
+    
+    veritabani_kontrol()
     
     menu_listesi = [
         " 0. Ana Panel", " 1. Ürün Girişi", " 2. Satış İşlemleri", 
@@ -167,6 +171,7 @@ if check_password():
         st.session_state.aktif_menu = menu_listesi[0]
     
     st.sidebar.title(" Menüler")
+    
     for m in menu_listesi:
         if st.sidebar.button(m, key=f"btn_{m}", type="primary" if st.session_state.aktif_menu == m else "secondary"):
             st.session_state.aktif_menu = m
@@ -174,49 +179,59 @@ if check_password():
     
     menu = st.session_state.aktif_menu
     
-    # --- 0. ANA PANEL ---
+    # --- 0. ANA PANEL (DASHBOARD) ---
     if menu == " 0. Ana Panel":
         st.title(" Ana Panel - Hızlı Erişim")
         st.write("Sisteme hoş geldiniz! İstediğiniz bölüme geçmek için aşağıdaki renkli ve büyük butonlara tıklayabilirsiniz.")
         st.divider()
     
         col_a, col_b = st.columns(2)
+    
         with col_a:
             if st.button(" 1. Ürün Girişi\n\n Yeni Mal Kabul", use_container_width=True, key="card_1"):
                 st.session_state.aktif_menu = " 1. Ürün Girişi"
                 st.rerun()
+            
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
             if st.button(" 3. Güncel Stok\n\n Kalan Ürünler", use_container_width=True, key="card_3"):
                 st.session_state.aktif_menu = " 3. Güncel Stok"
                 st.rerun()
+    
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
             if st.button(" 5. Web Sitesi\n\n E-Ticaret Satışları", use_container_width=True, key="card_5"):
                 st.session_state.aktif_menu = " 5. Web Sitesi"
                 st.rerun()
+    
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
             if st.button(" 7. Müşteri Analizi\n\n Müşteri Liderlik", use_container_width=True, key="card_7"):
                 st.session_state.aktif_menu = " 7. Müşteri Analizi"
                 st.rerun()
+    
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
             if st.button(" 9. Raporlar ve Özet\n\n Detaylı Finansal Özet", use_container_width=True, key="card_9"):
                 st.session_state.aktif_menu = " 9. Raporlar ve Özet"
                 st.rerun()
+    
         with col_b:
             if st.button(" 2. Satış İşlemleri\n\n FIFO & Satış", use_container_width=True, key="card_2"):
                 st.session_state.aktif_menu = " 2. Satış İşlemleri"
                 st.rerun()
+    
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
             if st.button(" 4. Hepsi Burada\n\n Pazaryeri Yönetimi", use_container_width=True, key="card_4"):
                 st.session_state.aktif_menu = " 4. Hepsi Burada"
                 st.rerun()
+    
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
             if st.button(" 6. Dükkan & Elden\n\n Mağaza Satışları", use_container_width=True, key="card_6"):
                 st.session_state.aktif_menu = " 6. Dükkan & Elden"
                 st.rerun()
+    
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
             if st.button(" 8. Tanımlamalar\n\n Kategori & Kanallar", use_container_width=True, key="card_8"):
                 st.session_state.aktif_menu = " 8. Tanımlamalar"
                 st.rerun()
+    
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
             if st.button(" 10. Aylık Detaylı Raporlar\n\n Tarih Aralığı Döküm", use_container_width=True, key="card_10"):
                 st.session_state.aktif_menu = " 10. Aylık Detaylı Raporlar"
@@ -232,11 +247,11 @@ if check_password():
         if "giris_resim" not in st.session_state: st.session_state.giris_resim = ""
         if "duzenlenen_kod" not in st.session_state: st.session_state.duzenlenen_kod = None
     
-        kat_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger").execute()
-        kategori_marka_listesi = [r["deger"] for r in kat_res.data]
+        kat_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger", desc=False).execute()
+        kategori_marka_listesi = [row["deger"] for row in kat_res.data] if kat_res.data else []
         
-        yer_res = supabase.table("tanimlar").select("deger").eq("tip", "alinan_yer").order("deger").execute()
-        alinan_yer_listesi = [r["deger"] for r in yer_res.data]
+        yer_res = supabase.table("tanimlar").select("deger").eq("tip", "alinan_yer").order("deger", desc=False).execute()
+        alinan_yer_listesi = [row["deger"] for row in yer_res.data] if yer_res.data else []
         
         if not kategori_marka_listesi: kategori_marka_listesi = ["Önce Tanımlamalardan Ekle"]
         if not alinan_yer_listesi: alinan_yer_listesi = ["Önce Tanımlamalardan Ekle"]
@@ -245,9 +260,9 @@ if check_password():
             b_val = st.session_state.get("input_giris_barkod", "").strip()
             st.session_state.giris_barkod = b_val
             if b_val:
-                res = supabase.table("stok").select("urun_kodu, urun_adi, kategori_marka, resim_yolu").eq("barkod", b_val).order("id", desc=True).limit(1).execute()
-                if res.data:
-                    bulunan = res.data[0]
+                bul_res = supabase.table("stok").select("urun_kodu, urun_adi, kategori_marka, resim_yolu").eq("barkod", b_val).order("id", desc=True).limit(1).execute()
+                if bul_res.data:
+                    bulunan = bul_res.data[0]
                     st.session_state.giris_kod = bulunan.get("urun_kodu") or ""
                     st.session_state.giris_ad = bulunan.get("urun_adi") or ""
                     st.session_state.giris_kat = bulunan.get("kategori_marka") or ""
@@ -257,9 +272,9 @@ if check_password():
             k_val = st.session_state.get("input_giris_kod", "").strip()
             st.session_state.giris_kod = k_val
             if k_val:
-                res = supabase.table("stok").select("barkod, urun_adi, kategori_marka, resim_yolu").eq("urun_kodu", k_val).order("id", desc=True).limit(1).execute()
-                if res.data:
-                    bulunan = res.data[0]
+                bul_res = supabase.table("stok").select("barkod, urun_adi, kategori_marka, resim_yolu").eq("urun_kodu", k_val).order("id", desc=True).limit(1).execute()
+                if bul_res.data:
+                    bulunan = bul_res.data[0]
                     st.session_state.giris_barkod = bulunan.get("barkod") or ""
                     st.session_state.giris_ad = bulunan.get("urun_adi") or ""
                     st.session_state.giris_kat = bulunan.get("kategori_marka") or ""
@@ -319,11 +334,11 @@ if check_password():
                     resim_yolu = os.path.join("uploads", resim_dosyasi.name)
                     with open(resim_yolu, "wb") as f: f.write(resim_dosyasi.getbuffer())
                 
-                kayit_data = {
+                veri_dict = {
                     "tarih": tarih,
                     "urun_kodu": g_kod,
                     "urun_adi": urun_adi,
-                    "adet": adet,
+                    "adet": int(adet),
                     "alinan_yer": secilen_alinan_yer,
                     "toplam_maliyet": para_formatla(toplam_maliyet),
                     "resim_yolu": resim_yolu,
@@ -332,11 +347,11 @@ if check_password():
                 }
 
                 if st.session_state.duzenlenen_kod:
-                    supabase.table("stok").update(kayit_data).eq("urun_kodu", st.session_state.duzenlenen_kod).execute()
+                    supabase.table("stok").update(veri_dict).eq("urun_kodu", st.session_state.duzenlenen_kod).execute()
                     st.session_state.duzenlenen_kod = None
                     basari_mesaji = "Ürün başarıyla güncellendi!"
                 else:
-                    supabase.table("stok").insert(kayit_data).execute()
+                    supabase.table("stok").insert(veri_dict).execute()
                     basari_mesaji = "Ürün başarıyla eklendi!"
                     
                 st.success(basari_mesaji)
@@ -353,11 +368,22 @@ if check_password():
     
         secilen_islem_kod = None
         if arama_metni:
-            res = supabase.table("stok").select("urun_kodu, barkod, urun_adi").or_(f"urun_kodu.ilike.%{arama_metni}%,barkod.ilike.%{arama_metni}%,urun_adi.ilike.%{arama_metni}%").limit(15).execute()
-            bulunan_sonuclar = [(r["urun_kodu"], r["barkod"], r["urun_adi"]) for r in res.data]
-    
+            bulunan_sonuclar = []
+            q_res = supabase.table("stok").select("urun_kodu, barkod, id").or_(f"urun_kodu.ilike.%{arama_metni}%,barkod.ilike.%{arama_metni}%,urun_adi.ilike.%{arama_metni}%").order("id", desc=True).limit(15).execute()
+            if q_res.data:
+                # Benzersiz ürün kodlarını alalım
+                gorulen_kodlar = set()
+                for r in q_res.data:
+                    kodu = r.get("urun_kodu")
+                    if kodu and kodu not in gorulen_kodlar:
+                        gorulen_kodlar.add(kodu)
+                        # Detayları çek
+                        detay_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi").eq("urun_kodu", kodu).limit(1).execute()
+                        if detay_res.data:
+                            bulunan_sonuclar.append(detay_res.data[0])
+
             if bulunan_sonuclar:
-                secenekler_dict = {f"{r[0]} | Barkod: {r[1] or '-'} | {r[2]}": r[0] for r in bulunan_sonuclar}
+                secenekler_dict = {f"{r['urun_kodu']} | Barkod: {r.get('barkod') or '-'} | {r['urun_adi']}": r['urun_kodu'] for r in bulunan_sonuclar}
                 secilen_etiket = st.selectbox("Eşleşen Ürünler Arasından Seçin:", list(secenekler_dict.keys()), key="bulunan_urunler_box")
                 secilen_islem_kod = secenekler_dict[secilen_etiket]
             else:
@@ -369,9 +395,9 @@ if check_password():
             islem_col1, islem_col2 = st.columns(2)
             with islem_col1:
                 if st.button(" Seçileni Düzenle", use_container_width=True):
-                    res = supabase.table("stok").select("barkod, urun_kodu, urun_adi, kategori_marka, resim_yolu").eq("urun_kodu", secilen_islem_kod).limit(1).execute()
-                    if res.data:
-                        secilen_kayit = res.data[0]
+                    kayit_res = supabase.table("stok").select("barkod, urun_kodu, urun_adi, kategori_marka, resim_yolu").eq("urun_kodu", secilen_islem_kod).order("id", desc=True).limit(1).execute()
+                    if kayit_res.data:
+                        secilen_kayit = kayit_res.data[0]
                         st.session_state.duzenlenen_kod = secilen_islem_kod
                         st.session_state.giris_barkod = secilen_kayit.get("barkod") or ""
                         st.session_state.giris_kod = secilen_kayit.get("urun_kodu") or ""
@@ -402,8 +428,8 @@ if check_password():
                 key="giris_siralama_yonu"
             )
     
-        res_tum = supabase.table("stok").select("*").execute()
-        tum_urunler = res_tum.data
+        stok_res = supabase.table("stok").select("*").execute()
+        tum_urunler = stok_res.data if stok_res.data else []
     
         if tum_urunler:
             tablo_verisi = []
@@ -450,7 +476,7 @@ if check_password():
             st.write(gosterim_df.to_html(escape=False, index=False), unsafe_allow_html=True)
         else:
             st.info("Henüz eklenmiş ürün yok.")
-
+    
     # --- 2. SATIŞ İŞLEMLERİ ---
     elif menu == " 2. Satış İşlemleri":
         st.header("Satış İşlemleri")
@@ -458,8 +484,8 @@ if check_password():
         if "satis_barkod" not in st.session_state: st.session_state.satis_barkod = ""
         if "satis_kod" not in st.session_state: st.session_state.satis_kod = ""
     
-        yer_res = supabase.table("tanimlar").select("deger").eq("tip", "satilan_yer").order("deger").execute()
-        satilan_yer_listesi = [r["deger"] for r in yer_res.data]
+        kanal_res = supabase.table("tanimlar").select("deger").eq("tip", "satilan_yer").order("deger", desc=False).execute()
+        satilan_yer_listesi = [row["deger"] for row in kanal_res.data] if kanal_res.data else []
         if not satilan_yer_listesi: satilan_yer_listesi = ["Önce Tanımlamalardan Ekle"]
     
         d_tarih = datetime.now().strftime("%d.%m.%Y")
@@ -478,9 +504,9 @@ if check_password():
                     s_kayit.get("satis_adet"), s_kayit.get("birim_fiyat"), s_kayit.get("musteri"), s_kayit.get("satilan_yer")
                 )
                 if not st.session_state.satis_barkod and not st.session_state.satis_kod:
-                    b_res = supabase.table("stok").select("barkod, urun_kodu").or_(f"barkod.eq.{d_barkod_kod_val},urun_kodu.eq.{d_barkod_kod_val}").limit(1).execute()
-                    if b_res.data:
-                        bul_b_k = b_res.data[0]
+                    stk_bul_res = supabase.table("stok").select("barkod, urun_kodu").or_(f"barkod.eq.{d_barkod_kod_val},urun_kodu.eq.{d_barkod_kod_val}").limit(1).execute()
+                    if stk_bul_res.data:
+                        bul_b_k = stk_bul_res.data[0]
                         st.session_state.satis_barkod = bul_b_k.get("barkod") or ""
                         st.session_state.satis_kod = bul_b_k.get("urun_kodu") or ""
                     else:
@@ -491,17 +517,17 @@ if check_password():
             b_val = st.session_state.get("input_satis_barkod", "").strip()
             st.session_state.satis_barkod = b_val
             if b_val:
-                res = supabase.table("stok").select("urun_kodu").eq("barkod", b_val).order("id", desc=True).limit(1).execute()
-                if res.data and res.data[0].get("urun_kodu"): 
-                    st.session_state.satis_kod = res.data[0]["urun_kodu"]
+                bul_res = supabase.table("stok").select("urun_kodu").eq("barkod", b_val).order("id", desc=True).limit(1).execute()
+                if bul_res.data and bul_res.data[0].get("urun_kodu"): 
+                    st.session_state.satis_kod = bul_res.data[0].get("urun_kodu")
     
         def satis_kod_degisti():
             k_val = st.session_state.get("input_satis_kod", "").strip()
             st.session_state.satis_kod = k_val
             if k_val:
-                res = supabase.table("stok").select("barkod").eq("urun_kodu", k_val).order("id", desc=True).limit(1).execute()
-                if res.data and res.data[0].get("barkod"): 
-                    st.session_state.satis_barkod = res.data[0]["barkod"]
+                bul_res = supabase.table("stok").select("barkod").eq("urun_kodu", k_val).order("id", desc=True).limit(1).execute()
+                if bul_res.data and bul_res.data[0].get("barkod"): 
+                    st.session_state.satis_barkod = bul_res.data[0].get("barkod")
     
         if st.session_state.satis_duzenle_id:
             st.info(f" Şu an Sipariş No: **{d_siparis}** olan satış güncelleniyor.")
@@ -536,25 +562,29 @@ if check_password():
                 st.error(" Eksik alanlar var!")
             else:
                 if s_barkod_val:
-                    stok_res = supabase.table("stok").select("*").ilike("barkod", s_barkod_val).order("id").execute()
+                    stok_res = supabase.table("stok").select("*").ilike("barkod", s_barkod_val).order("id", desc=False).execute()
                     sorgulanan_anahtar = s_barkod_val
                 else:
-                    stok_res = supabase.table("stok").select("*").ilike("urun_kodu", s_kod_val).order("id").execute()
+                    stok_res = supabase.table("stok").select("*").ilike("urun_kodu", s_kod_val).order("id", desc=False).execute()
                     sorgulanan_anahtar = s_kod_val
     
-                stok_girisleri = stok_res.data
+                stok_girisleri = stok_res.data if stok_res.data else []
                 if not stok_girisleri:
                     st.error(" Hata: Girdiğiniz kriterlere uygun sisteme kayıtlı bir Ürün Girişi bulunamadı!")
                 else:
                     toplam_giris = sum([row.get("adet", 0) for row in stok_girisleri])
                     aranan_kod_barkod = sorgulanan_anahtar.lower()
                     
-                    satis_query = supabase.table("satis").select("satis_adet").ilike("barkod_kod", aranan_kod_barkod)
-                    if st.session_state.satis_duzenle_id:
-                        satis_query = satis_query.neq("id", st.session_state.satis_duzenle_id)
-                    satis_res = satis_query.execute()
-                    
-                    diger_satislar = sum([r.get("satis_adet", 0) for r in satis_res.data])
+                    # Diğer satışları hesapla
+                    satislar_res = supabase.table("satis").select("satis_adet, barkod_kod, id").execute()
+                    diger_satislar = 0
+                    if satislar_res.data:
+                        for sat in satislar_res.data:
+                            if str(sat.get("barkod_kod")).strip().lower() == aranan_kod_barkod:
+                                if st.session_state.satis_duzenle_id and sat.get("id") == st.session_state.satis_duzenle_id:
+                                    continue
+                                diger_satislar += sat.get("satis_adet", 0)
+
                     kalan_stok = toplam_giris - diger_satislar
                     
                     if satis_adet > kalan_stok:
@@ -589,11 +619,11 @@ if check_password():
                         u_kod = bulunan_ilk.get("urun_kodu") or s_kod_val
                         kayit_barkod_kod = s_barkod_val if s_barkod_val else s_kod_val
 
-                        satis_data = {
+                        satis_dict_data = {
                             "tarih": s_tarih,
                             "siparis_no": siparis_no,
                             "barkod_kod": kayit_barkod_kod,
-                            "satis_adet": satis_adet,
+                            "satis_adet": int(satis_adet),
                             "birim_fiyat": para_formatla(satis_fiyati),
                             "musteri": musteri_temiz,
                             "satilan_yer": satilan_yer,
@@ -601,34 +631,43 @@ if check_password():
                         }
 
                         kanal_kontrol = satilan_yer.replace(" ", "").lower()
-                        hedef_tablo = None
-                        if "hepsiburada" in kanal_kontrol: hedef_tablo = "hepsi_burada"
-                        elif "websitesi" in kanal_kontrol or "web" in kanal_kontrol: hedef_tablo = "web_sitesi"
-                        elif "dukkan" in kanal_kontrol or "elden" in kanal_kontrol: hedef_tablo = "dukkan_elden"
-
+                        
                         if st.session_state.satis_duzenle_id:
-                            supabase.table("satis").update(satis_data).eq("id", st.session_state.satis_duzenle_id).execute()
+                            supabase.table("satis").update(satis_dict_data).eq("id", st.session_state.satis_duzenle_id).execute()
                             
                             for tbl in ["hepsi_burada", "web_sitesi", "dukkan_elden"]:
                                 supabase.table(tbl).delete().eq("siparis_no", d_siparis).eq("musteri", d_musteri).execute()
 
-                            if hedef_tablo:
-                                supabase.table(hedef_tablo).insert({
-                                    "tarih": s_tarih, "siparis_no": siparis_no, "urun_kodu": u_kod, "urun_adi": u_adi,
-                                    "musteri": musteri_temiz, "adet": satis_adet, "maliyet": toplam_maliyet_fifo,
-                                    "satis_tutari": toplam_tutar, "giderler_girildi": 0
-                                }).execute()
+                            kanal_tablosu = None
+                            if "hepsiburada" in kanal_kontrol: kanal_tablosu = "hepsi_burada"
+                            elif "websitesi" in kanal_kontrol or "web" in kanal_kontrol: kanal_tablosu = "web_sitesi"
+                            elif "dukkan" in kanal_kontrol or "elden" in kanal_kontrol: kanal_tablosu = "dukkan_elden"
+
+                            if kanal_tablosu:
+                                sub_data = {
+                                    "tarih": s_tarih, "siparis_no": siparis_no, "urun_kodu": u_kod, 
+                                    "urun_adi": u_adi, "musteri": musteri_temiz, "adet": int(satis_adet), 
+                                    "maliyet": toplam_maliyet_fifo, "satis_tutari": toplam_tutar, "giderler_girildi": 0
+                                }
+                                supabase.table(kanal_tablosu).insert(sub_data).execute()
 
                             st.session_state.satis_duzenle_id = None
                             basari_mesaji = "Satış başarıyla güncellendi!"
                         else:
-                            supabase.table("satis").insert(satis_data).execute()
-                            if hedef_tablo:
-                                supabase.table(hedef_tablo).insert({
-                                    "tarih": s_tarih, "siparis_no": siparis_no, "urun_kodu": u_kod, "urun_adi": u_adi,
-                                    "musteri": musteri_temiz, "adet": satis_adet, "maliyet": toplam_maliyet_fifo,
-                                    "satis_tutari": toplam_tutar, "giderler_girildi": 0
-                                }).execute()
+                            supabase.table("satis").insert(satis_dict_data).execute()
+                            
+                            kanal_tablosu = None
+                            if "hepsiburada" in kanal_kontrol: kanal_tablosu = "hepsi_burada"
+                            elif "websitesi" in kanal_kontrol or "web" in kanal_kontrol: kanal_tablosu = "web_sitesi"
+                            elif "dukkan" in kanal_kontrol or "elden" in kanal_kontrol: kanal_tablosu = "dukkan_elden"
+
+                            if kanal_tablosu:
+                                sub_data = {
+                                    "tarih": s_tarih, "siparis_no": siparis_no, "urun_kodu": u_kod, 
+                                    "urun_adi": u_adi, "musteri": musteri_temiz, "adet": int(satis_adet), 
+                                    "maliyet": toplam_maliyet_fifo, "satis_tutari": toplam_tutar, "giderler_girildi": 0
+                                }
+                                supabase.table(kanal_tablosu).insert(sub_data).execute()
                             basari_mesaji = "Satış başarıyla gerçekleştirildi!"
     
                         st.success(basari_mesaji)
@@ -642,11 +681,11 @@ if check_password():
     
         secilen_satis_id = None
         if satis_arama_metni:
-            res = supabase.table("satis").select("id, tarih, siparis_no, musteri, barkod_kod, satis_adet, toplam_tutar").or_(f"siparis_no.ilike.%{satis_arama_metni}%,musteri.ilike.%{satis_arama_metni}%,barkod_kod.ilike.%{satis_arama_metni}%").order("id", desc=True).limit(15).execute()
-            bulunan_satislar = res.data
+            s_ara_res = supabase.table("satis").select("id, tarih, siparis_no, musteri, barkod_kod, satis_adet, toplam_tutar").or_(f"siparis_no.ilike.%{satis_arama_metni}%,musteri.ilike.%{satis_arama_metni}%,barkod_kod.ilike.%{satis_arama_metni}%").order("id", desc=True).limit(15).execute()
+            bulunan_satislar = s_ara_res.data if s_ara_res.data else []
     
             if bulunan_satislar:
-                satis_secenekleri_dict = {f"Sipariş No: {s['siparis_no']} | Müşteri: {s['musteri']} | Barkod/Kod: {s['barkod_kod']} | Tarih: {s['tarih']}": s["id"] for s in bulunan_satislar}
+                satis_secenekleri_dict = {f"Sipariş No: {s['siparis_no']} | Müşteri: {s['musteri']} | Barkod/Kod: {s['barkod_kod']} | Tarih: {s['tarih']}": s['id'] for s in bulunan_satislar}
                 secilen_satis_etiket = st.selectbox("Eşleşen Satışlar Arasından Seçin:", list(satis_secenekleri_dict.keys()), key="bulunan_satislar_box")
                 secilen_satis_id = satis_secenekleri_dict[secilen_satis_etiket]
             else:
@@ -664,11 +703,11 @@ if check_password():
                     st.rerun()
             with col_islem2:
                 if st.button(" Seçilen Satışı Sil", type="primary", use_container_width=True):
-                    s_res = supabase.table("satis").select("siparis_no, musteri, satilan_yer").eq("id", secilen_satis_id).execute()
-                    if s_res.data:
-                        sil_bilgi = s_res.data[0]
-                        s_sip, s_mus, s_yer = sil_bilgi.get("siparis_no"), sil_bilgi.get("musteri"), sil_bilgi.get("satilan_yer")
+                    sil_res = supabase.table("satis").select("siparis_no, musteri, satilan_yer").eq("id", secilen_satis_id).execute()
+                    if sil_res.data:
+                        s_sip, s_mus, s_yer = sil_res.data[0].get("siparis_no"), sil_res.data[0].get("musteri"), sil_res.data[0].get("satilan_yer")
                         supabase.table("satis").delete().eq("id", secilen_satis_id).execute()
+                        kanal_kontrol = s_yer.replace(" ", "").lower()
                         for tbl in ["hepsi_burada", "web_sitesi", "dukkan_elden"]:
                             supabase.table(tbl).delete().eq("siparis_no", s_sip).eq("musteri", s_mus).execute()
                         st.success("Seçilen satış kaydı silindi!")
@@ -676,44 +715,49 @@ if check_password():
     
         st.divider()
         st.subheader(" Geçmiş Satışlar (Son Kayıtlar)")
-        s_res = supabase.table("satis").select("*").order("id", desc=True).limit(10).execute()
-        satis_kayitlari = s_res.data
+        satis_son_res = supabase.table("satis").select("*").order("id", desc=True).limit(10).execute()
+        satis_kayitlari = satis_son_res.data if satis_son_res.data else []
         
         if satis_kayitlari:
             gecmis_verisi = []
             for s in satis_kayitlari:
-                s_barkod_kod = s.get("barkod_kod")
-                stk_res = supabase.table("stok").select("barkod, urun_kodu").or_(f"barkod.eq.{s_barkod_kod},urun_kodu.eq.{s_barkod_kod}").limit(1).execute()
-                stk_bul = stk_res.data[0] if stk_res.data else None
+                s_id, s_tarih, s_siparis, s_barkod_kod, s_adet, s_fiyat, s_musteri, s_yer, s_tutar = (
+                    s.get("id"), s.get("tarih"), s.get("siparis_no"), s.get("barkod_kod"), 
+                    s.get("satis_adet"), s.get("birim_fiyat"), s.get("musteri"), s.get("satilan_yer"), s.get("toplam_tutar")
+                )
+                stk_bul_res = supabase.table("stok").select("barkod, urun_kodu").or_(f"barkod.eq.{s_barkod_kod},urun_kodu.eq.{s_barkod_kod}").limit(1).execute()
+                stk_bul = stk_bul_res.data[0] if stk_bul_res.data else None
                 
                 gercek_barkod = stk_bul.get("barkod") if stk_bul and stk_bul.get("barkod") else s_barkod_kod
                 gercek_kod = stk_bul.get("urun_kodu") if stk_bul and stk_bul.get("urun_kodu") else "-"
                 
                 gecmis_verisi.append({
-                    "Tarih": s.get("tarih"),
-                    "Sipariş No": s.get("siparis_no"),
+                    "Tarih": s_tarih,
+                    "Sipariş No": s_siparis,
                     "Ürün Kodu": gercek_kod,
                     "Barkod": gercek_barkod,
-                    "Adet": s.get("satis_adet"),
-                    "Birim Fiyat": para_formatla(para_metin_to_float(s.get("birim_fiyat"))),
-                    "Müşteri": s.get("musteri"),
-                    "Satış Yeri": s.get("satilan_yer"),
-                    "Toplam Tutar": para_formatla(para_metin_to_float(s.get("toplam_tutar")))
+                    "Adet": s_adet,
+                    "Birim Fiyat": para_formatla(para_metin_to_float(s_fiyat)),
+                    "Müşteri": s_musteri,
+                    "Satış Yeri": s_yer,
+                    "Toplam Tutar": para_formatla(para_metin_to_float(s_tutar))
                 })
             st.dataframe(pd.DataFrame(gecmis_verisi), use_container_width=True, hide_index=True)
         else:
             st.info("Kayıt bulunamadı.")
-
+    
     # --- 3. GÜNCEL STOK ---
     elif menu == " 3. Güncel Stok":
         st.header(" Güncel Kalan Stok ve Finansal Özet")
-        stok_res = supabase.table("stok").select("*").order("id").execute()
-        satis_res = supabase.table("satis").select("barkod_kod, satis_adet").execute()
-        kat_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger").execute()
         
-        stok_rows = pd.DataFrame(stok_res.data) if stok_res.data else pd.DataFrame()
-        satis_rows = pd.DataFrame(satis_res.data) if satis_res.data else pd.DataFrame()
-        kategori_listesi = ["Tümü"] + [r["deger"] for r in kat_res.data]
+        stok_rows_res = supabase.table("stok").select("*").order("id", desc=False).execute()
+        stok_rows = pd.DataFrame(stok_rows_res.data) if stok_rows_res.data else pd.DataFrame()
+        
+        satis_rows_res = supabase.table("satis").select("barkod_kod, satis_adet").execute()
+        satis_rows = pd.DataFrame(satis_rows_res.data) if satis_rows_res.data else pd.DataFrame()
+        
+        kat_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger", desc=False).execute()
+        kategori_listesi = ["Tümü"] + [row["deger"] for row in kat_res.data] if kat_res.data else ["Tümü"]
     
         bugun = datetime.now()
         satis_dict = {}
@@ -725,8 +769,7 @@ if check_password():
         partiler_gruplu = {}
         if not stok_rows.empty:
             for _, r in stok_rows.iterrows():
-                barkod = r.get('barkod') or ""
-                kod = r.get('urun_kodu') or ""
+                barkod, kod = r.get('barkod') or "", r.get('urun_kodu') or ""
                 b_key = barkod.strip().lower()
                 k_key = kod.strip().lower()
                 anahtar = k_key if k_key else b_key
@@ -746,15 +789,11 @@ if check_password():
         for anahtar, partiler in partiler_gruplu.items():
             toplam_satis_adet = satis_dict.get(anahtar, 0)
             for r in partiler:
-                barkod = r.get('barkod') or ""
-                kod = r.get('urun_kodu') or ""
-                ad = r.get('urun_adi')
-                kategori = r.get('kategori_marka') or "-"
-                alinan_yer = r.get('alinan_yer') or "-"
-                parti_adet = r.get('adet', 0)
-                giris_tarihi_str = r.get('tarih')
-                t_maliyet = r.get('toplam_maliyet')
-                
+                barkod, kod, ad, kategori, alinan_yer, parti_adet, giris_tarihi_str, t_maliyet = (
+                    r.get('barkod') or "", r.get('urun_kodu') or "", r.get('urun_adi'), 
+                    r.get('kategori_marka') or "-", r.get('alinan_yer') or "-", r.get('adet', 0), 
+                    r.get('tarih'), r.get('toplam_maliyet')
+                )
                 mal_val = para_metin_to_float(t_maliyet)
                 birim_maliyet = mal_val / parti_adet if parti_adet > 0 else 0.0
     
@@ -769,7 +808,7 @@ if check_password():
                 toplam_bagli_sermaye += sermaye_val
                 gun_farki = 0
                 try:
-                    g_tarih = datetime.strptime(str(giris_tarihi_str).strip(), "%d.%m.%Y")
+                    g_tarih = datetime.strptime(giris_tarihi_str.strip(), "%d.%m.%Y")
                     gun_farki = max(0, (bugun - g_tarih).days)
                 except: pass
     
@@ -810,7 +849,7 @@ if check_password():
             st.dataframe(df_stok_liste[["Durum", "Ürün Adı", "Kategori", "Alınan Yer", "Kod", "Barkod", "Rafta Gün", "Kalan Adet", "Bağlı Sermaye"]], use_container_width=True, hide_index=True)
         else:
             st.info("Aradığınız kriterlere uygun güncel stok bulunamadı.")
-
+    
     # --- 4. HEPSİ BURADA ---
     elif menu == " 4. Hepsi Burada":
         st.header(" Hepsi Burada Finans ve Kar/Zarar Yönetimi")
@@ -829,9 +868,8 @@ if check_password():
             
             st.divider()
             hb_arama = st.text_input(" Hepsi Burada Sipariş veya Müşteri Ara:", placeholder="Sipariş No, Müşteri veya Ürün Adı...", key="hb_arama_input").strip().lower()
-            if hb_arama and not bekleyen_df.empty:
+            if hb_arama:
                 bekleyen_df = bekleyen_df[bekleyen_df['siparis_no'].astype(str).str.lower().str.contains(hb_arama) | bekleyen_df['musteri'].astype(str).str.lower().str.contains(hb_arama) | bekleyen_df['urun_adi'].astype(str).str.lower().str.contains(hb_arama)]
-            if hb_arama and not tamamlanan_df.empty:
                 tamamlanan_df = tamamlanan_df[tamamlanan_df['siparis_no'].astype(str).str.lower().str.contains(hb_arama) | tamamlanan_df['musteri'].astype(str).str.lower().str.contains(hb_arama) | tamamlanan_df['urun_adi'].astype(str).str.lower().str.contains(hb_arama)]
     
             tab_hb1, tab_hb2 = st.tabs([" Gider Girişi Bekleyenler", " Gideri Tamamlananlar & Geçmiş"])
@@ -931,7 +969,7 @@ if check_password():
                     st.dataframe(pd.DataFrame(hb_tamamlanan_tablo), use_container_width=True, hide_index=True)
                 else: st.info("Tamamlanmış Hepsi Burada sipariş kaydı bulunmuyor.")
         else: st.info("Hepsi Burada satış kaydı bulunmuyor.")
-
+    
     # --- 5. WEB SİTESİ ---
     elif menu == " 5. Web Sitesi":
         st.header(" Web Sitesi Finans ve Kar/Zarar Yönetimi")
@@ -1005,7 +1043,7 @@ if check_password():
                     st.dataframe(pd.DataFrame(web_tamamlanan_tablo), use_container_width=True, hide_index=True)
                 else: st.info("Tamamlanmış web siparişi yok.")
         else: st.info("Web sitesi satış kaydı bulunmuyor.")
-
+    
     # --- 6. DÜKKAN & ELDEN ---
     elif menu == " 6. Dükkan & Elden":
         st.header(" Dükkan & Elden Satış Yönetimi")
@@ -1071,12 +1109,12 @@ if check_password():
                     st.dataframe(pd.DataFrame(dukkan_tamamlanan_tablo), use_container_width=True, hide_index=True)
                 else: st.info("Tamamlanmış dükkan satışı yok.")
         else: st.info("Dükkan satış kaydı bulunmuyor.")
-
+    
     # --- 7. MÜŞTERİ ANALİZİ ---
     elif menu == " 7. Müşteri Analizi":
         st.header(" Müşteri Analizi ve Liderlik Tablosu")
-        satis_res = supabase.table("satis").select("*").order("id", desc=True).execute()
-        satis_df = pd.DataFrame(satis_res.data) if satis_res.data else pd.DataFrame()
+        s_res = supabase.table("satis").select("*").order("id", desc=True).execute()
+        satis_df = pd.DataFrame(s_res.data) if s_res.data else pd.DataFrame()
     
         if not satis_df.empty:
             satis_df['Tutar_Val'] = satis_df['toplam_tutar'].apply(para_metin_to_float)
@@ -1110,12 +1148,11 @@ if check_password():
             m_ozet_full['Toplam Harcama'] = m_ozet_full['Toplam_Harcama'].apply(para_formatla)
             st.dataframe(m_ozet_full.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Toplam Sipariş', 'Toplam_Adet': 'Toplam Ürün Adeti'})[['Müşteri', 'Toplam Sipariş', 'Toplam Ürün Adeti', 'Toplam Harcama']], use_container_width=True, hide_index=True)
         else: st.info("Müşteri verisi bulunmuyor.")
-
+    
     # --- 8. TANIMLAMALAR ---
     elif menu == " 8. Tanımlamalar":
         st.header(" Sistem Tanımlamaları")
         tab1, tab2, tab3 = st.tabs([" Kategori & Marka", " Satış Yeri / Kanal", " Tedarikçi"])
-        
         with tab1:
             with st.form("kategori_form"):
                 yeni_kat = st.text_input("Yeni Kategori / Marka Adı")
@@ -1124,8 +1161,8 @@ if check_password():
                         supabase.table("tanimlar").insert({"tip": "kategori_marka", "deger": yeni_kat.strip().title()}).execute()
                         st.success("Eklendi!")
                         st.rerun()
-            kat_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger").execute()
-            st.dataframe(pd.DataFrame(kat_res.data).rename(columns={"deger": "Kategori Adı"}) if kat_res.data else pd.DataFrame(), use_container_width=True, hide_index=True)
+            kat_t_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger", desc=False).execute()
+            st.dataframe(pd.DataFrame(kat_t_res.data).rename(columns={"deger": "Kategori Adı"}) if kat_t_res.data else pd.DataFrame(columns=["Kategori Adı"]), use_container_width=True, hide_index=True)
     
         with tab2:
             with st.form("kanal_form"):
@@ -1135,8 +1172,8 @@ if check_password():
                         supabase.table("tanimlar").insert({"tip": "satilan_yer", "deger": yeni_yer.strip().title()}).execute()
                         st.success("Eklendi!")
                         st.rerun()
-            kanal_res = supabase.table("tanimlar").select("deger").eq("tip", "satilan_yer").order("deger").execute()
-            st.dataframe(pd.DataFrame(kanal_res.data).rename(columns={"deger": "Kanal Adı"}) if kanal_res.data else pd.DataFrame(), use_container_width=True, hide_index=True)
+            kan_t_res = supabase.table("tanimlar").select("deger").eq("tip", "satilan_yer").order("deger", desc=False).execute()
+            st.dataframe(pd.DataFrame(kan_t_res.data).rename(columns={"deger": "Kanal Adı"}) if kan_t_res.data else pd.DataFrame(columns=["Kanal Adı"]), use_container_width=True, hide_index=True)
     
         with tab3:
             with st.form("tedarikci_form"):
@@ -1146,23 +1183,17 @@ if check_password():
                         supabase.table("tanimlar").insert({"tip": "alinan_yer", "deger": yeni_ted.strip().title()}).execute()
                         st.success("Eklendi!")
                         st.rerun()
-            ted_res = supabase.table("tanimlar").select("deger").eq("tip", "alinan_yer").order("deger").execute()
-            st.dataframe(pd.DataFrame(ted_res.data).rename(columns={"deger": "Tedarikçi Adı"}) if ted_res.data else pd.DataFrame(), use_container_width=True, hide_index=True)
-
+            ted_t_res = supabase.table("tanimlar").select("deger").eq("tip", "alinan_yer").order("deger", desc=False).execute()
+            st.dataframe(pd.DataFrame(ted_t_res.data).rename(columns={"deger": "Tedarikçi Adı"}) if ted_t_res.data else pd.DataFrame(columns=["Tedarikçi Adı"]), use_container_width=True, hide_index=True)
+    
     # --- 9. RAPORLAR VE ÖZET ---
     elif menu == " 9. Raporlar ve Özet":
         st.header(" Detaylı Finansal Özet, Kârlılık ve Analiz Paneli")
-        satis_res = supabase.table("satis").select("*").execute()
-        stok_res = supabase.table("stok").select("*").execute()
-        hb_res = supabase.table("hepsi_burada").select("*").execute()
-        web_res = supabase.table("web_sitesi").select("*").execute()
-        dukkan_res = supabase.table("dukkan_elden").select("*").execute()
-        
-        satis_df = pd.DataFrame(satis_res.data) if satis_res.data else pd.DataFrame()
-        stok_df = pd.DataFrame(stok_res.data) if stok_res.data else pd.DataFrame()
-        hb_df = pd.DataFrame(hb_res.data) if hb_res.data else pd.DataFrame()
-        web_df = pd.DataFrame(web_res.data) if web_res.data else pd.DataFrame()
-        dukkan_df = pd.DataFrame(dukkan_res.data) if dukkan_res.data else pd.DataFrame()
+        satis_df = pd.DataFrame(supabase.table("satis").select("*").execute().data)
+        stok_df = pd.DataFrame(supabase.table("stok").select("*").execute().data)
+        hb_df = pd.DataFrame(supabase.table("hepsi_burada").select("*").execute().data)
+        web_df = pd.DataFrame(supabase.table("web_sitesi").select("*").execute().data)
+        dukkan_df = pd.DataFrame(supabase.table("dukkan_elden").select("*").execute().data)
     
         if not satis_df.empty:
             satis_df['Tutar_Val'] = satis_df['toplam_tutar'].apply(para_metin_to_float)
@@ -1246,6 +1277,7 @@ if check_password():
     
             st.divider()
             st.subheader(" Kanal Bazlı Detaylı Net Kârlılık ve Gider Analizi")
+            
             tab_r1, tab_r2, tab_r3 = st.tabs([" Hepsi Burada Detayları", " Web Sitesi Detayları", " Dükkan & Elden Detayları"])
             
             with tab_r1:
@@ -1297,7 +1329,7 @@ if check_password():
                 else: st.info("Dükkan verisi yok.")
         else: 
             st.info(" Raporlama için yeterli satış kaydı bulunmuyor.")
-
+    
     # --- 10. AYLIK DETAYLI RAPORLAR ---
     elif menu == " 10. Aylık Detaylı Raporlar":
         st.header(" Tarih Aralıklı ve Aylık Detaylı Raporlar")
