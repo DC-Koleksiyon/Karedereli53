@@ -1327,7 +1327,7 @@ if check_password():
             st.info("ℹ️ Raporlama için yeterli satış kaydı bulunmuyor.")
     
     # --- 10. AYLIK DETAYLI RAPORLAR ---
-   elif menu == "📅 Aylık Rapor":
+            elif menu == "📅 Aylık Rapor":
     st.header("📅 Aylık Rapor")
     
     # 1. Satış ve Alış verilerini Supabase'den çekiyoruz
