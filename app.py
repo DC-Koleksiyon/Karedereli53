@@ -5,7 +5,7 @@ from datetime import datetime
 import base64
 import pandas as pd
 
-st.set_page_config(page_title="Stok & Takip Sistemi", page_icon="", layout="wide")
+st.set_page_config(page_title="Stok & Takip Sistemi", page_icon="📦", layout="wide")
 
 # --- KULLANICI GİRİŞ KONTROLÜ ---
 def check_password():
@@ -21,17 +21,17 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        st.subheader(" Stok & Takip Sistemi Girişi")
+        st.subheader("🔐 Stok & Takip Sistemi Girişi")
         st.text_input("Kullanıcı Adı", key="username")
         st.text_input("Şifre", type="password", key="password")
         st.button("Giriş Yap", on_click=password_entered)
         return False
     elif not st.session_state["password_correct"]:
-        st.subheader(" Stok & Takip Sistemi Girişi")
+        st.subheader("🔐 Stok & Takip Sistemi Girişi")
         st.text_input("Kullanıcı Adı", key="username")
         st.text_input("Şifre", type="password", key="password")
         st.button("Giriş Yap", on_click=password_entered)
-        st.error(" Kullanıcı adı veya şifre yanlış")
+        st.error("❌ Kullanıcı adı veya şifre yanlış")
         return False
     else:
         return True
@@ -152,7 +152,6 @@ if check_password():
         return ""
     
     def veritabani_kontrol():
-        # Supabase tablolarının var olduğu varsayılır. Tanımlar tablosu boşsa varsayılanları ekleyelim:
         res = supabase.table("tanimlar").select("*").eq("tip", "satilan_yer").execute()
         if not res.data:
             for yer in ["Hepsi Burada", "Web Sitesi", "Dükkan & Elden"]:
@@ -161,16 +160,16 @@ if check_password():
     veritabani_kontrol()
     
     menu_listesi = [
-        " 0. Ana Panel", " 1. Ürün Girişi", " 2. Satış İşlemleri", 
-        " 3. Güncel Stok", " 4. Hepsi Burada", " 5. Web Sitesi",
-        " 6. Dükkan & Elden", " 7. Müşteri Analizi", " 8. Tanımlamalar",
-        " 9. Raporlar ve Özet", " 10. Aylık Detaylı Raporlar"
+        "🏠 0. Ana Panel", "📥 1. Ürün Girişi", "🛒 2. Satış İşlemleri", 
+        "📦 3. Güncel Stok", "🛍️ 4. Hepsi Burada", "🌐 5. Web Sitesi",
+        "🏪 6. Dükkan & Elden", "👥 7. Müşteri Analizi", "⚙️ 8. Tanımlamalar",
+        "📊 9. Raporlar ve Özet", "📅 10. Aylık Detaylı Raporlar"
     ]
     
     if "aktif_menu" not in st.session_state:
         st.session_state.aktif_menu = menu_listesi[0]
     
-    st.sidebar.title(" Menüler")
+    st.sidebar.title("📌 Menüler")
     
     for m in menu_listesi:
         if st.sidebar.button(m, key=f"btn_{m}", type="primary" if st.session_state.aktif_menu == m else "secondary"):
@@ -180,66 +179,66 @@ if check_password():
     menu = st.session_state.aktif_menu
     
     # --- 0. ANA PANEL (DASHBOARD) ---
-    if menu == " 0. Ana Panel":
-        st.title(" Ana Panel - Hızlı Erişim")
+    if menu == "🏠 0. Ana Panel":
+        st.title("🏠 Ana Panel - Hızlı Erişim")
         st.write("Sisteme hoş geldiniz! İstediğiniz bölüme geçmek için aşağıdaki renkli ve büyük butonlara tıklayabilirsiniz.")
         st.divider()
     
         col_a, col_b = st.columns(2)
     
         with col_a:
-            if st.button(" 1. Ürün Girişi\n\n Yeni Mal Kabul", use_container_width=True, key="card_1"):
-                st.session_state.aktif_menu = " 1. Ürün Girişi"
+            if st.button("📥 1. Ürün Girişi\n\n Yeni Mal Kabul", use_container_width=True, key="card_1"):
+                st.session_state.aktif_menu = "📥 1. Ürün Girişi"
                 st.rerun()
             
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 3. Güncel Stok\n\n Kalan Ürünler", use_container_width=True, key="card_3"):
-                st.session_state.aktif_menu = " 3. Güncel Stok"
+            if st.button("📦 3. Güncel Stok\n\n Kalan Ürünler", use_container_width=True, key="card_3"):
+                st.session_state.aktif_menu = "📦 3. Güncel Stok"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 5. Web Sitesi\n\n E-Ticaret Satışları", use_container_width=True, key="card_5"):
-                st.session_state.aktif_menu = " 5. Web Sitesi"
+            if st.button("🌐 5. Web Sitesi\n\n E-Ticaret Satışları", use_container_width=True, key="card_5"):
+                st.session_state.aktif_menu = "🌐 5. Web Sitesi"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 7. Müşteri Analizi\n\n Müşteri Liderlik", use_container_width=True, key="card_7"):
-                st.session_state.aktif_menu = " 7. Müşteri Analizi"
+            if st.button("👥 7. Müşteri Analizi\n\n Müşteri Liderlik", use_container_width=True, key="card_7"):
+                st.session_state.aktif_menu = "👥 7. Müşteri Analizi"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 9. Raporlar ve Özet\n\n Detaylı Finansal Özet", use_container_width=True, key="card_9"):
-                st.session_state.aktif_menu = " 9. Raporlar ve Özet"
+            if st.button("📊 9. Raporlar ve Özet\n\n Detaylı Finansal Özet", use_container_width=True, key="card_9"):
+                st.session_state.aktif_menu = "📊 9. Raporlar ve Özet"
                 st.rerun()
     
         with col_b:
-            if st.button(" 2. Satış İşlemleri\n\n FIFO & Satış", use_container_width=True, key="card_2"):
-                st.session_state.aktif_menu = " 2. Satış İşlemleri"
+            if st.button("🛒 2. Satış İşlemleri\n\n FIFO & Satış", use_container_width=True, key="card_2"):
+                st.session_state.aktif_menu = "🛒 2. Satış İşlemleri"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 4. Hepsi Burada\n\n Pazaryeri Yönetimi", use_container_width=True, key="card_4"):
-                st.session_state.aktif_menu = " 4. Hepsi Burada"
+            if st.button("🛍️ 4. Hepsi Burada\n\n Pazaryeri Yönetimi", use_container_width=True, key="card_4"):
+                st.session_state.aktif_menu = "🛍️ 4. Hepsi Burada"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 6. Dükkan & Elden\n\n Mağaza Satışları", use_container_width=True, key="card_6"):
-                st.session_state.aktif_menu = " 6. Dükkan & Elden"
+            if st.button("🏪 6. Dükkan & Elden\n\n Mağaza Satışları", use_container_width=True, key="card_6"):
+                st.session_state.aktif_menu = "🏪 6. Dükkan & Elden"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 8. Tanımlamalar\n\n Kategori & Kanallar", use_container_width=True, key="card_8"):
-                st.session_state.aktif_menu = " 8. Tanımlamalar"
+            if st.button("⚙️ 8. Tanımlamalar\n\n Kategori & Kanallar", use_container_width=True, key="card_8"):
+                st.session_state.aktif_menu = "⚙️ 8. Tanımlamalar"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 10. Aylık Detaylı Raporlar\n\n Tarih Aralığı Döküm", use_container_width=True, key="card_10"):
-                st.session_state.aktif_menu = " 10. Aylık Detaylı Raporlar"
+            if st.button("📅 10. Aylık Detaylı Raporlar\n\n Tarih Aralığı Döküm", use_container_width=True, key="card_10"):
+                st.session_state.aktif_menu = "📅 10. Aylık Detaylı Raporlar"
                 st.rerun()
     
     # --- 1. ÜRÜN GİRİŞİ ---
-    elif menu == " 1. Ürün Girişi":
-        st.header("Ürün Girişi")
+    elif menu == "📥 1. Ürün Girişi":
+        st.header("📥 Ürün Girişi")
         if "giris_barkod" not in st.session_state: st.session_state.giris_barkod = ""
         if "giris_kod" not in st.session_state: st.session_state.giris_kod = ""
         if "giris_ad" not in st.session_state: st.session_state.giris_ad = ""
@@ -281,8 +280,8 @@ if check_password():
                     st.session_state.giris_resim = bulunan.get("resim_yolu") or ""
     
         if st.session_state.duzenlenen_kod:
-            st.info(f" Şu an Ürün Kodu: **{st.session_state.duzenlenen_kod}** olan ürün güncelleniyor modunda.")
-            if st.button(" Düzenlemeyi İptal Et"):
+            st.info(f"✏️ Şu an Ürün Kodu: **{st.session_state.duzenlenen_kod}** olan ürün güncelleniyor modunda.")
+            if st.button("❌ Düzenlemeyi İptal Et"):
                 st.session_state.duzenlenen_kod = None
                 st.session_state.giris_barkod = ""
                 st.session_state.giris_kod = ""
@@ -309,7 +308,7 @@ if check_password():
         with col2:
             ham_urun_adi = st.text_input("Ürün Adı *", value=st.session_state.giris_ad, key="giris_urun_adi")
             birim_fiyat = st.number_input("Birim Fiyatı (TL) *", min_value=0.0, format="%.2f", key="giris_birim_fiyat")
-            st.caption(f" Girilen Birim Fiyat: **{para_formatla(birim_fiyat)}**")
+            st.caption(f"💰 Girilen Birim Fiyat: **{para_formatla(birim_fiyat)}**")
             kdv_durumu = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key="giris_kdv")
             
         if st.session_state.giris_resim and os.path.exists(st.session_state.giris_resim):
@@ -317,14 +316,14 @@ if check_password():
             
         resim_dosyasi = st.file_uploader("Ürün Görseli Yükle (Opsiyonel)", type=["png", "jpg", "jpeg"], key="giris_resim_yukle")
         
-        buton_metni = "Ürünü Güncelle" if st.session_state.duzenlenen_kod else "Hesapla ve Listeye Ekle"
+        buton_metni = "💾 Ürünü Güncelle" if st.session_state.duzenlenen_kod else "➕ Hesapla ve Listeye Ekle"
         if st.button(buton_metni, type="primary"):
             urun_adi = ham_urun_adi.strip().title()
             g_barkod = st.session_state.get("input_giris_barkod", "").strip()
             g_kod = st.session_state.get("input_giris_kod", "").strip()
             
             if not tarih or not g_barkod or not g_kod or not urun_adi or birim_fiyat <= 0:
-                st.error(" Eksik alanlar var!")
+                st.error("⚠️ Eksik alanlar var!")
             else:
                 kdvli_birim = birim_fiyat * 1.20 if kdv_durumu == "KDV'siz" else birim_fiyat
                 toplam_maliyet = kdvli_birim * adet
@@ -349,10 +348,10 @@ if check_password():
                 if st.session_state.duzenlenen_kod:
                     supabase.table("stok").update(veri_dict).eq("urun_kodu", st.session_state.duzenlenen_kod).execute()
                     st.session_state.duzenlenen_kod = None
-                    basari_mesaji = "Ürün başarıyla güncellendi!"
+                    basari_mesaji = "✅ Ürün başarıyla güncellendi!"
                 else:
                     supabase.table("stok").insert(veri_dict).execute()
-                    basari_mesaji = "Ürün başarıyla eklendi!"
+                    basari_mesaji = "✅ Ürün başarıyla eklendi!"
                     
                 st.success(basari_mesaji)
                 st.session_state.giris_barkod = ""
@@ -363,7 +362,7 @@ if check_password():
                 st.rerun()
     
         st.divider()
-        st.subheader(" Düzenlenecek veya Silinecek Ürünü Arayın")
+        st.subheader("🔍 Düzenlenecek veya Silinecek Ürünü Arayın")
         arama_metni = st.text_input("Aramak İstediğiniz Ürün Kodunu veya Barkodunu Yazın:", placeholder="Örn: KOD123 veya Barkod...", key="urun_giris_arama_input").strip()
     
         secilen_islem_kod = None
@@ -371,13 +370,11 @@ if check_password():
             bulunan_sonuclar = []
             q_res = supabase.table("stok").select("urun_kodu, barkod, id").or_(f"urun_kodu.ilike.%{arama_metni}%,barkod.ilike.%{arama_metni}%,urun_adi.ilike.%{arama_metni}%").order("id", desc=True).limit(15).execute()
             if q_res.data:
-                # Benzersiz ürün kodlarını alalım
                 gorulen_kodlar = set()
                 for r in q_res.data:
                     kodu = r.get("urun_kodu")
                     if kodu and kodu not in gorulen_kodlar:
                         gorulen_kodlar.add(kodu)
-                        # Detayları çek
                         detay_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi").eq("urun_kodu", kodu).limit(1).execute()
                         if detay_res.data:
                             bulunan_sonuclar.append(detay_res.data[0])
@@ -387,14 +384,14 @@ if check_password():
                 secilen_etiket = st.selectbox("Eşleşen Ürünler Arasından Seçin:", list(secenekler_dict.keys()), key="bulunan_urunler_box")
                 secilen_islem_kod = secenekler_dict[secilen_etiket]
             else:
-                st.warning(" Aradığınız kriterlere uygun ürün bulunamadı.")
+                st.warning("⚠️ Aradığınız kriterlere uygun ürün bulunamadı.")
         else:
-            st.info(" Ürün düzenlemek veya silmek için arama kutusuna kod veya barkod yazın.")
+            st.info("ℹ️ Ürün düzenlemek veya silmek için arama kutusuna kod veya barkod yazın.")
     
         if secilen_islem_kod:
             islem_col1, islem_col2 = st.columns(2)
             with islem_col1:
-                if st.button(" Seçileni Düzenle", use_container_width=True):
+                if st.button("✏️ Seçileni Düzenle", use_container_width=True):
                     kayit_res = supabase.table("stok").select("barkod, urun_kodu, urun_adi, kategori_marka, resim_yolu").eq("urun_kodu", secilen_islem_kod).order("id", desc=True).limit(1).execute()
                     if kayit_res.data:
                         secilen_kayit = kayit_res.data[0]
@@ -406,24 +403,24 @@ if check_password():
                         st.session_state.giris_resim = secilen_kayit.get("resim_yolu") or ""
                         st.rerun()
             with islem_col2:
-                if st.button(" Seçileni Sil", type="primary", use_container_width=True):
+                if st.button("🗑️ Seçileni Sil", type="primary", use_container_width=True):
                     supabase.table("stok").delete().eq("urun_kodu", secilen_islem_kod).execute()
-                    st.success(f"Ürün Kodu: {secilen_islem_kod} olan ürün(ler) silindi!")
+                    st.success(f"✅ Ürün Kodu: {secilen_islem_kod} olan ürün(ler) silindi!")
                     st.rerun()
     
         st.divider()
-        st.subheader(" Kayıtlı Ürünler Listesi")
+        st.subheader("📋 Kayıtlı Ürünler Listesi")
         sira_col1, sira_col2 = st.columns(2)
         with sira_col1:
             siralama_kriteri = st.selectbox(
-                " Sıralama Kriteri Seçin:",
+                "🔄 Sıralama Kriteri Seçin:",
                 ["Ekleme Sırası (ID)", "Tarih", "Ürün Kodu", "Barkod", "Ürün Adı", "Adet", "Toplam Maliyet"],
                 key="giris_siralama_kriteri"
             )
         with sira_col2:
             siralama_yonu = st.radio(
-                " Sıralama Yönü:",
-                ["Azalan / Yeniden Eskiye ", "Artan / Eskiden Yeniye "],
+                "↕️ Sıralama Yönü:",
+                ["Azalan / Yeniden Eskiye 🔽", "Artan / Eskiden Yeniye 🔼"],
                 horizontal=True,
                 key="giris_siralama_yonu"
             )
@@ -448,7 +445,7 @@ if check_password():
     
                 tablo_verisi.append({
                     "ID": r.get("id"),
-                    "Görsel": resim_html if resim_html else " Yok",
+                    "Görsel": resim_html if resim_html else "❌ Yok",
                     "Tarih": r.get("tarih"),
                     "Tarih_dt": tarih_dt,
                     "Ürün Kodu": r.get("urun_kodu") or "-",
@@ -475,11 +472,11 @@ if check_password():
             gosterim_df = df_urunler[["Görsel", "Tarih", "Ürün Kodu", "Barkod", "Ürün Adı", "Kategori", "Alınan Yer", "Adet", "Toplam Maliyet"]]
             st.write(gosterim_df.to_html(escape=False, index=False), unsafe_allow_html=True)
         else:
-            st.info("Henüz eklenmiş ürün yok.")
+            st.info("ℹ️ Henüz eklenmiş ürün yok.")
     
     # --- 2. SATIŞ İŞLEMLERİ ---
-    elif menu == " 2. Satış İşlemleri":
-        st.header("Satış İşlemleri")
+    elif menu == "🛒 2. Satış İşlemleri":
+        st.header("🛒 Satış İşlemleri")
         if "satis_duzenle_id" not in st.session_state: st.session_state.satis_duzenle_id = None
         if "satis_barkod" not in st.session_state: st.session_state.satis_barkod = ""
         if "satis_kod" not in st.session_state: st.session_state.satis_kod = ""
@@ -530,8 +527,8 @@ if check_password():
                     st.session_state.satis_barkod = bul_res.data[0].get("barkod")
     
         if st.session_state.satis_duzenle_id:
-            st.info(f" Şu an Sipariş No: **{d_siparis}** olan satış güncelleniyor.")
-            if st.button(" Satış Düzenlemeyi İptal Et"):
+            st.info(f"✏️ Şu an Sipariş No: **{d_siparis}** olan satış güncelleniyor.")
+            if st.button("❌ Satış Düzenlemeyi İptal Et"):
                 st.session_state.satis_duzenle_id = None
                 st.session_state.satis_barkod = ""
                 st.session_state.satis_kod = ""
@@ -546,20 +543,20 @@ if check_password():
             s_tarih = st.text_input("Satış Tarihi (GG.AA.YYYY) *", value=d_tarih, key="satis_tarih")
             satis_adet = st.number_input("Satış Adeti *", min_value=1, value=int(d_adet), key="satis_adet")
             satis_fiyati = st.number_input("Birim Satış Fiyatı (TL) *", min_value=0.0, value=float(d_fiyat), format="%.2f", key="satis_birim_fiyat")
-            st.caption(f" Girilen Satış Fiyatı: **{para_formatla(satis_fiyati)}**")
+            st.caption(f"💰 Girilen Satış Fiyatı: **{para_formatla(satis_fiyati)}**")
         with col2:
             ham_musteri = st.text_input("Müşteri Adı *", value=d_musteri, key="satis_musteri")
             kanal_idx = satilan_yer_listesi.index(d_yer) if d_yer in satilan_yer_listesi else 0
             satilan_yer = st.selectbox("Satış Yeri / Kanal *", satilan_yer_listesi, index=kanal_idx, key="satis_kanal")
             siparis_no = st.text_input("Sipariş No veya Fiş No *", value=d_siparis, key="satis_siparis_no")
             
-        buton_satis_metni = "Satışı Güncelle" if st.session_state.satis_duzenle_id else "Satışı Gerçekleştir ve Kaydet"
+        buton_satis_metni = "💾 Satışı Güncelle" if st.session_state.satis_duzenle_id else "✅ Satışı Gerçekleştir ve Kaydet"
         if st.button(buton_satis_metni, type="primary"):
             s_barkod_val = st.session_state.get("input_satis_barkod", "").strip()
             s_kod_val = st.session_state.get("input_satis_kod", "").strip()
     
             if not s_tarih or (not s_barkod_val and not s_kod_val) or not ham_musteri or not siparis_no or satis_fiyati <= 0:
-                st.error(" Eksik alanlar var!")
+                st.error("⚠️ Eksik alanlar var!")
             else:
                 if s_barkod_val:
                     stok_res = supabase.table("stok").select("*").ilike("barkod", s_barkod_val).order("id", desc=False).execute()
@@ -570,12 +567,11 @@ if check_password():
     
                 stok_girisleri = stok_res.data if stok_res.data else []
                 if not stok_girisleri:
-                    st.error(" Hata: Girdiğiniz kriterlere uygun sisteme kayıtlı bir Ürün Girişi bulunamadı!")
+                    st.error("❌ Hata: Girdiğiniz kriterlere uygun sisteme kayıtlı bir Ürün Girişi bulunamadı!")
                 else:
                     toplam_giris = sum([row.get("adet", 0) for row in stok_girisleri])
                     aranan_kod_barkod = sorgulanan_anahtar.lower()
                     
-                    # Diğer satışları hesapla
                     satislar_res = supabase.table("satis").select("satis_adet, barkod_kod, id").execute()
                     diger_satislar = 0
                     if satislar_res.data:
@@ -588,7 +584,7 @@ if check_password():
                     kalan_stok = toplam_giris - diger_satislar
                     
                     if satis_adet > kalan_stok:
-                        st.error(f" Yetersiz Stok! Depoda kalan güncel stok: **{kalan_stok} Adet**.")
+                        st.error(f"⚠️ Yetersiz Stok! Depoda kalan güncel stok: **{kalan_stok} Adet**.")
                     else:
                         onceki_satislar = diger_satislar
                         gecerli_satis_baslangic = onceki_satislar
@@ -652,7 +648,7 @@ if check_password():
                                 supabase.table(kanal_tablosu).insert(sub_data).execute()
 
                             st.session_state.satis_duzenle_id = None
-                            basari_mesaji = "Satış başarıyla güncellendi!"
+                            basari_mesaji = "✅ Satış başarıyla güncellendi!"
                         else:
                             supabase.table("satis").insert(satis_dict_data).execute()
                             
@@ -668,7 +664,7 @@ if check_password():
                                     "maliyet": toplam_maliyet_fifo, "satis_tutari": toplam_tutar, "giderler_girildi": 0
                                 }
                                 supabase.table(kanal_tablosu).insert(sub_data).execute()
-                            basari_mesaji = "Satış başarıyla gerçekleştirildi!"
+                            basari_mesaji = "✅ Satış başarıyla gerçekleştirildi!"
     
                         st.success(basari_mesaji)
                         st.session_state.satis_barkod = ""
@@ -676,7 +672,7 @@ if check_password():
                         st.rerun()
     
         st.divider()
-        st.subheader(" Düzenlenecek veya Silinecek Satışı Arayın")
+        st.subheader("🔍 Düzenlenecek veya Silinecek Satışı Arayın")
         satis_arama_metni = st.text_input("Aramak İstediğiniz Sipariş No, Müşteri Adı veya Barkod/Kodu Yazın:", placeholder="Örn: Sipariş No, Müşteri...", key="satis_arama_input").strip()
     
         secilen_satis_id = None
@@ -689,20 +685,20 @@ if check_password():
                 secilen_satis_etiket = st.selectbox("Eşleşen Satışlar Arasından Seçin:", list(satis_secenekleri_dict.keys()), key="bulunan_satislar_box")
                 secilen_satis_id = satis_secenekleri_dict[secilen_satis_etiket]
             else:
-                st.warning(" Aradığınız kriterlere uygun satış kaydı bulunamadı.")
+                st.warning("⚠️ Aradığınız kriterlere uygun satış kaydı bulunamadı.")
         else:
-            st.info(" Satış düzenlemek veya silmek için arama kutusunu kullanın.")
+            st.info("ℹ️ Satış düzenlemek veya silmek için arama kutusunu kullanın.")
     
         if secilen_satis_id:
             col_islem1, col_islem2 = st.columns(2)
             with col_islem1:
-                if st.button(" Seçilen Satışı Düzenle", use_container_width=True):
+                if st.button("✏️ Seçilen Satışı Düzenle", use_container_width=True):
                     st.session_state.satis_duzenle_id = secilen_satis_id
                     st.session_state.satis_barkod = ""
                     st.session_state.satis_kod = ""
                     st.rerun()
             with col_islem2:
-                if st.button(" Seçilen Satışı Sil", type="primary", use_container_width=True):
+                if st.button("🗑️ Seçilen Satışı Sil", type="primary", use_container_width=True):
                     sil_res = supabase.table("satis").select("siparis_no, musteri, satilan_yer").eq("id", secilen_satis_id).execute()
                     if sil_res.data:
                         s_sip, s_mus, s_yer = sil_res.data[0].get("siparis_no"), sil_res.data[0].get("musteri"), sil_res.data[0].get("satilan_yer")
@@ -710,11 +706,11 @@ if check_password():
                         kanal_kontrol = s_yer.replace(" ", "").lower()
                         for tbl in ["hepsi_burada", "web_sitesi", "dukkan_elden"]:
                             supabase.table(tbl).delete().eq("siparis_no", s_sip).eq("musteri", s_mus).execute()
-                        st.success("Seçilen satış kaydı silindi!")
+                        st.success("✅ Seçilen satış kaydı silindi!")
                         st.rerun()
     
         st.divider()
-        st.subheader(" Geçmiş Satışlar (Son Kayıtlar)")
+        st.subheader("📋 Geçmiş Satışlar (Son Kayıtlar)")
         satis_son_res = supabase.table("satis").select("*").order("id", desc=True).limit(10).execute()
         satis_kayitlari = satis_son_res.data if satis_son_res.data else []
         
@@ -744,11 +740,11 @@ if check_password():
                 })
             st.dataframe(pd.DataFrame(gecmis_verisi), use_container_width=True, hide_index=True)
         else:
-            st.info("Kayıt bulunamadı.")
+            st.info("ℹ️ Kayıt bulunamadı.")
     
     # --- 3. GÜNCEL STOK ---
-    elif menu == " 3. Güncel Stok":
-        st.header(" Güncel Kalan Stok ve Finansal Özet")
+    elif menu == "📦 3. Güncel Stok":
+        st.header("📦 Güncel Kalan Stok ve Finansal Özet")
         
         stok_rows_res = supabase.table("stok").select("*").order("id", desc=False).execute()
         stok_rows = pd.DataFrame(stok_rows_res.data) if stok_rows_res.data else pd.DataFrame()
@@ -776,12 +772,12 @@ if check_password():
                 if anahtar not in partiler_gruplu: partiler_gruplu[anahtar] = []
                 partiler_gruplu[anahtar].append(r)
     
-        st.subheader(" Stok Filtreleme & Kritik Seviye Ayarları")
+        st.subheader("🔍 Stok Filtreleme & Kritik Seviye Ayarları")
         c_f1, c_f2, c_f3, c_f4 = st.columns([2, 2, 2, 1])
-        with c_f1: stok_arama = st.text_input(" Stok / Barkod Arama:", placeholder="Barkod okutun veya arama yapın...", key="stok_arama_input").strip().lower()
-        with c_f2: secilen_kategori_filtre = st.selectbox(" Kategori / Marka Filtresi:", kategori_listesi)
-        with c_f3: stok_siralama = st.selectbox(" Sıralama Kriteri:", ["Kritik Stok / Azalan Adet ", "Rafta Bekleme Günü (En Eski) ", "Bağlı Sermaye (En Yüksek) ", "Ürün Adı (A-Z) ", "Kalan Adet (En Yüksek) "])
-        with c_f4: kritik_esik = st.number_input(" Kritik Stok Eşiği:", min_value=0, value=3, step=1)
+        with c_f1: stok_arama = st.text_input("🔍 Stok / Barkod Arama:", placeholder="Barkod okutun veya arama yapın...", key="stok_arama_input").strip().lower()
+        with c_f2: secilen_kategori_filtre = st.selectbox("📂 Kategori / Marka Filtresi:", kategori_listesi)
+        with c_f3: stok_siralama = st.selectbox("🔄 Sıralama Kriteri:", ["Kritik Stok / Azalan Adet 📉", "Rafta Bekleme Günü (En Eski) ⏳", "Bağlı Sermaye (En Yüksek) 💰", "Ürün Adı (A-Z) 🔤", "Kalan Adet (En Yüksek) 📈"])
+        with c_f4: kritik_esik = st.number_input("⚠️ Kritik Stok Eşiği:", min_value=0, value=3, step=1)
     
         islenmis_stoklar = []
         toplam_bagli_sermaye = 0.0
@@ -812,7 +808,7 @@ if check_password():
                     gun_farki = max(0, (bugun - g_tarih).days)
                 except: pass
     
-                durum = " Tükendi" if kalan_parti_adet <= 0 else (" Kritik / Azalıyor" if kalan_parti_adet <= kritik_esik else " Normal")
+                durum = "❌ Tükendi" if kalan_parti_adet <= 0 else ("⚠️ Kritik / Azalıyor" if kalan_parti_adet <= kritik_esik else "✅ Normal")
     
                 if secilen_kategori_filtre != "Tümü" and kategori != secilen_kategori_filtre: continue
                 arama_metni_birlesik = f"{ad} {kod} {barkod} {kategori} {alinan_yer}".lower()
@@ -833,26 +829,26 @@ if check_password():
     
         df_stok_liste = pd.DataFrame(islenmis_stoklar)
         if not df_stok_liste.empty:
-            if stok_siralama == "Kritik Stok / Azalan Adet ": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=True)
-            elif stok_siralama == "Rafta Bekleme Günü (En Eski) ": df_stok_liste = df_stok_liste.sort_values(by="Rafta Gün", ascending=False)
-            elif stok_siralama == "Bağlı Sermaye (En Yüksek) ": df_stok_liste = df_stok_liste.sort_values(by="Sermaye_Val", ascending=False)
-            elif stok_siralama == "Ürün Adı (A-Z) ": df_stok_liste = df_stok_liste.sort_values(by="Ürün Adı", ascending=True)
-            elif stok_siralama == "Kalan Adet (En Yüksek) ": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=False)
+            if stok_siralama == "Kritik Stok / Azalan Adet 📉": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=True)
+            elif stok_siralama == "Rafta Bekleme Günü (En Eski) ⏳": df_stok_liste = df_stok_liste.sort_values(by="Rafta Gün", ascending=False)
+            elif stok_siralama == "Bağlı Sermaye (En Yüksek) 💰": df_stok_liste = df_stok_liste.sort_values(by="Sermaye_Val", ascending=False)
+            elif stok_siralama == "Ürün Adı (A-Z) 🔤": df_stok_liste = df_stok_liste.sort_values(by="Ürün Adı", ascending=True)
+            elif stok_siralama == "Kalan Adet (En Yüksek) 📈": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=False)
     
             col_stk1, col_stk2, col_stk3 = st.columns(3)
-            col_stk1.metric(" Toplam Kalan Ürün Adeti", f"{df_stok_liste['Kalan Adet'].sum()} Adet")
-            col_stk2.metric(" Toplam Bağlı Sermaye", para_formatla(toplam_bagli_sermaye))
+            col_stk1.metric("📦 Toplam Kalan Ürün Adeti", f"{df_stok_liste['Kalan Adet'].sum()} Adet")
+            col_stk2.metric("💰 Toplam Bağlı Sermaye", para_formatla(toplam_bagli_sermaye))
             kritik_sayisi = len(df_stok_liste[df_stok_liste['Kalan Adet'] <= kritik_esik])
-            col_stk3.metric(" Kritik/Tükenen Ürün Sayısı", f"{kritik_sayisi} Çeşit")
+            col_stk3.metric("⚠️ Kritik/Tükenen Ürün Sayısı", f"{kritik_sayisi} Çeşit")
     
             st.divider()
             st.dataframe(df_stok_liste[["Durum", "Ürün Adı", "Kategori", "Alınan Yer", "Kod", "Barkod", "Rafta Gün", "Kalan Adet", "Bağlı Sermaye"]], use_container_width=True, hide_index=True)
         else:
-            st.info("Aradığınız kriterlere uygun güncel stok bulunamadı.")
+            st.info("ℹ️ Aradığınız kriterlere uygun güncel stok bulunamadı.")
     
     # --- 4. HEPSİ BURADA ---
-    elif menu == " 4. Hepsi Burada":
-        st.header(" Hepsi Burada Finans ve Kar/Zarar Yönetimi")
+    elif menu == "🛍️ 4. Hepsi Burada":
+        st.header("🛍️ Hepsi Burada Finans ve Kar/Zarar Yönetimi")
         hb_res = supabase.table("hepsi_burada").select("*").order("id", desc=True).execute()
         hb_df = pd.DataFrame(hb_res.data) if hb_res.data else pd.DataFrame()
     
@@ -861,39 +857,39 @@ if check_password():
             tamamlanan_df = hb_df[hb_df["giderler_girildi"] == 1].copy()
             
             col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-            col_m1.metric(" Toplam Sipariş", f"{len(hb_df)} Adet")
-            col_m2.metric(" Gideri Bekleyen", f"{len(bekleyen_df)} Adet")
-            col_m3.metric(" Tamamlanan Ciro", para_formatla(tamamlanan_df['satis_tutari'].sum() if not tamamlanan_df.empty else 0.0))
-            col_m4.metric(" Net Kâr / Zarar", para_formatla(tamamlanan_df['net_kar_zarar'].sum() if not tamamlanan_df.empty else 0.0))
+            col_m1.metric("📦 Toplam Sipariş", f"{len(hb_df)} Adet")
+            col_m2.metric("⏳ Gideri Bekleyen", f"{len(bekleyen_df)} Adet")
+            col_m3.metric("💵 Tamamlanan Ciro", para_formatla(tamamlanan_df['satis_tutari'].sum() if not tamamlanan_df.empty else 0.0))
+            col_m4.metric("📈 Net Kâr / Zarar", para_formatla(tamamlanan_df['net_kar_zarar'].sum() if not tamamlanan_df.empty else 0.0))
             
             st.divider()
-            hb_arama = st.text_input(" Hepsi Burada Sipariş veya Müşteri Ara:", placeholder="Sipariş No, Müşteri veya Ürün Adı...", key="hb_arama_input").strip().lower()
+            hb_arama = st.text_input("🔍 Hepsi Burada Sipariş veya Müşteri Ara:", placeholder="Sipariş No, Müşteri veya Ürün Adı...", key="hb_arama_input").strip().lower()
             if hb_arama:
                 bekleyen_df = bekleyen_df[bekleyen_df['siparis_no'].astype(str).str.lower().str.contains(hb_arama) | bekleyen_df['musteri'].astype(str).str.lower().str.contains(hb_arama) | bekleyen_df['urun_adi'].astype(str).str.lower().str.contains(hb_arama)]
                 tamamlanan_df = tamamlanan_df[tamamlanan_df['siparis_no'].astype(str).str.lower().str.contains(hb_arama) | tamamlanan_df['musteri'].astype(str).str.lower().str.contains(hb_arama) | tamamlanan_df['urun_adi'].astype(str).str.lower().str.contains(hb_arama)]
     
-            tab_hb1, tab_hb2 = st.tabs([" Gider Girişi Bekleyenler", " Gideri Tamamlananlar & Geçmiş"])
+            tab_hb1, tab_hb2 = st.tabs(["⏳ Gider Girişi Bekleyenler", "✅ Gideri Tamamlananlar & Geçmiş"])
     
             with tab_hb1:
                 if not bekleyen_df.empty:
-                    st.subheader(" Gider ve Kesinti Girişi Bekleyen Siparişler")
+                    st.subheader("⏳ Gider ve Kesinti Girişi Bekleyen Siparişler")
                     c_bs1, c_bs2 = st.columns(2)
-                    with c_bs1: bekleyen_sira = st.selectbox(" Sırala:", ["Ekleme Sırası (ID)", "Tarih (En Yeni)", "Satış Tutarı (En Yüksek)"], key="bekleyen_sira_secim")
-                    with c_bs2: st.caption(" Bekleyen sipariş listesini sıralayın.")
+                    with c_bs1: bekleyen_sira = st.selectbox("🔄 Sırala:", ["Ekleme Sırası (ID)", "Tarih (En Yeni)", "Satış Tutarı (En Yüksek)"], key="bekleyen_sira_secim")
+                    with c_bs2: st.caption("ℹ️ Bekleyen sipariş listesini sıralayın.")
     
                     bekleyen_df['tarih_dt'] = pd.to_datetime(bekleyen_df['tarih'], format="%d.%m.%Y", errors='coerce')
                     if bekleyen_sira == "Tarih (En Yeni)": bekleyen_df = bekleyen_df.sort_values(by="tarih_dt", ascending=False)
                     elif bekleyen_sira == "Satış Tutarı (En Yüksek)": bekleyen_df = bekleyen_df.sort_values(by="satis_tutari", ascending=False)
                     else: bekleyen_df = bekleyen_df.sort_values(by="id", ascending=False)
     
-                    with st.expander(" Tüm Bekleyenlere Varsayılan Oranlı Toplu Gider Uygula"):
+                    with st.expander("⚡ Tüm Bekleyenlere Varsayılan Oranlı Toplu Gider Uygula"):
                         with st.form("toplu_gider_form"):
                             c_top1, c_top2, c_top3 = st.columns(3)
                             with c_top1: vars_kom_yuzde = st.number_input("Komisyon Oranı (%)", min_value=0.0, value=15.0, step=0.5)
                             with c_top2: vars_kargo = st.number_input("Kargo Bedeli (TL)", min_value=0.0, value=45.0, step=5.0)
                             with c_top3: vars_hizmet = st.number_input("Hizmet Bedeli (TL)", min_value=0.0, value=8.5, step=0.5)
                                 
-                            if st.form_submit_button(" Tüm Bekleyenlere Uygula ve Kaydet"):
+                            if st.form_submit_button("💾 Tüm Bekleyenlere Uygula ve Kaydet"):
                                 for _, b_row in bekleyen_df.iterrows():
                                     s_tut = b_row['satis_tutari']
                                     kom = s_tut * (vars_kom_yuzde / 100.0)
@@ -903,7 +899,7 @@ if check_password():
                                         "gelen_odeme": net_o, "komisyon": kom, "kargo": vars_kargo, 
                                         "hizmet_bedeli": vars_hizmet, "net_kar_zarar": net_k, "giderler_girildi": 1
                                     }).eq("id", b_row['id']).execute()
-                                st.success("Tüm bekleyen siparişlere varsayılan giderler uygulandı!")
+                                st.success("✅ Tüm bekleyen siparişlere varsayılan giderler uygulandı!")
                                 st.rerun()
     
                     st.divider()
@@ -916,7 +912,7 @@ if check_password():
                     st.dataframe(pd.DataFrame(hb_bekleyen_tablo), use_container_width=True, hide_index=True)
     
                     st.divider()
-                    bekleyen_arama_input = st.text_input(" Gideri Girilecek Siparişi Arayın:", placeholder="Sipariş No veya Müşteri...", key="hb_bekleyen_arama_input").strip()
+                    bekleyen_arama_input = st.text_input("🔍 Gideri Girilecek Siparişi Arayın:", placeholder="Sipariş No veya Müşteri...", key="hb_bekleyen_arama_input").strip()
                     secilen_bekleyen_id = None
                     if bekleyen_arama_input:
                         filt_bekleyen = bekleyen_df[bekleyen_df['siparis_no'].astype(str).str.lower().str.contains(bekleyen_arama_input.lower()) | bekleyen_df['musteri'].astype(str).str.lower().str.contains(bekleyen_arama_input.lower())]
@@ -924,8 +920,8 @@ if check_password():
                             secenekler_dict = {f"Sipariş No: {r['siparis_no']} | Müşteri: {r['musteri']} | Ürün: {r['urun_adi']}": r['id'] for _, r in filt_bekleyen.iterrows()}
                             secilen_etiket = st.selectbox("Eşleşen Siparişler Arasından Seçin:", list(secenekler_dict.keys()), key="hb_bulunan_bekleyen_box")
                             secilen_bekleyen_id = secenekler_dict[secilen_etiket]
-                        else: st.warning(" Eşleşen sipariş bulunamadı.")
-                    else: st.info(" Gider girmek için arama kutusuna sipariş no veya müşteri adı yazın.")
+                        else: st.warning("⚠️ Eşleşen sipariş bulunamadı.")
+                    else: st.info("ℹ️ Gider girmek için arama kutusuna sipariş no veya müşteri adı yazın.")
     
                     if secilen_bekleyen_id:
                         row = bekleyen_df[bekleyen_df['id'] == secilen_bekleyen_id].iloc[0]
@@ -944,7 +940,7 @@ if check_password():
                                 st.markdown(f"**Ürün Maliyeti:** {para_formatla(row['maliyet'])}")
                                 st.markdown(f"**Satış Tutarı:** {para_formatla(row['satis_tutari'])}")
     
-                            if st.form_submit_button("Hesapla ve Kaydet"):
+                            if st.form_submit_button("💾 Hesapla ve Kaydet"):
                                 toplam_diger = komisyon + stopaj + kargo + hizmet_bedeli + tahsilat_yonetim
                                 net_kar = gelen_odeme + kampanya - row['maliyet'] - toplam_diger
                                 supabase.table("hepsi_burada").update({
@@ -952,13 +948,13 @@ if check_password():
                                     "stopaj": stopaj, "kargo": kargo, "hizmet_bedeli": hizmet_bedeli, 
                                     "tahsilat_yonetim": tahsilat_yonetim, "net_kar_zarar": net_kar, "giderler_girildi": 1
                                 }).eq("id", row['id']).execute()
-                                st.success("Giderler kaydedildi!")
+                                st.success("✅ Giderler kaydedildi!")
                                 st.rerun()
-                else: st.info("Gider bekleyen sipariş bulunmuyor.")
+                else: st.info("ℹ️ Gider bekleyen sipariş bulunmuyor.")
     
             with tab_hb2:
                 if not tamamlanan_df.empty:
-                    st.subheader(" Gider ve Finans Detayları Tamamlanmış Siparişler")
+                    st.subheader("✅ Gider ve Finans Detayları Tamamlanmış Siparişler")
                     hb_tamamlanan_tablo = []
                     for _, t_row in tamamlanan_df.iterrows():
                         hb_tamamlanan_tablo.append({
@@ -967,12 +963,12 @@ if check_password():
                             "Satış Tutarı": para_formatla(t_row['satis_tutari']), "Gelen Net Ödeme": para_formatla(t_row['gelen_odeme']), "Net Kâr / Zarar": para_formatla(t_row['net_kar_zarar'])
                         })
                     st.dataframe(pd.DataFrame(hb_tamamlanan_tablo), use_container_width=True, hide_index=True)
-                else: st.info("Tamamlanmış Hepsi Burada sipariş kaydı bulunmuyor.")
-        else: st.info("Hepsi Burada satış kaydı bulunmuyor.")
+                else: st.info("ℹ️ Tamamlanmış Hepsi Burada sipariş kaydı bulunmuyor.")
+        else: st.info("ℹ️ Hepsi Burada satış kaydı bulunmuyor.")
     
     # --- 5. WEB SİTESİ ---
-    elif menu == " 5. Web Sitesi":
-        st.header(" Web Sitesi Finans ve Kar/Zarar Yönetimi")
+    elif menu == "🌐 5. Web Sitesi":
+        st.header("🌐 Web Sitesi Finans ve Kar/Zarar Yönetimi")
         web_res = supabase.table("web_sitesi").select("*").order("id", desc=True).execute()
         web_df = pd.DataFrame(web_res.data) if web_res.data else pd.DataFrame()
     
@@ -981,13 +977,13 @@ if check_password():
             tamamlanan_web = web_df[web_df["giderler_girildi"] == 1].copy()
     
             col_w1, col_w2, col_w3, col_w4 = st.columns(4)
-            col_w1.metric(" Toplam Sipariş", f"{len(web_df)} Adet")
-            col_w2.metric(" Gideri Bekleyen", f"{len(bekleyen_web)} Adet")
-            col_w3.metric(" Tamamlanan Ciro", para_formatla(tamamlanan_web['satis_tutari'].sum() if not tamamlanan_web.empty else 0.0))
-            col_w4.metric(" Net Kâr / Zarar", para_formatla(tamamlanan_web['net_kar_zarar'].sum() if not tamamlanan_web.empty else 0.0))
+            col_w1.metric("📦 Toplam Sipariş", f"{len(web_df)} Adet")
+            col_w2.metric("⏳ Gideri Bekleyen", f"{len(bekleyen_web)} Adet")
+            col_w3.metric("💵 Tamamlanan Ciro", para_formatla(tamamlanan_web['satis_tutari'].sum() if not tamamlanan_web.empty else 0.0))
+            col_w4.metric("📈 Net Kâr / Zarar", para_formatla(tamamlanan_web['net_kar_zarar'].sum() if not tamamlanan_web.empty else 0.0))
     
             st.divider()
-            tab_w1, tab_w2 = st.tabs([" Gider Girişi Bekleyenler", " Gideri Tamamlananlar & Geçmiş"])
+            tab_w1, tab_w2 = st.tabs(["⏳ Gider Girişi Bekleyenler", "✅ Gideri Tamamlananlar & Geçmiş"])
     
             with tab_w1:
                 if not bekleyen_web.empty:
@@ -1000,7 +996,7 @@ if check_password():
                     st.dataframe(pd.DataFrame(web_bekleyen_tablo), use_container_width=True, hide_index=True)
     
                     st.divider()
-                    web_arama_input = st.text_input(" Gideri Girilecek Web Siparişini Arayın:", placeholder="Sipariş No veya Müşteri...", key="web_bekleyen_arama_input").strip()
+                    web_arama_input = st.text_input("🔍 Gideri Girilecek Web Siparişini Arayın:", placeholder="Sipariş No veya Müşteri...", key="web_bekleyen_arama_input").strip()
                     secilen_web_bekleyen_id = None
                     if web_arama_input:
                         filt_w_bekleyen = bekleyen_web[bekleyen_web['siparis_no'].astype(str).str.lower().str.contains(web_arama_input.lower()) | bekleyen_web['musteri'].astype(str).str.lower().str.contains(web_arama_input.lower())]
@@ -1021,15 +1017,15 @@ if check_password():
                             with w_col2:
                                 st.markdown(f"**Maliyet:** {para_formatla(row['maliyet'])} | **Ciro:** {para_formatla(row['satis_tutari'])}")
     
-                            if st.form_submit_button("Hesapla ve Kaydet"):
+                            if st.form_submit_button("💾 Hesapla ve Kaydet"):
                                 net_kar = row['satis_tutari'] - row['maliyet'] - pos_kesintisi - kargo
                                 supabase.table("web_sitesi").update({
                                     "pos_kesintisi": pos_kesintisi, "kargo": kargo, 
                                     "net_kar_zarar": net_kar, "giderler_girildi": 1
                                 }).eq("id", row['id']).execute()
-                                st.success("Web giderleri kaydedildi!")
+                                st.success("✅ Web giderleri kaydedildi!")
                                 st.rerun()
-                else: st.info("Gider bekleyen web siparişi yok.")
+                else: st.info("ℹ️ Gider bekleyen web siparişi yok.")
     
             with tab_w2:
                 if not tamamlanan_web.empty:
@@ -1041,12 +1037,12 @@ if check_password():
                             "Satış Tutarı": para_formatla(t_row['satis_tutari']), "POS Komisyonu": para_formatla(t_row['pos_kesintisi'] or 0), "Kargo": para_formatla(t_row['kargo'] or 0), "Net Kâr": para_formatla(t_row['net_kar_zarar'])
                         })
                     st.dataframe(pd.DataFrame(web_tamamlanan_tablo), use_container_width=True, hide_index=True)
-                else: st.info("Tamamlanmış web siparişi yok.")
-        else: st.info("Web sitesi satış kaydı bulunmuyor.")
+                else: st.info("ℹ️ Tamamlanmış web siparişi yok.")
+        else: st.info("ℹ️ Web sitesi satış kaydı bulunmuyor.")
     
     # --- 6. DÜKKAN & ELDEN ---
-    elif menu == " 6. Dükkan & Elden":
-        st.header(" Dükkan & Elden Satış Yönetimi")
+    elif menu == "🏪 6. Dükkan & Elden":
+        st.header("🏪 Dükkan & Elden Satış Yönetimi")
         dukkan_res = supabase.table("dukkan_elden").select("*").order("id", desc=True).execute()
         dukkan_df = pd.DataFrame(dukkan_res.data) if dukkan_res.data else pd.DataFrame()
     
@@ -1055,13 +1051,13 @@ if check_password():
             tamamlanan_d = dukkan_df[dukkan_df["giderler_girildi"] == 1].copy()
     
             col_d1, col_d2, col_d3, col_d4 = st.columns(4)
-            col_d1.metric(" Toplam Satış", f"{len(dukkan_df)} Adet")
-            col_d2.metric(" Gideri Bekleyen", f"{len(bekleyen_d)} Adet")
-            col_d3.metric(" Tamamlanan Ciro", para_formatla(tamamlanan_d['satis_tutari'].sum() if not tamamlanan_d.empty else 0.0))
-            col_d4.metric(" Net Kâr / Zarar", para_formatla(tamamlanan_d['net_kar_zarar'].sum() if not tamamlanan_d.empty else 0.0))
+            col_d1.metric("📦 Toplam Satış", f"{len(dukkan_df)} Adet")
+            col_d2.metric("⏳ Gideri Bekleyen", f"{len(bekleyen_d)} Adet")
+            col_d3.metric("💵 Tamamlanan Ciro", para_formatla(tamamlanan_d['satis_tutari'].sum() if not tamamlanan_d.empty else 0.0))
+            col_d4.metric("📈 Net Kâr / Zarar", para_formatla(tamamlanan_d['net_kar_zarar'].sum() if not tamamlanan_d.empty else 0.0))
     
             st.divider()
-            tab_d1, tab_d2 = st.tabs([" Gider Girişi Bekleyenler", " Gideri Tamamlananlar & Geçmiş"])
+            tab_d1, tab_d2 = st.tabs(["⏳ Gider Girişi Bekleyenler", "✅ Gideri Tamamlananlar & Geçmiş"])
     
             with tab_d1:
                 if not bekleyen_d.empty:
@@ -1074,7 +1070,7 @@ if check_password():
                     st.dataframe(pd.DataFrame(dukkan_bekleyen_tablo), use_container_width=True, hide_index=True)
     
                     st.divider()
-                    dukkan_arama_input = st.text_input(" Gideri Girilecek Satışı Arayın:", placeholder="Fiş No veya Müşteri...", key="dukkan_bekleyen_arama_input").strip()
+                    dukkan_arama_input = st.text_input("🔍 Gideri Girilecek Satışı Arayın:", placeholder="Fiş No veya Müşteri...", key="dukkan_bekleyen_arama_input").strip()
                     secilen_dukkan_bekleyen_id = None
                     if dukkan_arama_input:
                         filt_d_bekleyen = bekleyen_d[bekleyen_d['siparis_no'].astype(str).str.lower().str.contains(dukkan_arama_input.lower()) | bekleyen_d['musteri'].astype(str).str.lower().str.contains(dukkan_arama_input.lower())]
@@ -1088,14 +1084,14 @@ if check_password():
                         with st.form(key=f"dukkan_form_{row['id']}"):
                             val_dukkan_pos = float(row['pos_kesintisi']) if row['pos_kesintisi'] is not None else 0.0
                             pos_kesintisi = st.number_input("POS Kesintisi (TL - Nakit ise 0)", min_value=0.0, value=val_dukkan_pos, format="%.2f", key=f"dukkan_pos_{row['id']}")
-                            if st.form_submit_button("Hesapla ve Kaydet"):
+                            if st.form_submit_button("💾 Hesapla and Kaydet"):
                                 net_kar = row['satis_tutari'] - row['maliyet'] - pos_kesintisi
                                 supabase.table("dukkan_elden").update({
                                     "pos_kesintisi": pos_kesintisi, "net_kar_zarar": net_kar, "giderler_girildi": 1
                                 }).eq("id", row['id']).execute()
-                                st.success("Dükkan satışı güncellendi!")
+                                st.success("✅ Dükkan satışı güncellendi!")
                                 st.rerun()
-                else: st.info("Bekleyen dükkan satışı yok.")
+                else: st.info("ℹ️ Bekleyen dükkan satışı yok.")
     
             with tab_d2:
                 if not tamamlanan_d.empty:
@@ -1107,12 +1103,12 @@ if check_password():
                             "Satış Tutarı": para_formatla(t_row['satis_tutari']), "POS Kesintisi": para_formatla(t_row['pos_kesintisi'] or 0), "Net Kâr": para_formatla(t_row['net_kar_zarar'])
                         })
                     st.dataframe(pd.DataFrame(dukkan_tamamlanan_tablo), use_container_width=True, hide_index=True)
-                else: st.info("Tamamlanmış dükkan satışı yok.")
-        else: st.info("Dükkan satış kaydı bulunmuyor.")
+                else: st.info("ℹ️ Tamamlanmış dükkan satışı yok.")
+        else: st.info("ℹ️ Dükkan satış kaydı bulunmuyor.")
     
     # --- 7. MÜŞTERİ ANALİZİ ---
-    elif menu == " 7. Müşteri Analizi":
-        st.header(" Müşteri Analizi ve Liderlik Tablosu")
+    elif menu == "👥 7. Müşteri Analizi":
+        st.header("👥 Müşteri Analizi ve Liderlik Tablosu")
         s_res = supabase.table("satis").select("*").order("id", desc=True).execute()
         satis_df = pd.DataFrame(s_res.data) if s_res.data else pd.DataFrame()
     
@@ -1125,41 +1121,41 @@ if check_password():
             ).reset_index()
     
             col_mu1, col_mu2, col_mu3 = st.columns(3)
-            col_mu1.metric(" Toplam Müşteri Sayısı", f"{len(m_ozet)} Kişi")
-            col_mu2.metric(" Toplam Satış Adeti", f"{satis_df['satis_adet'].sum()} Adet")
-            col_mu3.metric(" Toplam Müşteri Cirosu", para_formatla(m_ozet['Toplam_Harcama'].sum()))
+            col_mu1.metric("👥 Toplam Müşteri Sayısı", f"{len(m_ozet)} Kişi")
+            col_mu2.metric("📦 Toplam Satış Adeti", f"{satis_df['satis_adet'].sum()} Adet")
+            col_mu3.metric("💰 Toplam Müşteri Cirosu", para_formatla(m_ozet['Toplam_Harcama'].sum()))
     
             st.divider()
             c_lider1, c_lider2 = st.columns(2)
             with c_lider1:
-                st.subheader(" En Çok Alışveriş Yapanlar (Ciro)")
+                st.subheader("🏆 En Çok Alışveriş Yapanlar (Ciro)")
                 en_cok_harcayanlar = m_ozet.sort_values(by='Toplam_Harcama', ascending=False).head(5).copy()
                 en_cok_harcayanlar['Toplam Harcama'] = en_cok_harcayanlar['Toplam_Harcama'].apply(para_formatla)
                 st.dataframe(en_cok_harcayanlar.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Sipariş', 'Toplam_Adet': 'Adet'})[['Müşteri', 'Sipariş', 'Toplam Harcama']], use_container_width=True, hide_index=True)
             with c_lider2:
-                st.subheader(" En Çok Ürün Alanlar (Adet)")
+                st.subheader("🔥 En Çok Ürün Alanlar (Adet)")
                 en_cok_alanlar = m_ozet.sort_values(by='Toplam_Adet', ascending=False).head(5).copy()
                 en_cok_alanlar['Toplam Harcama'] = en_cok_alanlar['Toplam_Harcama'].apply(para_formatla)
                 st.dataframe(en_cok_alanlar.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Sipariş', 'Toplam_Adet': 'Toplam Adet'})[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']], use_container_width=True, hide_index=True)
     
             st.divider()
-            st.subheader(" Tüm Müşteriler Genel Özeti")
+            st.subheader("📋 Tüm Müşteriler Genel Özeti")
             m_ozet_full = m_ozet.sort_values(by='Toplam_Harcama', ascending=False).copy()
             m_ozet_full['Toplam Harcama'] = m_ozet_full['Toplam_Harcama'].apply(para_formatla)
             st.dataframe(m_ozet_full.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Toplam Sipariş', 'Toplam_Adet': 'Toplam Ürün Adeti'})[['Müşteri', 'Toplam Sipariş', 'Toplam Ürün Adeti', 'Toplam Harcama']], use_container_width=True, hide_index=True)
-        else: st.info("Müşteri verisi bulunmuyor.")
+        else: st.info("ℹ️ Müşteri verisi bulunmuyor.")
     
     # --- 8. TANIMLAMALAR ---
-    elif menu == " 8. Tanımlamalar":
-        st.header(" Sistem Tanımlamaları")
-        tab1, tab2, tab3 = st.tabs([" Kategori & Marka", " Satış Yeri / Kanal", " Tedarikçi"])
+    elif menu == "⚙️ 8. Tanımlamalar":
+        st.header("⚙️ Sistem Tanımlamaları")
+        tab1, tab2, tab3 = st.tabs(["📂 Kategori & Marka", "🛒 Satış Yeri / Kanal", "🚚 Tedarikçi"])
         with tab1:
             with st.form("kategori_form"):
                 yeni_kat = st.text_input("Yeni Kategori / Marka Adı")
-                if st.form_submit_button("Kategori Ekle"):
+                if st.form_submit_button("➕ Kategori Ekle"):
                     if yeni_kat:
                         supabase.table("tanimlar").insert({"tip": "kategori_marka", "deger": yeni_kat.strip().title()}).execute()
-                        st.success("Eklendi!")
+                        st.success("✅ Eklendi!")
                         st.rerun()
             kat_t_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger", desc=False).execute()
             st.dataframe(pd.DataFrame(kat_t_res.data).rename(columns={"deger": "Kategori Adı"}) if kat_t_res.data else pd.DataFrame(columns=["Kategori Adı"]), use_container_width=True, hide_index=True)
@@ -1167,10 +1163,10 @@ if check_password():
         with tab2:
             with st.form("kanal_form"):
                 yeni_yer = st.text_input("Yeni Satış Kanalı Adı")
-                if st.form_submit_button("Kanal Ekle"):
+                if st.form_submit_button("➕ Kanal Ekle"):
                     if yeni_yer:
                         supabase.table("tanimlar").insert({"tip": "satilan_yer", "deger": yeni_yer.strip().title()}).execute()
-                        st.success("Eklendi!")
+                        st.success("✅ Eklendi!")
                         st.rerun()
             kan_t_res = supabase.table("tanimlar").select("deger").eq("tip", "satilan_yer").order("deger", desc=False).execute()
             st.dataframe(pd.DataFrame(kan_t_res.data).rename(columns={"deger": "Kanal Adı"}) if kan_t_res.data else pd.DataFrame(columns=["Kanal Adı"]), use_container_width=True, hide_index=True)
@@ -1178,17 +1174,17 @@ if check_password():
         with tab3:
             with st.form("tedarikci_form"):
                 yeni_ted = st.text_input("Yeni Tedarikçi Adı")
-                if st.form_submit_button("Tedarikçi Ekle"):
+                if st.form_submit_button("➕ Tedarikçi Ekle"):
                     if yeni_ted:
                         supabase.table("tanimlar").insert({"tip": "alinan_yer", "deger": yeni_ted.strip().title()}).execute()
-                        st.success("Eklendi!")
+                        st.success("✅ Eklendi!")
                         st.rerun()
             ted_t_res = supabase.table("tanimlar").select("deger").eq("tip", "alinan_yer").order("deger", desc=False).execute()
             st.dataframe(pd.DataFrame(ted_t_res.data).rename(columns={"deger": "Tedarikçi Adı"}) if ted_t_res.data else pd.DataFrame(columns=["Tedarikçi Adı"]), use_container_width=True, hide_index=True)
     
     # --- 9. RAPORLAR VE ÖZET ---
-    elif menu == " 9. Raporlar ve Özet":
-        st.header(" Detaylı Finansal Özet, Kârlılık ve Analiz Paneli")
+    elif menu == "📊 9. Raporlar ve Özet":
+        st.header("📊 Detaylı Finansal Özet, Kârlılık ve Analiz Paneli")
         satis_df = pd.DataFrame(supabase.table("satis").select("*").execute().data)
         stok_df = pd.DataFrame(supabase.table("stok").select("*").execute().data)
         hb_df = pd.DataFrame(supabase.table("hepsi_burada").select("*").execute().data)
@@ -1211,13 +1207,13 @@ if check_password():
             toplam_net_kar = hb_net + web_net + dukkan_net
     
             col_r1, col_r2, col_r3, col_r4 = st.columns(4)
-            col_r1.metric(" Toplam Sipariş", f"{toplam_siparis} Adet")
-            col_r2.metric(" Satılan Ürün Adeti", f"{toplam_satis_adet} Adet")
-            col_r3.metric(" Toplam Brüt Ciro", para_formatla(toplam_genel_ciro))
-            col_r4.metric(" Toplam Net Kâr", para_formatla(toplam_net_kar))
+            col_r1.metric("📦 Toplam Sipariş", f"{toplam_siparis} Adet")
+            col_r2.metric("🛍️ Satılan Ürün Adeti", f"{toplam_satis_adet} Adet")
+            col_r3.metric("💵 Toplam Brüt Ciro", para_formatla(toplam_genel_ciro))
+            col_r4.metric("📈 Toplam Net Kâr", para_formatla(toplam_net_kar))
     
             st.divider()
-            st.subheader(" Satış Kanallarına Göre Performans ve Ciro Dağılımı")
+            st.subheader("🛒 Satış Kanallarına Göre Performans ve Ciro Dağılımı")
             kanal_ozet = satis_df.groupby('satilan_yer').agg(
                 Siparis_Sayisi=('satis_adet', 'count'),
                 Toplam_Adet=('satis_adet', 'sum'),
@@ -1227,7 +1223,7 @@ if check_password():
             st.dataframe(kanal_ozet.rename(columns={'satilan_yer': 'Satış Kanalı', 'Siparis_Sayisi': 'Sipariş Adedi', 'Toplam_Adet': 'Satılan Adet'})[['Satış Kanalı', 'Sipariş Adedi', 'Satılan Adet', 'Toplam Ciro']], use_container_width=True, hide_index=True)
     
             st.divider()
-            st.subheader(" En Çok Satan Ürünler (Adet) ve  En Çok Ciro Getiren Ürünler")
+            st.subheader("🔥 En Çok Satan Ürünler (Adet) ve 💰 En Çok Ciro Getiren Ürünler")
             
             if not stok_df.empty:
                 stok_map_ad = {}
@@ -1254,19 +1250,19 @@ if check_password():
     
                 col_u1, col_u2 = st.columns(2)
                 with col_u1:
-                    st.markdown("#####  En Çok Satan Ürünler (Adet)")
+                    st.markdown("##### 🔥 En Çok Satan Ürünler (Adet)")
                     en_cok_satanlar = urun_bazli.sort_values(by='Toplam_Adet', ascending=False).head(5).copy()
                     en_cok_satanlar['Toplam Ciro'] = en_cok_satanlar['Toplam_Ciro'].apply(para_formatla)
                     st.dataframe(en_cok_satanlar.rename(columns={'Urun_Adi_Genel': 'Ürün Adı', 'Kategori_Genel': 'Kategori', 'Toplam_Adet': 'Satılan Adet'})[['Ürün Adı', 'Kategori', 'Satılan Adet', 'Toplam Ciro']], use_container_width=True, hide_index=True)
     
                 with col_u2:
-                    st.markdown("#####  En Çok Ciro Getiren Ürünler")
+                    st.markdown("##### 💰 En Çok Ciro Getiren Ürünler")
                     en_cok_ciro_getirenler = urun_bazli.sort_values(by='Toplam_Ciro', ascending=False).head(5).copy()
                     en_cok_ciro_getirenler['Toplam Ciro'] = en_cok_ciro_getirenler['Toplam_Ciro'].apply(para_formatla)
                     st.dataframe(en_cok_ciro_getirenler.rename(columns={'Urun_Adi_Genel': 'Ürün Adı', 'Kategori_Genel': 'Kategori', 'Toplam_Adet': 'Satılan Adet'})[['Ürün Adı', 'Kategori', 'Satılan Adet', 'Toplam Ciro']], use_container_width=True, hide_index=True)
     
                 st.divider()
-                st.subheader(" Kategori / Marka Bazlı Satış Performansı")
+                st.subheader("📂 Kategori / Marka Bazlı Satış Performansı")
                 kat_bazli = satis_df.groupby('Kategori_Genel').agg(
                     Siparis_Sayisi=('satis_adet', 'count'),
                     Toplam_Adet=('satis_adet', 'sum'),
@@ -1276,9 +1272,9 @@ if check_password():
                 st.dataframe(kat_bazli.rename(columns={'Kategori_Genel': 'Kategori / Marka', 'Siparis_Sayisi': 'Sipariş Adedi', 'Toplam_Adet': 'Satılan Ürün Adeti'})[['Kategori / Marka', 'Sipariş Adedi', 'Satılan Ürün Adeti', 'Toplam Ciro']], use_container_width=True, hide_index=True)
     
             st.divider()
-            st.subheader(" Kanal Bazlı Detaylı Net Kârlılık ve Gider Analizi")
+            st.subheader("📋 Kanal Bazlı Detaylı Net Kârlılık ve Gider Analizi")
             
-            tab_r1, tab_r2, tab_r3 = st.tabs([" Hepsi Burada Detayları", " Web Sitesi Detayları", " Dükkan & Elden Detayları"])
+            tab_r1, tab_r2, tab_r3 = st.tabs(["🛍️ Hepsi Burada Detayları", "🌐 Web Sitesi Detayları", "🏪 Dükkan & Elden Detayları"])
             
             with tab_r1:
                 if not hb_df.empty:
@@ -1294,7 +1290,7 @@ if check_password():
                                 "Komisyon": para_formatla(r['komisyon']), "Kargo": para_formatla(r['kargo']), "Net Kâr": para_formatla(r['net_kar_zarar'])
                             })
                         st.dataframe(pd.DataFrame(hb_rapor_tablosu), use_container_width=True, hide_index=True)
-                else: st.info("Hepsi Burada verisi yok.")
+                else: st.info("ℹ️ Hepsi Burada verisi yok.")
     
             with tab_r2:
                 if not web_df.empty:
@@ -1310,7 +1306,7 @@ if check_password():
                                 "POS Kesintisi": para_formatla(r['pos_kesintisi']), "Kargo": para_formatla(r['kargo']), "Net Kâr": para_formatla(r['net_kar_zarar'])
                             })
                         st.dataframe(pd.DataFrame(web_rapor_tablosu), use_container_width=True, hide_index=True)
-                else: st.info("Web sitesi verisi yok.")
+                else: st.info("ℹ️ Web sitesi verisi yok.")
     
             with tab_r3:
                 if not dukkan_df.empty:
@@ -1326,13 +1322,13 @@ if check_password():
                                 "POS Kesintisi": para_formatla(r['pos_kesintisi']), "Net Kâr": para_formatla(r['net_kar_zarar'])
                             })
                         st.dataframe(pd.DataFrame(dukkan_rapor_tablosu), use_container_width=True, hide_index=True)
-                else: st.info("Dükkan verisi yok.")
+                else: st.info("ℹ️ Dükkan verisi yok.")
         else: 
-            st.info(" Raporlama için yeterli satış kaydı bulunmuyor.")
+            st.info("ℹ️ Raporlama için yeterli satış kaydı bulunmuyor.")
     
     # --- 10. AYLIK DETAYLI RAPORLAR ---
-    elif menu == " 10. Aylık Detaylı Raporlar":
-        st.header(" Tarih Aralıklı ve Aylık Detaylı Raporlar")
+    elif menu == "📅 10. Aylık Detaylı Raporlar":
+        st.header("📅 Tarih Aralıklı ve Aylık Detaylı Raporlar")
         satis_res = supabase.table("satis").select("tarih, satis_adet, toplam_tutar").execute()
         satis_df = pd.DataFrame(satis_res.data) if satis_res.data else pd.DataFrame()
         
@@ -1340,7 +1336,7 @@ if check_password():
             satis_df['Tarih_dt'] = pd.to_datetime(satis_df['tarih'], format="%d.%m.%Y", errors='coerce')
             satis_df = satis_df.dropna(subset=['Tarih_dt'])
             
-            st.subheader(" Tarih Aralığı Filtreleme")
+            st.subheader("🔍 Tarih Aralığı Filtreleme")
             min_tarih = satis_df['Tarih_dt'].min().date()
             max_tarih = satis_df['Tarih_dt'].max().date()
     
@@ -1349,15 +1345,15 @@ if check_password():
             with col_t2: bitis_tarihi = st.date_input("Bitiş Tarihi", value=max_tarih, min_value=min_tarih, max_value=max_tarih, key="rapor_bit_tarih")
     
             if baslangic_tarihi > bitis_tarihi:
-                st.error(" Başlangıç tarihi bitiş tarihinden sonra olamaz!")
+                st.error("⚠️ Başlangıç tarihi bitiş tarihinden sonra olamaz!")
             else:
                 filtreli_df = satis_df[(satis_df['Tarih_dt'].dt.date >= baslangic_tarihi) & (satis_df['Tarih_dt'].dt.date <= bitis_tarihi)].copy()
                 if not filtreli_df.empty:
                     filtreli_df['Tutar_Val'] = filtreli_df['toplam_tutar'].apply(para_metin_to_float)
                     c_m1, c_m2, c_m3 = st.columns(3)
-                    c_m1.metric(" Sipariş Sayısı", f"{len(filtreli_df)} Adet")
-                    c_m2.metric(" Satılan Ürün", f"{filtreli_df['satis_adet'].sum()} Adet")
-                    c_m3.metric(" Toplam Ciro", para_formatla(filtreli_df['Tutar_Val'].sum()))
+                    c_m1.metric("📦 Sipariş Sayısı", f"{len(filtreli_df)} Adet")
+                    c_m2.metric("🛍️ Satılan Ürün", f"{filtreli_df['satis_adet'].sum()} Adet")
+                    c_m3.metric("💵 Toplam Ciro", para_formatla(filtreli_df['Tutar_Val'].sum()))
     
                     st.divider()
                     filtreli_df['Ay'] = filtreli_df['Tarih_dt'].dt.strftime("%m.%Y")
@@ -1368,5 +1364,5 @@ if check_password():
                     ).reset_index().sort_values(by='Ay', ascending=False)
                     aylik_ozet['Toplam Ciro'] = aylik_ozet['Toplam_Ciro'].apply(para_formatla)
                     st.dataframe(aylik_ozet.rename(columns={'Ay': 'Ay (AA.YYYY)', 'Toplam_Siparis': 'Toplam Sipariş', 'Toplam_Adet': 'Ürün Adeti'})[['Ay (AA.YYYY)', 'Toplam Sipariş', 'Ürün Adeti', 'Toplam Ciro']], use_container_width=True, hide_index=True)
-                else: st.info("Seçilen tarih aralığında satış kaydı bulunmamaktadır.")
-        else: st.info("Henüz raporlanacak satış kaydı bulunmuyor.")
+                else: st.info("ℹ️ Seçilen tarih aralığında satış kaydı bulunmamaktadır.")
+        else: st.info("ℹ️ Henüz raporlanacak satış kaydı bulunmuyor.")
