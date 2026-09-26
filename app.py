@@ -1328,7 +1328,7 @@ if check_password():
     
     # --- 10. AYLIK DETAYLI RAPORLAR ---
      elif menu == "📅 Aylık Rapor":
-        st.header("📅 Aylık Rapor")
+         st.header("📅 Aylık Rapor")
         
         # Satış ve Alış verilerini Supabase'den çekiyoruz
         satis_res = supabase.table("satis").select("tarih, satis_adet, toplam_tutar").execute()
