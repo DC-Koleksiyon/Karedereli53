@@ -1,4 +1,53 @@
 import streamlit as st
+from supabase import create_client, Client
+import os
+from datetime import datetime
+
+st.set_page_config(page_title="Stok & Takip Sistemi", layout="wide")
+
+# --- KULLANICI GİRİŞ KONTROLÜ ---
+def check_password():
+    def password_entered():
+        # Belirttiğiniz kullanıcı adı ve şifre buraya tanımlandı:
+        if (
+            st.session_state["username"] == "Sedat-Burak"
+            and st.session_state["password"] == "Zeus5341"
+        ):
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  
+            del st.session_state["username"]
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        st.subheader("🔒 Stok & Takip Sistemi Girişi")
+        st.text_input("Kullanıcı Adı", key="username")
+        st.text_input("Şifre", type="password", key="password")
+        st.button("Giriş Yap", on_click=password_entered)
+        return False
+    elif not st.session_state["password_correct"]:
+        st.subheader("🔒 Stok & Takip Sistemi Girişi")
+        st.text_input("Kullanıcı Adı", key="username")
+        st.text_input("Şifre", type="password", key="password")
+        st.button("Giriş Yap", on_click=password_entered)
+        st.error("😕 Kullanıcı adı veya şifre yanlış")
+        return False
+    else:
+        return True
+
+# Giriş başarılı olursa uygulamanın kalanı çalışır:
+if check_password():
+    
+    # --- SUPABASE BAĞLANTISI ---
+    @st.cache_resource
+    def init_supabase():
+        url = st.secrets["SUPABASE_URL"]
+        key = st.secrets["SUPABASE_KEY"]
+        return create_client(url, key)
+
+    supabase: Client = init_supabase()
+    
+    # --- DİĞER TÜM KODLARINIZ BURAYA GELECEK ---import streamlit as st
 import sqlite3
 import os
 from datetime import datetime
