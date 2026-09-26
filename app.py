@@ -1327,8 +1327,8 @@ if check_password():
             st.info("ℹ️ Raporlama için yeterli satış kaydı bulunmuyor.")
     
     # --- 10. AYLIK DETAYLI RAPORLAR ---
-     elif menu == "📅 Aylık Rapor":
-         st.header("📅 Aylık Rapor")
+        elif menu == "📅 Aylık Rapor":
+        st.header("📅 Aylık Rapor")
         
         # Satış ve Alış verilerini Supabase'den çekiyoruz
         satis_res = supabase.table("satis").select("tarih, satis_adet, toplam_tutar").execute()
@@ -1418,6 +1418,3 @@ if check_password():
                 st.info("ℹ️ Tarih verisi bulunamadı.")
         else: 
             st.info("ℹ️ Henüz raporlanacak kayıt bulunmuyor.")
-            st.info("ℹ️ Tarih verisi bulunamadı.")
-    else: 
-        st.info("ℹ️ Henüz raporlanacak kayıt bulunmuyor.")
