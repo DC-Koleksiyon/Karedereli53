@@ -1446,7 +1446,7 @@ if check_password():
         web_df = pd.DataFrame(web_res.data) if web_res.data else pd.DataFrame()
         
         dukkan_res = supabase.table("dukkan_elden").select("tarih, giderler_girildi, net_kar_zarar").execute()
-        dukkan_df = pd.DataFrame(dukkan_res.data) if dukkan_res.data else pd.DataFrame()
+        dukkan_df = pd.DataFrame(dukkan_res.data) if dukkan_df.data else pd.DataFrame()
         
         tum_tarihler = []
         if not satis_df.empty:
@@ -1503,21 +1503,18 @@ if check_password():
                         
                         siparis_sayisi = int(s_satir['Toplam_Siparis'].values[0]) if not s_satir.empty else 0
                         satilan_adet = int(s_satir['Satilan_Adet'].values[0]) if not s_satir.empty else 0
-                        toplam_ciro = float(s_satir['Toplam_Ciro'].values[0]) if not s_satir.empty else 0.0
+                        ciro = float(s_satir['Toplam_Ciro'].values[0]) if not s_satir.empty else 0.0
                         
                         rapor_verisi.append({
                             "Ay": ay,
-                            "Alınan Ürün Adeti": alinan_adet,
+                            "Alınan Adet": alinan_adet,
                             "Alış Maliyeti": para_formatla(alinan_maliyet),
-                            "Sipariş Sayısı": siparis_sayisi,
-                            "Satılan Ürün Adeti": satilan_adet,
-                            "Brüt Ciro": para_formatla(toplam_ciro)
+                            "Sipariş Adedi": siparis_sayisi,
+                            "Satılan Adet": satilan_adet,
+                            "Brüt Ciro": para_formatla(ciro)
                         })
-                    
-                    st.divider()
-                    st.subheader(" Seçilen Tarih Aralığı Aylık Özeti")
                     st.dataframe(pd.DataFrame(rapor_verisi), use_container_width=True, hide_index=True)
                 else:
                     st.info(" Seçilen tarih aralığında veri bulunamadı.")
         else:
-            st.info(" Rapor oluşturulacak yeterli tarih verisi bulunmuyor.")
+            st.info(" Raporlama için tarih bilgisi içeren kayıt bulunmuyor.")
