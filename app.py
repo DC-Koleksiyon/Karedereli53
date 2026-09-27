@@ -850,7 +850,6 @@ if check_password():
     elif menu == " 4. Hepsi Burada":
         st.header(" Hepsi Burada Finans ve Kar/Zarar Yönetimi")
         
-        # Gider düzenleme modu için session state kontrolü
         if "hb_duzenle_id" not in st.session_state:
             st.session_state.hb_duzenle_id = None
 
@@ -961,7 +960,6 @@ if check_password():
                 if not tamamlanan_df.empty:
                     st.subheader(" Gider ve Finans Detayları Tamamlanmış Siparişler")
                     
-                    # Eğer bir sipariş için düzenle butonuna basıldıysa form açalım
                     if st.session_state.hb_duzenle_id:
                         duzenlenen_kayit_res = tamamlanan_df[tamamlanan_df['id'] == st.session_state.hb_duzenle_id]
                         if not duzenlenen_kayit_res.empty:
@@ -1001,7 +999,6 @@ if check_password():
                                         st.rerun()
                             st.divider()
 
-                    # Tablo başlıkları
                     b_cols = st.columns([1.1, 1.2, 1.3, 1.8, 0.6, 1.2, 1.4, 1.3, 1.3, 1.4, 0.8])
                     b_cols[0].markdown("**Tarih**")
                     b_cols[1].markdown("**Sipariş No**")
@@ -1449,7 +1446,7 @@ if check_password():
         web_df = pd.DataFrame(web_res.data) if web_res.data else pd.DataFrame()
         
         dukkan_res = supabase.table("dukkan_elden").select("tarih, giderler_girildi, net_kar_zarar").execute()
-        dukkan_df = pd.DataFrame(dukkan_res.data) if dukkan_res.data else pd.DataFrame()
+        dukkan_df = pd.DataFrame(dukkan_res.data) if dukkan_df.data else pd.DataFrame()
         
         tum_tarihler = []
         if not satis_df.empty:
@@ -1494,10 +1491,30 @@ if check_password():
                 else:
                     satis_aylik = pd.DataFrame(columns=['Ay', 'Toplam_Siparis', 'Satilan_Adet', 'Toplam_Ciro'])
                 
-                tum_kar_df_list = []
-                for df_channel in [hb_df, web_df, dukkan_df]:
-                    if not df_channel.empty and 'giderler_girildi' in df_channel.columns and 'net_kar_zarar' in df_channel.columns:
-                        tamamlanan_chan = df_channel[df_channel['giderler_girildi'] == 1].copy()
-                        if not tamamlanan_chan.empty:
-                            tamamlanan_chan['Tarih_dt'] = pd.to_datetime(tamamlanan_chan['tarih'], format="%d.%m.%Y", errors='coerce')
-                            tum_kar_df_list.append(tamamlanan_chan[['Tarih_dt', 'net_kar_zarar']])
+                tum_aylar = sorted(list(set(alis_aylik['Ay'].tolist() + satis_aylik['Ay'].tolist())))
+                if tum_aylar:
+                    rapor_verisi = []
+                    for ay in tum_aylar:
+                        a_satir = alis_aylik[alis_aylik['Ay'] == ay]
+                        s_satir = satis_aylik[satis_aylik['Ay'] == ay]
+                        
+                        alinan_adet = int(a_satir['Alinan_Urun_Adeti'].values[0]) if not a_satir.empty else 0
+                        alinan_maliyet = float(a_satir['Alinan_Maliyet_Top'].values[0]) if not a_satir.empty else 0.0
+                        
+                        siparis_sayisi = int(s_satir['Toplam_Siparis'].values[0]) if not s_satir.empty else 0
+                        satilan_adet = int(s_satir['Satilan_Adet'].values[0]) if not s_satir.empty else 0
+                        ciro = float(s_satir['Toplam_Ciro'].values[0]) if not s_satir.empty else 0.0
+                        
+                        rapor_verisi.append({
+                            "Ay": ay,
+                            "Alınan Adet": alinan_adet,
+                            "Alış Maliyeti": para_formatla(alinan_maliyet),
+                            "Sipariş Adedi": siparis_sayisi,
+                            "Satılan Adet": satilan_adet,
+                            "Brüt Ciro": para_formatla(ciro)
+                        })
+                    st.dataframe(pd.DataFrame(rapor_verisi), use_container_width=True, hide_index=True)
+                else:
+                    st.info(" Seçilen tarih aralığında veri bulunamadı.")
+        else:
+            st.info(" Raporlama için tarih bilgisi içeren kayıt bulunmuyor.")
