@@ -1764,8 +1764,8 @@ if check_password():
 
     # --- 10. AYLIK DETAYLI RAPORLAR ---
     elif menu == " 10. Aylık Detaylı Raporlar":
-        st.header(" Aylık Detaylı Raporlar ve Satır Satır Döküm")
-        st.write("Bu bölümde, yapılan satışların ve tamamlanan giderlerin aylık bazda kırılımını; satış adeti, satış cirosu, maliyet ve net kâr/zarar olarak inceleyebilirsiniz.")
+        st.header(" Aylık Detaylı Raporlar, Kanal Kırılımı ve Stok Eğilimi")
+        st.write("Bu bölümde aylık bazda ciro, maliyet, net kâr, kârlılık oranı (%), kanal bazlı dağılımlar ve stok değişim eğilimlerini takip edebilirsiniz.")
         
         satis_res = supabase.table("satis").select("*").execute()
         satis_verileri = satis_res.data if satis_res.data else []
@@ -1789,7 +1789,6 @@ if check_password():
                         "net_kar": net_kar_degeri
                     }
 
-        # Stok girişlerini aylık bazda gruplayalım
         stok_aylik_sozlugu = {}
         if stok_verileri:
             for st_item in stok_verileri:
@@ -1849,23 +1848,45 @@ if check_password():
                     Toplam_Kar=('Kâr / Zarar', 'sum')
                 ).reset_index().sort_values(by="Yil_Ay", ascending=False)
                 
-                # Stok giriş bilgilerini genel özet tablosuna ekleyelim
                 df_grup_ay["Alınan Ürün Adeti"] = df_grup_ay["Yil_Ay"].apply(lambda x: stok_aylik_sozlugu.get(x, {}).get("adet", 0))
                 df_grup_ay["Toplam Alınan Maliyet"] = df_grup_ay["Yil_Ay"].apply(lambda x: para_formatla(stok_aylik_sozlugu.get(x, {}).get("maliyet", 0.0)))
+                
+                # Özellik 3: Net Stok Farkı (Giren - Satılan)
+                df_grup_ay["Net Stok Farkı"] = df_grup_ay["Alınan Ürün Adeti"] - df_grup_ay["Toplam_Adet"]
+                
+                # Özellik 1: Net Kârlılık Oranı (%)
+                df_grup_ay["Net Kârlılık Oranı (%)"] = df_grup_ay.apply(
+                    lambda row: f"{(row['Toplam_Kar'] / row['Toplam_Ciro'] * 100):.1f}%" if row['Toplam_Ciro'] > 0 else "0.0%", axis=1
+                )
                 
                 df_grup_ay["Satış Cirosu"] = df_grup_ay["Toplam_Ciro"].apply(para_formatla)
                 df_grup_ay["Toplam Maliyet"] = df_grup_ay["Toplam_Maliyet"].apply(para_formatla)
                 df_grup_ay["Net Kâr / Zarar"] = df_grup_ay["Toplam_Kar"].apply(para_formatla)
                 
-                goster_grup_df = df_grup_ay[["Ay", "Toplam_Siparis", "Toplam_Adet", "Alınan Ürün Adeti", "Toplam Alınan Maliyet", "Satış Cirosu", "Toplam Maliyet", "Net Kâr / Zarar"]]
+                goster_grup_df = df_grup_ay[["Ay", "Toplam_Siparis", "Toplam_Adet", "Alınan Ürün Adeti", "Net Stok Farkı", "Toplam Alınan Maliyet", "Satış Cirosu", "Toplam Maliyet", "Net Kâr / Zarar", "Net Kârlılık Oranı (%)"]]
                 st.dataframe(goster_grup_df.rename(columns={"Ay": "Dönem (Ay)", "Toplam_Siparis": "Sipariş Sayısı", "Toplam_Adet": "Satılan Adet"}), use_container_width=True, hide_index=True)
                 
                 st.divider()
-                st.subheader(" Seçilen Aya Ait Satır Satır Detaylı Rapor")
+                st.subheader(" Seçilen Aya Ait Satır Satır Detaylı Rapor ve Kanal Kırılımı")
                 secilen_donem = st.selectbox("İncelemek İstediğiniz Ayı Seçin:", df_grup_ay["Ay"].tolist())
                 
                 df_secilen_ay = df_aylik_ham[df_aylik_ham["Ay"] == secilen_donem].copy()
                 
+                # Özellik 2: Seçilen Aya Ait Kanal Bazlı Kırılım (Expandable / Genişletilebilir Alt Özet)
+                with st.expander(f"📊 {secilen_donem} Dönemi Satış Kanalları Kırılımı", expanded=True):
+                    kanal_kirilim = df_secilen_ay.groupby("Satış Yeri").agg(
+                        Sipariş_Adedi=('Sipariş No', 'count'),
+                        Satılan_Adet=('Satış Adeti', 'sum'),
+                        Toplam_Ciro=('Satış Cirosu', 'sum'),
+                        Toplam_Kar=('Kâr / Zarar', 'sum')
+                    ).reset_index()
+                    
+                    kanal_kirilim["Toplam Ciro"] = kanal_kirilim["Toplam_Ciro"].apply(para_formatla)
+                    kanal_kirilim["Net Kâr / Zarar"] = kanal_kirilim["Toplam_Kar"].apply(para_formatla)
+                    
+                    st.dataframe(kanal_kirilim.rename(columns={"Satış Yeri": "Satış Kanalı", "Sipariş_Adedi": "Sipariş Sayısı", "Satılan_Adet": "Satılan Adet"})[["Satış Kanalı", "Sipariş Sayısı", "Satılan Adet", "Toplam Ciro", "Net Kâr / Zarar"]], use_container_width=True, hide_index=True)
+
+                st.markdown("#### 📝 Satır Satır Satış Dökümü")
                 df_secilen_ay["Satış Cirosu"] = df_secilen_ay["Satış Cirosu"].apply(para_formatla)
                 df_secilen_ay["Malın Maliyeti"] = df_secilen_ay["Malın Maliyeti"].apply(para_formatla)
                 df_secilen_ay["Kâr / Zarar"] = df_secilen_ay["Kâr / Zarar"].apply(para_formatla)
