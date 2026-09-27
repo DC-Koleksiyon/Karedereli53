@@ -306,7 +306,6 @@ if check_password():
                 st.session_state.duzenlenen_kod = None
                 st.rerun()
             
-            # Düzenleme formu
             kayit_res = supabase.table("stok").select("*").eq("urun_kodu", st.session_state.duzenlenen_kod).order("id", desc=True).limit(1).execute()
             if kayit_res.data:
                 k_item = kayit_res.data[0]
@@ -324,9 +323,8 @@ if check_password():
                     
                     d_adet = st.number_input("Adet *", min_value=1, value=int(k_item.get("adet") or 1))
                     
-                    # Eski toplam maliyetten birim fiyatı tahmin etmeye çalışalım
                     eski_top_mal = para_metin_to_float(k_item.get("toplam_maliyet"))
-                    eski_ birim = eski_top_mal / int(k_item.get("adet") or 1) if int(k_item.get("adet") or 1) > 0 else 0.0
+                    eski_birim = eski_top_mal / int(k_item.get("adet") or 1) if int(k_item.get("adet") or 1) > 0 else 0.0
                     d_birim_fiyat = st.number_input("Birim Maliyet Fiyatı (TL) *", min_value=0.0, value=float(eski_birim), format="%.2f")
                     
                     if st.form_submit_button("Güncellemeyi Kaydet"):
@@ -348,7 +346,6 @@ if check_password():
                             st.session_state.duzenlenen_kod = None
                             st.rerun()
         else:
-            # Sekmeli Yapı (Yeni Ürün vs Mevcut Ürüne Stok Ekle)
             tab_yeni, tab_stok_ekle = st.tabs(["✨ 1. Sıfırdan Yeni Ürün Ekle", "📦 2. Kayıtlı Ürüne Mal Kabul / Stok Ekle"])
             
             with tab_yeni:
@@ -404,7 +401,6 @@ if check_password():
                 st.subheader("Daha Önce Kayıtlı Ürüne Ek Mal Kabul / Stok Girişi")
                 st.write("Sistemde kayıtlı bir ürünü seçin veya barkodunu okutun; ürün adı, kodu ve kategorisi otomatik gelsin.")
                 
-                # Tüm benzersiz ürünleri çekelim
                 stk_tum_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi, kategori_marka, resim_yolu").execute()
                 kayitli_urunler = stk_tum_res.data if stk_tum_res.data else []
                 
