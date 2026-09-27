@@ -203,12 +203,12 @@ if check_password():
     
     veritabani_kontrol()
     
-    # Güncel Stok ve Stok Geçmişi menüleri yan yana (ardışık) olacak şekilde düzenlendi
+    # Stok Geçmişi menüden çıkarıldı, artık Güncel Stok altında sekme olarak yer alıyor
     menu_listesi = [
         " 0. Ana Panel", " 1. Ürün Girişi", " 2. Satış İşlemleri", 
-        " 3. Güncel Stok", " 4. Stok Geçmişi", " 5. Hepsi Burada", " 6. Web Sitesi",
-        " 7. Dükkan & Elden", " 8. Müşteri Analizi", " 9. Tanımlamalar",
-        " 10. Raporlar ve Özet", " 11. Aylık Detaylı Raporlar"
+        " 3. Güncel Stok & Geçmiş", " 4. Hepsi Burada", " 5. Web Sitesi",
+        " 6. Dükkan & Elden", " 7. Müşteri Analizi", " 8. Tanımlamalar",
+        " 9. Raporlar ve Özet", " 10. Aylık Detaylı Raporlar"
     ]
     
     if "aktif_menu" not in st.session_state:
@@ -237,28 +237,28 @@ if check_password():
                 st.rerun()
             
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 3. Güncel Stok\n\n Kalan Ürünler", use_container_width=True, key="card_3"):
-                st.session_state.aktif_menu = " 3. Güncel Stok"
+            if st.button(" 3. Güncel Stok & Geçmiş\n\n Kalan Ürünler & Hareketler", use_container_width=True, key="card_3"):
+                st.session_state.aktif_menu = " 3. Güncel Stok & Geçmiş"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 5. Hepsi Burada\n\n Pazaryeri Yönetimi", use_container_width=True, key="card_5"):
-                st.session_state.aktif_menu = " 5. Hepsi Burada"
+            if st.button(" 4. Hepsi Burada\n\n Pazaryeri Yönetimi", use_container_width=True, key="card_4"):
+                st.session_state.aktif_menu = " 4. Hepsi Burada"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 7. Dükkan & Elden\n\n Mağaza Satışları", use_container_width=True, key="card_7"):
-                st.session_state.aktif_menu = " 7. Dükkan & Elden"
+            if st.button(" 6. Dükkan & Elden\n\n Mağaza Satışları", use_container_width=True, key="card_6"):
+                st.session_state.aktif_menu = " 6. Dükkan & Elden"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 9. Tanımlamalar\n\n Kategori & Kanallar", use_container_width=True, key="card_9"):
-                st.session_state.aktif_menu = " 9. Tanımlamalar"
+            if st.button(" 8. Tanımlamalar\n\n Kategori & Kanallar", use_container_width=True, key="card_8"):
+                st.session_state.aktif_menu = " 8. Tanımlamalar"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 11. Aylık Detaylı Raporlar\n\n Tarih Aralığı Döküm", use_container_width=True, key="card_11"):
-                st.session_state.aktif_menu = " 11. Aylık Detaylı Raporlar"
+            if st.button(" 10. Aylık Detaylı Raporlar\n\n Tarih Aralığı Döküm", use_container_width=True, key="card_10"):
+                st.session_state.aktif_menu = " 10. Aylık Detaylı Raporlar"
                 st.rerun()
     
         with col_b:
@@ -267,23 +267,18 @@ if check_password():
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 4. Stok Geçmişi\n\n Ürün Hareketleri", use_container_width=True, key="card_4"):
-                st.session_state.aktif_menu = " 4. Stok Geçmişi"
+            if st.button(" 5. Web Sitesi\n\n E-Ticaret Satışları", use_container_width=True, key="card_5"):
+                st.session_state.aktif_menu = " 5. Web Sitesi"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 6. Web Sitesi\n\n E-Ticaret Satışları", use_container_width=True, key="card_6"):
-                st.session_state.aktif_menu = " 6. Web Sitesi"
+            if st.button(" 7. Müşteri Analizi\n\n Müşteri Liderlik", use_container_width=True, key="card_7"):
+                st.session_state.aktif_menu = " 7. Müşteri Analizi"
                 st.rerun()
     
             st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 8. Müşteri Analizi\n\n Müşteri Liderlik", use_container_width=True, key="card_8"):
-                st.session_state.aktif_menu = " 8. Müşteri Analizi"
-                st.rerun()
-    
-            st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-            if st.button(" 10. Raporlar ve Özet\n\n Detaylı Finansal Özet", use_container_width=True, key="card_10"):
-                st.session_state.aktif_menu = " 10. Raporlar ve Özet"
+            if st.button(" 9. Raporlar ve Özet\n\n Detaylı Finansal Özet", use_container_width=True, key="card_9"):
+                st.session_state.aktif_menu = " 9. Raporlar ve Özet"
                 st.rerun()
     
     # --- 1. ÜRÜN GİRİŞİ ---
@@ -452,7 +447,7 @@ if check_password():
                                 
                             if st.form_submit_button("Stok Girişini Tamamla"):
                                 if ek_birim_fiyat <= 0 or ek_adet <= 0:
-                                    st.error("Lütfen adet and birim fiyat giriniz.")
+                                    st.error("Lütfen adet ve birim fiyat giriniz.")
                                 else:
                                     kdvli_b = ek_birim_fiyat * 1.20 if ek_kdv == "KDV'siz" else ek_birim_fiyat
                                     toplam_mal_ek = kdvli_b * ek_adet
@@ -901,204 +896,208 @@ if check_password():
         else:
             st.info(" Kayıt bulunamadı.")
     
-    # --- 3. GÜNCEL STOK ---
-    elif menu == " 3. Güncel Stok":
-        st.header(" Güncel Kalan Stok ve FIFO Maliyet Özeti")
+    # --- 3. GÜNCEL STOK & STOK GEÇMİŞİ (TEK SEGMENT İÇİNDE SEKME) ---
+    elif menu == " 3. Güncel Stok & Geçmiş":
+        st.header(" Stok Yönetim Paneli")
         
-        stok_rows_res = supabase.table("stok").select("*").order("id", desc=False).execute()
-        stok_rows = pd.DataFrame(stok_rows_res.data) if stok_rows_res.data else pd.DataFrame()
+        tab_guncel, tab_gecmis = st.tabs(["📦 Güncel Kalan Stoklar", "📈 Ürün Bazlı Stok & Satış Geçmişi"])
         
-        satis_rows_res = supabase.table("satis").select("barkod_kod, satis_adet").execute()
-        satis_rows = pd.DataFrame(satis_rows_res.data) if satis_rows_res.data else pd.DataFrame()
-        
-        kat_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger", desc=False).execute()
-        kategori_listesi = ["Tümü"] + [row["deger"] for row in kat_res.data] if kat_res.data else ["Tümü"]
-    
-        bugun = datetime.now()
-        satis_dict = {}
-        if not satis_rows.empty:
-            for _, row in satis_rows.iterrows():
-                sk = str(row['barkod_kod']).strip().lower()
-                satis_dict[sk] = satis_dict.get(sk, 0) + row['satis_adet']
-    
-        partiler_gruplu = {}
-        if not stok_rows.empty:
-            for _, r in stok_rows.iterrows():
-                barkod, kod = r.get('barkod') or "", r.get('urun_kodu') or ""
-                b_key = barkod.strip().lower()
-                k_key = kod.strip().lower()
-                anahtar = k_key if k_key else b_key
-                if anahtar not in partiler_gruplu: partiler_gruplu[anahtar] = []
-                partiler_gruplu[anahtar].append(r)
-    
-        st.subheader(" Stok Filtreleme & Kritik Seviye Ayarları")
-        c_f1, c_f2, c_f3, c_f4 = st.columns([2, 2, 2, 1])
-        with c_f1: stok_arama = st.text_input(" Stok / Barkod Arama:", placeholder="Barkod okutun veya arama yapın...", key="stok_arama_input").strip().lower()
-        with c_f2: secilen_kategori_filtre = st.selectbox(" Kategori / Marka Filtresi:", kategori_listesi)
-        with c_f3: stok_siralama = st.selectbox(" Sıralama Kriteri:", ["Kritik Stok / Azalan Adet ", "Rafta Bekleme Günü (En Eski) ", "Bağlı Sermaye (En Yüksek) ", "Ürün Adı (A-Z) ", "Kalan Adet (En Yüksek) "])
-        with c_f4: kritik_esik = st.number_input(" Kritik Stok Eşiği:", min_value=0, value=3, step=1)
-    
-        islenmis_stoklar = []
-        toplam_bagli_sermaye = 0.0
-    
-        for anahtar, partiler in partiler_gruplu.items():
-            toplam_satis_adet = satis_dict.get(anahtar, 0)
+        with tab_guncel:
+            st.subheader("Güncel Kalan Stok ve FIFO Maliyet Özeti")
             
-            kalan_satis_dusu = toplam_satis_adet
-            kalan_toplam_adet = 0
-            kalan_toplam_maliyet = 0.0
+            stok_rows_res = supabase.table("stok").select("*").order("id", desc=False).execute()
+            stok_rows = pd.DataFrame(stok_rows_res.data) if stok_rows_res.data else pd.DataFrame()
             
-            for p in partiler:
-                p_adet = p.get('adet', 0)
-                p_toplam_mal = para_metin_to_float(p.get('toplam_maliyet'))
-                p_birim_mal = p_toplam_mal / p_adet if p_adet > 0 else 0.0
+            satis_rows_res = supabase.table("satis").select("barkod_kod, satis_adet").execute()
+            satis_rows = pd.DataFrame(satis_rows_res.data) if satis_rows_res.data else pd.DataFrame()
+            
+            kat_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger", desc=False).execute()
+            kategori_listesi = ["Tümü"] + [row["deger"] for row in kat_res.data] if kat_res.data else ["Tümü"]
+        
+            bugun = datetime.now()
+            satis_dict = {}
+            if not satis_rows.empty:
+                for _, row in satis_rows.iterrows():
+                    sk = str(row['barkod_kod']).strip().lower()
+                    satis_dict[sk] = satis_dict.get(sk, 0) + row['satis_adet']
+        
+            partiler_gruplu = {}
+            if not stok_rows.empty:
+                for _, r in stok_rows.iterrows():
+                    barkod, kod = r.get('barkod') or "", r.get('urun_kodu') or ""
+                    b_key = barkod.strip().lower()
+                    k_key = kod.strip().lower()
+                    anahtar = k_key if k_key else b_key
+                    if anahtar not in partiler_gruplu: partiler_gruplu[anahtar] = []
+                    partiler_gruplu[anahtar].append(r)
+        
+            st.subheader("Stok Filtreleme & Kritik Seviye Ayarları")
+            c_f1, c_f2, c_f3, c_f4 = st.columns([2, 2, 2, 1])
+            with c_f1: stok_arama = st.text_input(" Stok / Barkod Arama:", placeholder="Barkod okutun veya arama yapın...", key="stok_arama_input").strip().lower()
+            with c_f2: secilen_kategori_filtre = st.selectbox(" Kategori / Marka Filtresi:", kategori_listesi)
+            with c_f3: stok_siralama = st.selectbox(" Sıralama Kriteri:", ["Kritik Stok / Azalan Adet ", "Rafta Bekleme Günü (En Eski) ", "Bağlı Sermaye (En Yüksek) ", "Ürün Adı (A-Z) ", "Kalan Adet (En Yüksek) "])
+            with c_f4: kritik_esik = st.number_input(" Kritik Stok Eşiği:", min_value=0, value=3, step=1)
+        
+            islenmis_stoklar = []
+            toplam_bagli_sermaye = 0.0
+        
+            for anahtar, partiler in partiler_gruplu.items():
+                toplam_satis_adet = satis_dict.get(anahtar, 0)
                 
-                if kalan_satis_dusu >= p_adet:
-                    kalan_satis_dusu -= p_adet
-                else:
-                    bu_partide_kalan = p_adet - kalan_satis_dusu
-                    kalan_satis_dusu = 0
-                    kalan_toplam_adet += bu_partide_kalan
-                    kalan_toplam_maliyet += bu_partide_kalan * p_birim_mal
-            
-            if kalan_toplam_adet <= 0:
-                continue
+                kalan_satis_dusu = toplam_satis_adet
+                kalan_toplam_adet = 0
+                kalan_toplam_maliyet = 0.0
+                
+                for p in partiler:
+                    p_adet = p.get('adet', 0)
+                    p_toplam_mal = para_metin_to_float(p.get('toplam_maliyet'))
+                    p_birim_mal = p_toplam_mal / p_adet if p_adet > 0 else 0.0
+                    
+                    if kalan_satis_dusu >= p_adet:
+                        kalan_satis_dusu -= p_adet
+                    else:
+                        bu_partide_kalan = p_adet - kalan_satis_dusu
+                        kalan_satis_dusu = 0
+                        kalan_toplam_adet += bu_partide_kalan
+                        kalan_toplam_maliyet += bu_partide_kalan * p_birim_mal
+                
+                if kalan_toplam_adet <= 0:
+                    continue
 
-            ortalama_birim_maliyet = kalan_toplam_maliyet / kalan_toplam_adet if kalan_toplam_adet > 0 else 0.0
-            toplam_bagli_sermaye += kalan_toplam_maliyet
-            
-            en_eski_gun = 0
-            ilk_parti = partiler[0]
-            barkod = ilk_parti.get('barkod') or ""
-            kod = ilk_parti.get('urun_kodu') or ""
-            ad = ilk_parti.get('urun_adi')
-            kategori = ilk_parti.get('kategori_marka') or "-"
-            alinan_yer = ilk_parti.get('alinan_yer') or "-"
-            
-            try:
-                g_tarih = datetime.strptime(ilk_parti.get('tarih', '').strip(), "%d.%m.%Y")
-                en_eski_gun = max(0, (bugun - g_tarih).days)
-            except: pass
-    
-            durum = " Kritik / Azalıyor" if kalan_toplam_adet <= kritik_esik else " Normal"
-    
-            if secilen_kategori_filtre != "Tümü" and kategori != secilen_kategori_filtre: continue
-            arama_metni_birlesik = f"{ad} {kod} {barkod} {kategori} {alinan_yer}".lower()
-            if stok_arama and stok_arama not in arama_metni_birlesik: continue
-    
-            islenmis_stoklar.append({
-                "Ürün Adı": ad,
-                "Kategori": kategori,
-                "Alınan Yer": alinan_yer,
-                "Kod": kod.strip() if kod else "-",
-                "Barkod": barkod.strip() if barkod else "-",
-                "Rafta Gün": en_eski_gun,
-                "Kalan Adet": kalan_toplam_adet,
-                "Birim Maliyet": para_formatla(ortalama_birim_maliyet),
-                "Birim_Mal_Val": ortalama_birim_maliyet,
-                "Sermaye_Val": kalan_toplam_maliyet,
-                "Toplam Maliyet": para_formatla(kalan_toplam_maliyet),
-                "Durum": durum
-            })
-    
-        df_stok_liste = pd.DataFrame(islenmis_stoklar)
-        if not df_stok_liste.empty:
-            if stok_siralama == "Kritik Stok / Azalan Adet ": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=True)
-            elif stok_siralama == "Rafta Bekleme Günü (En Eski) ": df_stok_liste = df_stok_liste.sort_values(by="Rafta Gün", ascending=False)
-            elif stok_siralama == "Bağlı Sermaye (En Yüksek) ": df_stok_liste = df_stok_liste.sort_values(by="Sermaye_Val", ascending=False)
-            elif stok_siralama == "Ürün Adı (A-Z) ": df_stok_liste = df_stok_liste.sort_values(by="Ürün Adı", ascending=True)
-            elif stok_siralama == "Kalan Adet (En Yüksek) ": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=False)
-    
-            col_stk1, col_stk2, col_stk3 = st.columns(3)
-            col_stk1.metric(" Toplam Kalan Ürün Adeti", f"{df_stok_liste['Kalan Adet'].sum()} Adet")
-            col_stk2.metric(" Toplam Bağlı Sermaye", para_formatla(toplam_bagli_sermaye))
-            kritik_sayisi = len(df_stok_liste[df_stok_liste['Kalan Adet'] <= kritik_esik])
-            col_stk3.metric(" Kritik Ürün Sayısı", f"{kritik_sayisi} Çeşit")
-            
-            if secilen_kategori_filtre != "Tümü":
-                filtrelenmis_toplam_adet = df_stok_liste['Kalan Adet'].sum()
-                filtrelenmis_toplam_maliyet = df_stok_liste['Sermaye_Val'].sum()
-                st.info(f" Seçilen **{secilen_kategori_filtre}** markası için toplam kalan adet: **{filtrelenmis_toplam_adet} Adet** | Toplam Maliyet: **{para_formatla(filtrelenmis_toplam_maliyet)}**")
-    
-            st.divider()
-            st.dataframe(df_stok_liste[["Durum", "Ürün Adı", "Kategori", "Alınan Yer", "Kod", "Barkod", "Rafta Gün", "Kalan Adet", "Birim Maliyet", "Toplam Maliyet"]], use_container_width=True, hide_index=True)
-        else:
-            st.info(" Aradığınız kriterlere uygun güncel ve aktif stok bulunamadı.")
-    
-    # --- 4. STOK GEÇMİŞİ (Güncel Stok ile Yan Yana Segment) ---
-    elif menu == " 4. Stok Geçmişi":
-        st.header(" Ürün Bazlı Stok Hareket ve Satış Geçmişi")
-        st.write("Bu bölümde seçtiğiniz bir ürünün hangi tarihte, kime, kaça alınıp kaça satıldığını ve tüm detaylı geçmişini inceleyebilirsiniz.")
+                ortalama_birim_maliyet = kalan_toplam_maliyet / kalan_toplam_adet if kalan_toplam_adet > 0 else 0.0
+                toplam_bagli_sermaye += kalan_toplam_maliyet
+                
+                en_eski_gun = 0
+                ilk_parti = partiler[0]
+                barkod = ilk_parti.get('barkod') or ""
+                kod = ilk_parti.get('urun_kodu') or ""
+                ad = ilk_parti.get('urun_adi')
+                kategori = ilk_parti.get('kategori_marka') or "-"
+                alinan_yer = ilk_parti.get('alinan_yer') or "-"
+                
+                try:
+                    g_tarih = datetime.strptime(ilk_parti.get('tarih', '').strip(), "%d.%m.%Y")
+                    en_eski_gun = max(0, (bugun - g_tarih).days)
+                except: pass
         
-        stok_Tum_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi").execute()
-        stok_kayitlari_tum = stok_Tum_res.data if stok_Tum_res.data else []
+                durum = " Kritik / Azalıyor" if kalan_toplam_adet <= kritik_esik else " Normal"
         
-        if stok_kayitlari_tum:
-            urun_secenek_dict = {}
-            for st_item in stok_kayitlari_tum:
-                u_kod = st_item.get("urun_kodu") or "-"
-                u_barkod = st_item.get("barkod") or "-"
-                u_ad = st_item.get("urun_adi") or "-"
-                etiket = f"{u_ad} | Kod: {u_kod} | Barkod: {u_barkod}"
-                urun_secenek_dict[etiket] = (u_kod, u_barkod)
+                if secilen_kategori_filtre != "Tümü" and kategori != secilen_kategori_filtre: continue
+                arama_metni_birlesik = f"{ad} {kod} {barkod} {kategori} {alinan_yer}".lower()
+                if stok_arama and stok_arama not in arama_metni_birlesik: continue
+        
+                islenmis_stoklar.append({
+                    "Ürün Adı": ad,
+                    "Kategori": kategori,
+                    "Alınan Yer": alinan_yer,
+                    "Kod": kod.strip() if kod else "-",
+                    "Barkod": barkod.strip() if barkod else "-",
+                    "Rafta Gün": en_eski_gun,
+                    "Kalan Adet": kalan_toplam_adet,
+                    "Birim Maliyet": para_formatla(ortalama_birim_maliyet),
+                    "Birim_Mal_Val": ortalama_birim_maliyet,
+                    "Sermaye_Val": kalan_toplam_maliyet,
+                    "Toplam Maliyet": para_formatla(kalan_toplam_maliyet),
+                    "Durum": durum
+                })
+        
+            df_stok_liste = pd.DataFrame(islenmis_stoklar)
+            if not df_stok_liste.empty:
+                if stok_siralama == "Kritik Stok / Azalan Adet ": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=True)
+                elif stok_siralama == "Rafta Bekleme Günü (En Eski) ": df_stok_liste = df_stok_liste.sort_values(by="Rafta Gün", ascending=False)
+                elif stok_siralama == "Bağlı Sermaye (En Yüksek) ": df_stok_liste = df_stok_liste.sort_values(by="Sermaye_Val", ascending=False)
+                elif stok_siralama == "Ürün Adı (A-Z) ": df_stok_liste = df_stok_liste.sort_values(by="Ürün Adı", ascending=True)
+                elif stok_siralama == "Kalan Adet (En Yüksek) ": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=False)
+        
+                col_stk1, col_stk2, col_stk3 = st.columns(3)
+                col_stk1.metric(" Toplam Kalan Ürün Adeti", f"{df_stok_liste['Kalan Adet'].sum()} Adet")
+                col_stk2.metric(" Toplam Bağlı Sermaye", para_formatla(toplam_bagli_sermaye))
+                kritik_sayisi = len(df_stok_liste[df_stok_liste['Kalan Adet'] <= kritik_esik])
+                col_stk3.metric(" Kritik Ürün Sayısı", f"{kritik_sayisi} Çeşit")
                 
-            secilen_gecmis_urun = st.selectbox("Geçmişini İncelemek İstediğiniz Ürünü Seçin:", list(urun_secenek_dict.keys()), key="stok_gecmis_secim_box")
+                if secilen_kategori_filtre != "Tümü":
+                    filtrelenmis_toplam_adet = df_stok_liste['Kalan Adet'].sum()
+                    filtrelenmis_toplam_maliyet = df_stok_liste['Sermaye_Val'].sum()
+                    st.info(f" Seçilen **{secilen_kategori_filtre}** markası için toplam kalan adet: **{filtrelenmis_toplam_adet} Adet** | Toplam Maliyet: **{para_formatla(filtrelenmis_toplam_maliyet)}**")
+        
+                st.divider()
+                st.dataframe(df_stok_liste[["Durum", "Ürün Adı", "Kategori", "Alınan Yer", "Kod", "Barkod", "Rafta Gün", "Kalan Adet", "Birim Maliyet", "Toplam Maliyet"]], use_container_width=True, hide_index=True)
+            else:
+                st.info(" Aradığınız kriterlere uygun güncel ve aktif stok bulunamadı.")
+                
+        with tab_gecmis:
+            st.subheader("Ürün Bazlı Stok Hareket ve Satış Geçmişi")
+            st.write("Seçtiğiniz bir ürünün hangi tarihte, kime, kaça alınıp kaça satıldığını bu sekmeden inceleyebilirsiniz.")
             
-            if secilen_gecmis_urun:
-                secilen_kod, secilen_barkod = urun_secenek_dict[secilen_gecmis_urun]
+            stok_Tum_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi").execute()
+            stok_kayitlari_tum = stok_Tum_res.data if stok_Tum_res.data else []
+            
+            if stok_kayitlari_tum:
+                urun_secenek_dict = {}
+                for st_item in stok_kayitlari_tum:
+                    u_kod = st_item.get("urun_kodu") or "-"
+                    u_barkod = st_item.get("barkod") or "-"
+                    u_ad = st_item.get("urun_adi") or "-"
+                    etiket = f"{u_ad} | Kod: {u_kod} | Barkod: {u_barkod}"
+                    urun_secenek_dict[etiket] = (u_kod, u_barkod)
+                    
+                secilen_gecmis_urun = st.selectbox("Geçmişini İncelemek İstediğiniz Ürünü Seçin:", list(urun_secenek_dict.keys()), key="stok_gecmis_secim_box")
                 
-                st.divider()
-                st.subheader(" Ürün Mal Kabul / Giriş Geçmişi")
-                giris_gecmis_res = supabase.table("stok").select("*").or_(f"urun_kodu.eq.{secilen_kod},barkod.eq.{secilen_barkod}").order("id", desc=True).execute()
-                giris_gecmis_data = giris_gecmis_res.data if giris_gecmis_res.data else []
-                
-                if giris_gecmis_data:
-                    g_liste = []
-                    for g in giris_gecmis_data:
-                        g_adet = g.get("adet", 0)
-                        g_top_mal = para_metin_to_float(g.get("toplam_maliyet"))
-                        g_birim_mal = g_top_mal / g_adet if g_adet > 0 else 0.0
-                        g_liste.append({
-                            "Giriş Tarihi": g.get("tarih"),
-                            "Tedarikçi": g.get("alinan_yer"),
-                            "Kategori": g.get("kategori_marka"),
-                            "Giriş Adeti": g_adet,
-                            "Adet Başı Maliyet": para_formatla(g_birim_mal),
-                            "Toplam Maliyet": para_formatla(g_top_mal)
-                        })
-                    st.dataframe(pd.DataFrame(g_liste), use_container_width=True, hide_index=True)
-                else:
-                    st.info("Bu ürüne ait mal kabul (giriş) kaydı bulunamadı.")
-                
-                st.divider()
-                st.subheader(" Ürün Satış Geçmişi")
-                satis_gecmis_res = supabase.table("satis").select("*").or_(f"barkod_kod.eq.{secilen_kod},barkod_kod.eq.{secilen_barkod}").order("id", desc=True).execute()
-                satis_gecmis_data = satis_gecmis_res.data if satis_gecmis_res.data else []
-                
-                if satis_gecmis_data:
-                    s_liste = []
-                    for s in satis_gecmis_data:
-                        s_adet = s.get("satis_adet", 0)
-                        s_birim_fiyat = para_metin_to_float(s.get("birim_fiyat"))
-                        s_top_tutar = para_metin_to_float(s.get("toplam_tutar"))
-                        s_liste.append({
-                            "Satış Tarihi": s.get("tarih"),
-                            "Sipariş No": s.get("siparis_no"),
-                            "Müşteri": s.get("musteri"),
-                            "Satış Kanalı": s.get("satilan_yer"),
-                            "Satış Adeti": s_adet,
-                            "Birim Satış Fiyatı": para_formatla(s_birim_fiyat),
-                            "Toplam Satış Tutarı": para_formatla(s_top_tutar)
-                        })
-                    st.dataframe(pd.DataFrame(s_liste), use_container_width=True, hide_index=True)
-                else:
-                    st.info("Bu ürüne ait satış kaydı bulunamadı.")
-        else:
-            st.info("Sistemde kayıtlı ürün bulunmuyor.")
+                if secilen_gecmis_urun:
+                    secilen_kod, secilen_barkod = urun_secenek_dict[secilen_gecmis_urun]
+                    
+                    st.divider()
+                    st.subheader(" Ürün Mal Kabul / Giriş Geçmişi")
+                    giris_gecmis_res = supabase.table("stok").select("*").or_(f"urun_kodu.eq.{secilen_kod},barkod.eq.{secilen_barkod}").order("id", desc=True).execute()
+                    giris_gecmis_data = giris_gecmis_res.data if giris_gecmis_res.data else []
+                    
+                    if giris_gecmis_data:
+                        g_liste = []
+                        for g in giris_gecmis_data:
+                            g_adet = g.get("adet", 0)
+                            g_top_mal = para_metin_to_float(g.get("toplam_maliyet"))
+                            g_birim_mal = g_top_mal / g_adet if g_adet > 0 else 0.0
+                            g_liste.append({
+                                "Giriş Tarihi": g.get("tarih"),
+                                "Tedarikçi": g.get("alinan_yer"),
+                                "Kategori": g.get("kategori_marka"),
+                                "Giriş Adeti": g_adet,
+                                "Adet Başı Maliyet": para_formatla(g_birim_mal),
+                                "Toplam Maliyet": para_formatla(g_top_mal)
+                            })
+                        st.dataframe(pd.DataFrame(g_liste), use_container_width=True, hide_index=True)
+                    else:
+                        st.info("Bu ürüne ait mal kabul (giriş) kaydı bulunamadı.")
+                    
+                    st.divider()
+                    st.subheader(" Ürün Satış Geçmişi")
+                    satis_gecmis_res = supabase.table("satis").select("*").or_(f"barkod_kod.eq.{secilen_kod},barkod_kod.eq.{secilen_barkod}").order("id", desc=True).execute()
+                    satis_gecmis_data = satis_gecmis_res.data if satis_gecmis_res.data else []
+                    
+                    if satis_gecmis_data:
+                        s_liste = []
+                        for s in satis_gecmis_data:
+                            s_adet = s.get("satis_adet", 0)
+                            s_birim_fiyat = para_metin_to_float(s.get("birim_fiyat"))
+                            s_top_tutar = para_metin_to_float(s.get("toplam_tutar"))
+                            s_liste.append({
+                                "Satış Tarihi": s.get("tarih"),
+                                "Sipariş No": s.get("siparis_no"),
+                                "Müşteri": s.get("musteri"),
+                                "Satış Kanalı": s.get("satilan_yer"),
+                                "Satış Adeti": s_adet,
+                                "Birim Satış Fiyatı": para_formatla(s_birim_fiyat),
+                                "Toplam Satış Tutarı": para_formatla(s_top_tutar)
+                            })
+                        st.dataframe(pd.DataFrame(s_liste), use_container_width=True, hide_index=True)
+                    else:
+                        st.info("Bu ürüne ait satış kaydı bulunamadı.")
+            else:
+                st.info("Sistemde kayıtlı ürün bulunmuyor.")
 
-    # --- 5. HEPSİ BURADA ---
-    elif menu == " 5. Hepsi Burada":
-        st.header(" Hepsi Burada Finans and Kar/Zarar Yönetimi")
+    # --- 4. HEPSİ BURADA ---
+    elif menu == " 4. Hepsi Burada":
+        st.header(" Hepsi Burada Finans ve Kar/Zarar Yönetimi")
         
         if "hb_duzenle_id" not in st.session_state:
             st.session_state.hb_duzenle_id = None
@@ -1294,8 +1293,8 @@ if check_password():
                 else: st.info(" Tamamlanmış Hepsi Burada sipariş kaydı bulunmuyor.")
         else: st.info(" Hepsi Burada satış kaydı bulunmuyor.")
     
-    # --- 6. WEB SİTESİ ---
-    elif menu == " 6. Web Sitesi":
+    # --- 5. WEB SİTESİ ---
+    elif menu == " 5. Web Sitesi":
         st.header(" Web Sitesi Finans ve Kar/Zarar Yönetimi")
         
         if "web_duzenle_id" not in st.session_state:
@@ -1440,8 +1439,8 @@ if check_password():
                 else: st.info(" Tamamlanmış web siparişi yok.")
         else: st.info(" Web sitesi satış kaydı bulunmuyor.")
     
-    # --- 7. DÜKKAN & ELDEN ---
-    elif menu == " 7. Dükkan & Elden":
+    # --- 6. DÜKKAN & ELDEN ---
+    elif menu == " 6. Dükkan & Elden":
         st.header(" Dükkan & Elden Satış Yönetimi")
         
         if "dukkan_duzenle_id" not in st.session_state:
@@ -1570,8 +1569,8 @@ if check_password():
                 else: st.info(" Tamamlanmış dükkan satışı yok.")
         else: st.info(" Dükkan satış kaydı bulunmuyor.")
     
-    # --- 8. MÜŞTERİ ANALİZİ ---
-    elif menu == " 8. Müşteri Analizi":
+    # --- 7. MÜŞTERİ ANALİZİ ---
+    elif menu == " 7. Müşteri Analizi":
         st.header(" Müşteri Analizi, Liderlik Tablosu ve Sipariş Geçmişi Arama")
         s_res = supabase.table("satis").select("*").order("id", desc=True).execute()
         satis_df = pd.DataFrame(s_res.data) if s_res.data else pd.DataFrame()
@@ -1648,8 +1647,8 @@ if check_password():
             st.dataframe(m_ozet_full.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Toplam Sipariş', 'Toplam_Adet': 'Toplam Ürün Adeti'})[['Müşteri', 'Toplam Sipariş', 'Toplam Ürün Adeti', 'Toplam Harcama']], use_container_width=True, hide_index=True)
         else: st.info(" Müşteri verisi bulunmuyor.")
     
-    # --- 9. TANIMLAMALAR ---
-    elif menu == " 9. Tanımlamalar":
+    # --- 8. TANIMLAMALAR ---
+    elif menu == " 8. Tanımlamalar":
         st.header(" Sistem Tanımlamaları")
         tab1, tab2, tab3 = st.tabs([" Kategori & Marka", " Satış Yeri / Kanal", " Tedarikçi"])
         with tab1:
@@ -1685,8 +1684,8 @@ if check_password():
             ted_t_res = supabase.table("tanimlar").select("deger").eq("tip", "alinan_yer").order("deger", desc=False).execute()
             st.dataframe(pd.DataFrame(ted_t_res.data).rename(columns={"deger": "Tedarikçi Adı"}) if ted_t_res.data else pd.DataFrame(columns=["Tedarikçi Adı"]), use_container_width=True, hide_index=True)
     
-    # --- 10. RAPORLAR VE ÖZET ---
-    elif menu == " 10. Raporlar ve Özet":
+    # --- 9. RAPORLAR VE ÖZET ---
+    elif menu == " 9. Raporlar ve Özet":
         st.header(" Detaylı Finansal Özet, Kârlılık ve Analiz Paneli")
         satis_df = pd.DataFrame(supabase.table("satis").select("*").execute().data)
         stok_df = pd.DataFrame(supabase.table("stok").select("*").execute().data)
@@ -1776,8 +1775,8 @@ if check_password():
         else:
             st.info(" Rapor oluşturmak için henüz satış verisi bulunmuyor.")
 
-    # --- 11. AYLIK DETAYLI RAPORLAR ---
-    elif menu == " 11. Aylık Detaylı Raporlar":
+    # --- 10. AYLIK DETAYLI RAPORLAR ---
+    elif menu == " 10. Aylık Detaylı Raporlar":
         st.header(" Aylık Detaylı Raporlar ve Satır Satır Döküm")
         st.write("Bu bölümde, yapılan satışların ve tamamlanan giderlerin aylık bazda kırılımını; satış adeti, satış cirosu, maliyet ve net kâr/zarar olarak inceleyebilirsiniz.")
         
