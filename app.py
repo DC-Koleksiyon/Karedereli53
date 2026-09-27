@@ -12,145 +12,114 @@ def check_password():
     st.markdown("""
         <style>
             .stApp {
-                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             }
             .login-card {
-                background: rgba(255, 255, 255, 0.98);
-                padding: 45px;
-                border-radius: 24px;
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-                backdrop-filter: blur(12px);
+                background: rgba(255, 255, 255, 0.95);
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+                backdrop-filter: blur(10px);
                 max-width: 450px;
                 margin: 0 auto;
-                border: 1px solid rgba(255, 255, 255, 0.8);
             }
             .login-title {
-                color: #1e293b;
-                font-size: 30px;
-                font-weight: 800;
+                color: #2d3748;
+                font-size: 28px;
+                font-weight: 700;
                 text-align: center;
-                margin-bottom: 8px;
-                letter-spacing: -0.5px;
+                margin-bottom: 10px;
             }
             .login-subtitle {
-                color: #64748b;
-                font-size: 14.5px;
+                color: #718096;
+                font-size: 14px;
                 text-align: center;
                 margin-bottom: 30px;
-                font-weight: 500;
             }
             .stButton>button {
                 width: 100%;
-                background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+                background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
                 color: #fff;
                 font-weight: 700;
                 border: none;
-                padding: 14px;
-                border-radius: 12px;
-                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                padding: 12px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(253, 160, 133, 0.4);
+                transition: all 0.3s ease;
             }
             .stButton>button:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
-                background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+                box-shadow: 0 6px 20px rgba(253, 160, 133, 0.6);
             }
             div[data-testid="stDataEditor"] div.dvn-scroller, div[data-testid="stDataFrame"] div.dvn-scroller {
                 max-width: 100%;
             }
             table {
                 width: 100% !important;
-                border-collapse: separate !important;
-                border-spacing: 0 !important;
-                background-color: #ffffff !important;
-                border-radius: 12px !important;
-                overflow: hidden !important;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+                border-collapse: collapse !important;
             }
             th {
-                font-size: 14px !important;
-                font-weight: 700 !important;
-                color: #334155 !important;
-                padding: 18px 20px !important;
-                background-color: #f1f5f9 !important;
+                font-size: 15px !important;
+                padding: 16px 18px !important;
+                background-color: rgba(150, 150, 150, 0.15) !important;
                 text-align: left !important;
-                border-bottom: 2px solid #e2e8f0 !important;
             }
             td {
-                font-size: 14.5px !important;
-                color: #475569 !important;
-                padding: 20px !important;
+                font-size: 15px !important;
+                padding: 22px 18px !important;
                 vertical-align: middle !important;
-                border-bottom: 1px solid #f1f5f9 !important;
-                height: 80px !important;
-            }
-            tr:hover td {
-                background-color: #f8fafc !important;
+                height: 85px !important;
             }
             .zoom-img {
-                width: 55px;
-                height: 55px;
+                width: 60px;
+                height: 60px;
                 object-fit: cover;
-                border-radius: 10px;
+                border-radius: 8px;
                 transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
                 cursor: pointer;
                 display: block;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             }
             .zoom-img:hover {
-                transform: scale(4.5) translateX(25px);
+                transform: scale(5) translateX(25px);
                 z-index: 99999;
                 position: relative;
-                box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-            }
-            section[data-testid="stSidebar"] {
-                background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%) !important;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             }
             section[data-testid="stSidebar"] div.stButton > button {
                 width: 100%;
                 text-align: left;
-                margin-bottom: 6px;
-                border-radius: 10px;
-                border: 1px solid rgba(255,255,255,0.08);
+                margin-bottom: 3px;
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.1);
                 font-weight: 600;
-                padding: 10px 14px;
-                font-size: 14px;
-                background-color: rgba(255, 255, 255, 0.03);
-                color: #e2e8f0;
-                transition: all 0.2s ease;
-            }
-            section[data-testid="stSidebar"] div.stButton > button:hover {
-                background-color: rgba(255, 255, 255, 0.12);
-                color: #ffffff;
-                transform: translateX(4px);
+                padding: 7px 12px;
+                font-size: 13.5px;
             }
             div[data-testid="column"] div.stButton > button {
                 width: 100% !important;
-                height: 125px !important;
-                font-size: 18.5px !important;
+                height: 120px !important;
+                font-size: 19px !important;
                 font-weight: 700 !important;
-                border-radius: 18px !important;
+                border-radius: 16px !important;
                 border: none !important;
-                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15) !important;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.35) !important;
                 color: white !important;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                letter-spacing: 0.3px;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
             div[data-testid="column"] div.stButton > button:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 15px 35px -5px rgba(0,0,0,0.25) !important;
+                transform: translateY(-3px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
             }
-            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #059669, #10b981) !important; }
-            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #0d9488, #14b8a6) !important; }
-            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #d97706, #f59e0b) !important; }
-            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #7c3aed, #8b5cf6) !important; }
-            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #047857, #34d399) !important; }
-            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(6) button { background: linear-gradient(135deg, #4f46e5, #6366f1) !important; }
-            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #0284c7, #38bdf8) !important; }
-            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #e11d48, #f43f5e) !important; }
-            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #16a34a, #4ade80) !important; }
-            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #0891b2, #22d3ee) !important; color: #ffffff !important; }
-            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #581c87, #a855f7) !important; }
+            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #00b09b, #96c93d) !important; }
+            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #11998e, #38ef7d) !important; }
+            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #f2994a, #f2c94c) !important; }
+            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #8e2de2, #4a00e0) !important; }
+            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #0ba360, #3cba92) !important; }
+            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #2193b0, #6dd5ed) !important; }
+            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #eb3349, #f45c43) !important; }
+            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #56ab2f, #a8e063) !important; }
+            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #4ca1af, #c4e0e5) !important; color: #1e293b !important; }
+            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #512b58, #8f43ee) !important; }
         </style>
     """, unsafe_allow_html=True)
 
@@ -161,7 +130,7 @@ def check_password():
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             st.markdown('<div class="login-card">', unsafe_allow_html=True)
-            st.markdown('<p class="login-title">Stok & Takip Sistemi</p>', unsafe_allow_html=True)
+            st.markdown('<p class="login-title">🚀 Stok & Takip Sistemi</p>', unsafe_allow_html=True)
             st.markdown('<p class="login-subtitle">Devam etmek için lütfen giriş yapın</p>', unsafe_allow_html=True)
 
             saved_user = st.session_state.get("remembered_user", "Sedat-Burak")
@@ -244,7 +213,7 @@ if check_password():
     if "aktif_menu" not in st.session_state:
         st.session_state.aktif_menu = menu_listesi[0]
     
-    st.sidebar.markdown("<h2 style='color: white; text-align: center; margin-bottom: 25px; font-weight: 800; letter-spacing: 0.5px;'> Menüler</h2>", unsafe_allow_html=True)
+    st.sidebar.title(" Menüler")
     
     for m in menu_listesi:
         if st.sidebar.button(m, key=f"btn_{m}", type="primary" if st.session_state.aktif_menu == m else "secondary"):
@@ -372,7 +341,7 @@ if check_password():
                             st.session_state.duzenlenen_kod = None
                             st.rerun()
         else:
-            tab_yeni, tab_stok_ekle = st.tabs([" 1. Sıfırdan Yeni Ürün Ekle", " 2. Kayıtlı Ürüne Mal Kabul / Stok Ekle"])
+            tab_yeni, tab_stok_ekle = st.tabs(["✨ 1. Sıfırdan Yeni Ürün Ekle", "📦 2. Kayıtlı Ürüne Mal Kabul / Stok Ekle"])
             
             with tab_yeni:
                 st.subheader("Yeni Ürün Tanımlama ve İlk Giriş")
@@ -427,7 +396,7 @@ if check_password():
                 st.subheader("Daha Önce Kayıtlı Ürüne Ek Mal Kabul / Stok Girişi")
                 st.write("Aşağıdaki arama kutusuna ürün adı, kodu veya barkod yazarak ürünü hızlıca bulabilirsiniz.")
                 
-                mal_kabul_arama = st.text_input(" Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="mal_kabul_arama_input").strip()
+                mal_kabul_arama = st.text_input("🔍 Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="mal_kabul_arama_input").strip()
                 
                 if mal_kabul_arama:
                     stk_tum_res = supabase.table("stok").select("*").or_(f"urun_kodu.ilike.%{mal_kabul_arama}%,barkod.ilike.%{mal_kabul_arama}%,urun_adi.ilike.%{mal_kabul_arama}%").order("id", desc=True).limit(5).execute()
@@ -441,7 +410,7 @@ if check_password():
                                 benzersiz_urunler[b_anahtar] = b_item
                                 
                         for b_anahtar, secilen_veri in benzersiz_urunler.items():
-                            with st.expander(f" {secilen_veri.get('urun_adi')} | Kod: {secilen_veri.get('urun_kodu')} | Barkod: {secilen_veri.get('barkod')}", expanded=True):
+                            with st.expander(f"📦 {secilen_veri.get('urun_adi')} | Kod: {secilen_veri.get('urun_kodu')} | Barkod: {secilen_veri.get('barkod')}", expanded=True):
                                 with st.form(f"stok_ekle_form_{secilen_veri.get('id')}"):
                                     st.markdown(f"**Kategori:** `{secilen_veri.get('kategori_marka')}`")
                                     
@@ -909,7 +878,7 @@ if check_password():
     elif menu == " 3. Güncel Stok & Geçmiş":
         st.header(" Stok Yönetim Paneli")
         
-        tab_guncel, tab_gecmis = st.tabs([" Güncel Kalan Stoklar", " Ürün Bazlı Stok & Satış Geçmişi"])
+        tab_guncel, tab_gecmis = st.tabs(["📦 Güncel Kalan Stoklar", "📈 Ürün Bazlı Stok & Satış Geçmişi"])
         
         with tab_guncel:
             st.subheader("Güncel Kalan Stok ve FIFO Maliyet Özeti")
@@ -1038,7 +1007,7 @@ if check_password():
             st.subheader("Ürün Bazlı Stok Hareket ve Satış Geçmişi")
             st.write("Aşağıdaki arama çubuğuna ürün adı, kodu veya barkod yazarak hem mal kabul (giriş) hem de satış geçmişini anında listeleyebilirsiniz.")
             
-            gecmis_arama_metni = st.text_input(" Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="stok_gecmis_arama_input").strip()
+            gecmis_arama_metni = st.text_input("🔍 Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="stok_gecmis_arama_input").strip()
             
             if gecmis_arama_metni:
                 stok_eslesme_res = supabase.table("stok").select("*").or_(f"urun_kodu.ilike.%{gecmis_arama_metni}%,barkod.ilike.%{gecmis_arama_metni}%,urun_adi.ilike.%{gecmis_arama_metni}%").order("id", desc=True).execute()
@@ -1052,7 +1021,7 @@ if check_password():
                         if st_item.get("barkod"): aranacak_barkodlar.add(str(st_item.get("barkod")).strip())
                         
                     st.divider()
-                    st.subheader(" Ürün Mal Kabul / Giriş Geçmişi")
+                    st.subheader("📦 Ürün Mal Kabul / Giriş Geçmişi")
                     
                     giris_gecmis_res = supabase.table("stok").select("*").or_(f"urun_kodu.ilike.%{gecmis_arama_metni}%,barkod.ilike.%{gecmis_arama_metni}%,urun_adi.ilike.%{gecmis_arama_metni}%").order("id", desc=True).execute()
                     giris_gecmis_data = giris_gecmis_res.data if giris_gecmis_res.data else []
@@ -1079,7 +1048,7 @@ if check_password():
                         st.info("Bu kriterlere ait mal kabul (giriş) kaydı bulunamadı.")
                     
                     st.divider()
-                    st.subheader(" Ürün Satış Geçmişi")
+                    st.subheader("🛒 Ürün Satış Geçmişi")
                     
                     satis_sorgu_kosullari = []
                     for k in aranacak_kodlar: satis_sorgu_kosullari.append(f"barkod_kod.eq.{k}")
@@ -1519,38 +1488,36 @@ if check_password():
                         row = bekleyen_d[bekleyen_d['id'] == secilen_dukkan_bekleyen_id].iloc[0]
                         with st.form(key=f"dukkan_form_{row['id']}"):
                             val_dukkan_pos = float(row['pos_kesintisi']) if row['pos_kesintisi'] is not None else 0.0
-                            pos_kesintisi = st.number_input("POS Kesintisi (TL)", min_value=0.0, value=val_dukkan_pos, format="%.2f", key=f"dukkan_pos_{row['id']}")
-                            
+                            pos_kesintisi = st.number_input("POS Kesintisi (TL - Nakit ise 0)", min_value=0.0, value=val_dukkan_pos, format="%.2f", key=f"dukkan_pos_{row['id']}")
                             if st.form_submit_button(" Hesapla ve Kaydet"):
                                 net_kar = row['satis_tutari'] - row['maliyet'] - pos_kesintisi
                                 supabase.table("dukkan_elden").update({
-                                    "pos_kesintisi": pos_kesintisi, 
-                                    "net_kar_zarar": net_kar, "giderler_girildi": 1
+                                    "pos_kesintisi": pos_kesintisi, "net_kar_zarar": net_kar, "giderler_girildi": 1
                                 }).eq("id", row['id']).execute()
-                                st.success(" Dükkan giderleri kaydedildi!")
+                                st.success(" Dükkan satışı güncellendi!")
                                 st.rerun()
-                else: st.info(" Gider bekleyen dükkan satışı yok.")
+                else: st.info(" Bekleyen dükkan satışı yok.")
     
             with tab_d2:
                 if not tamamlanan_d.empty:
                     if st.session_state.dukkan_duzenle_id:
-                        duzenlenen_d_res = tamamlanan_d[tamamlanan_d['id'] == st.session_state.dukkan_duzenle_id]
-                        if not duzenlenen_d_res.empty:
-                            dd_row = duzenlenen_d_res.iloc[0]
-                            st.info(f" Fiş No: **{dd_row['siparis_no']}** ({dd_row['musteri']}) için dükkan giderlerini düzenliyorsunuz:")
+                        duzenlenen_duk_res = tamamlanan_d[tamamlanan_d['id'] == st.session_state.dukkan_duzenle_id]
+                        if not duzenlenen_duk_res.empty:
+                            dd_row = duzenlenen_duk_res.iloc[0]
+                            st.info(f" Fiş No: **{dd_row['siparis_no']}** ({dd_row['musteri']}) için dükkan/elden giderini düzenliyorsunuz:")
                             with st.form(key=f"dukkan_duzenle_form_{dd_row['id']}"):
-                                d_d_pos = st.number_input("POS Kesintisi (TL)", min_value=0.0, value=float(dd_row['pos_kesintisi'] or 0.0), format="%.2f")
+                                dd_pos = st.number_input("POS Kesintisi (TL)", min_value=0.0, value=float(dd_row['pos_kesintisi'] or 0.0), format="%.2f")
                                 
                                 col_dbtn1, col_dbtn2 = st.columns(2)
                                 with col_dbtn1:
                                     if st.form_submit_button(" Dükkan Güncellemeyi Kaydet"):
-                                        net_kar_dd = dd_row['satis_tutari'] - dd_row['maliyet'] - d_d_pos
+                                        net_kar_dd = dd_row['satis_tutari'] - dd_row['maliyet'] - dd_pos
                                         supabase.table("dukkan_elden").update({
-                                            "pos_kesintisi": d_d_pos, 
+                                            "pos_kesintisi": dd_pos, 
                                             "net_kar_zarar": net_kar_dd, "giderler_girildi": 1
                                         }).eq("id", dd_row['id']).execute()
                                         st.session_state.dukkan_duzenle_id = None
-                                        st.success(" Dükkan giderleri güncellendi!")
+                                        st.success(" Dükkan gideri güncellendi!")
                                         st.rerun()
                                 with col_dbtn2:
                                     if st.form_submit_button(" İptal Et"):
@@ -1566,7 +1533,7 @@ if check_password():
                     bd_cols[4].markdown("**Adet**")
                     bd_cols[5].markdown("**Maliyet**")
                     bd_cols[6].markdown("**Satış Tutarı**")
-                    bd_cols[7].markdown("**POS Kom.**")
+                    bd_cols[7].markdown("**POS Kesintisi**")
                     bd_cols[8].markdown("**Net Kâr**")
                     bd_cols[9].markdown("**İşlem**")
                     st.divider()
@@ -1587,216 +1554,345 @@ if check_password():
                             st.session_state.dukkan_duzenle_id = t_row['id']
                             st.rerun()
                 else: st.info(" Tamamlanmış dükkan satışı yok.")
-        else: st.info(" Dükkan & Elden satış kaydı bulunmuyor.")
-
+        else: st.info(" Dükkan satış kaydı bulunmuyor.")
+    
     # --- 7. MÜŞTERİ ANALİZİ ---
     elif menu == " 7. Müşteri Analizi":
-        st.header(" Müşteri Analizi ve Liderlik Tablosu")
-        st.statis_res = supabase.table("satis").select("*").execute()
-        satis_listesi = st.statis_res.data if hasattr(st, "statis_res") and st.statis_res.data else []
-        
-        if satis_listesi:
-            musteriler = {}
-            for s in satis_listesi:
-                m_adi = str(s.get("musteri", "Bilinmeyen")).strip().title()
-                if not m_adi or m_adi == "None": m_adi = "Bilinmeyen"
-                
-                tutar = para_metin_to_float(s.get("toplam_tutar"))
-                adet = int(s.get("satis_adet", 0))
-                
-                if m_adi not in musteriler:
-                    musteriler[m_adi] = {"Toplam Harcama": 0.0, "Alınan Ürün Adeti": 0, "İşlem Sayısı": 0}
-                
-                musteriler[m_adi]["Toplam Harcama"] += tutar
-                musteriler[m_adi]["Alınan Ürün Adeti"] += adet
-                musteriler[m_adi]["İşlem Sayısı"] += 1
-                
-            m_data = []
-            for m_adi, m_bilgi in musteriler.items():
-                m_data.append({
-                    "Müşteri Adı": m_adi,
-                    "İşlem Sayısı": m_bilgi["İşlem Sayısı"],
-                    "Toplam Ürün Adeti": m_bilgi["Alınan Ürün Adeti"],
-                    "Toplam Harcama": para_formatla(m_bilgi["Toplam Harcama"]),
-                    "Harcama_Val": m_bilgi["Toplam Harcama"]
-                })
-                
-            df_m = pd.DataFrame(m_data)
-            df_m = df_m.sort_values(by="Harcama_Val", ascending=False).reset_index(drop=True)
+        st.header(" Müşteri Analizi, Liderlik Tablosu ve Sipariş Geçmişi Arama")
+        s_res = supabase.table("satis").select("*").order("id", desc=True).execute()
+        satis_df = pd.DataFrame(s_res.data) if s_res.data else pd.DataFrame()
+    
+        if not satis_df.empty:
+            satis_df['Tutar_Val'] = satis_df['toplam_tutar'].apply(para_metin_to_float)
+            m_ozet = satis_df.groupby('musteri').agg(
+                Toplam_Siparis=('satis_adet', 'count'),
+                Toplam_Adet=('satis_adet', 'sum'),
+                Toplam_Harcama=('Tutar_Val', 'sum')
+            ).reset_index()
+    
+            col_mu1, col_mu2, col_mu3 = st.columns(3)
+            col_mu1.metric(" Toplam Müşteri Sayısı", f"{len(m_ozet)} Kişi")
+            col_mu2.metric(" Toplam Satış Adeti", f"{satis_df['satis_adet'].sum()} Adet")
+            col_mu3.metric(" Toplam Müşteri Cirosu", para_formatla(m_ozet['Toplam_Harcama'].sum()))
+    
+            st.divider()
             
-            c_m1, c_m2, c_m3 = st.columns(3)
-            c_m1.metric(" Toplam Müşteri Sayısı", f"{len(df_m)} Kişi")
-            c_m2.metric(" En Çok Harcama Yapan", df_m.iloc[0]["Müşteri Adı"] if not df_m.empty else "-")
-            c_m3.metric(" Ortalama Müşteri Sepeti", para_formatla(df_m["Harcama_Val"].mean() if not df_m.empty else 0.0))
+            st.subheader(" Müşteri Sipariş Geçmişi Arama")
+            musteri_listesi = sorted(satis_df['musteri'].dropna().unique().tolist())
+            secilen_musteri_ara = st.selectbox("Geçmişini Görmek İstediğiniz Müşteriyi Seçin veya Arayın:", ["Seçiniz..."] + musteri_listesi, key="musteri_gecmis_secim")
+            
+            if secilen_musteri_ara and secilen_musteri_ara != "Seçiniz...":
+                mus_satislar = satis_df[satis_df['musteri'] == secilen_musteri_ara].copy()
+                st.markdown(f"#### **{secilen_musteri_ara}** Adlı Müşterinin Sipariş Geçmişi")
+                
+                mus_detay_liste = []
+                for _, ms in mus_satislar.iterrows():
+                    b_kod = ms.get('barkod_kod')
+                    stk_bul_res = supabase.table("stok").select("urun_adi, barkod, urun_kodu").or_(f"barkod.eq.{b_kod},urun_kodu.eq.{b_kod}").limit(1).execute()
+                    u_adi = b_kod
+                    if stk_bul_res.data:
+                        u_adi = stk_bul_res.data[0].get('urun_adi') or b_kod
+                        
+                    mus_detay_liste.append({
+                        "Tarih": ms.get('tarih'),
+                        "Sipariş No": ms.get('siparis_no'),
+                        "Ürün / Kod": u_adi,
+                        "Adet": ms.get('satis_adet'),
+                        "Birim Fiyat": para_formatla(para_metin_to_float(ms.get('birim_fiyat'))),
+                        "Satış Yeri": ms.get('satilan_yer'),
+                        "Toplam Tutar": para_formatla(para_metin_to_float(ms.get('toplam_tutar')))
+                    })
+                st.dataframe(pd.DataFrame(mus_detay_liste), use_container_width=True, hide_index=True)
             
             st.divider()
-            st.dataframe(df_m[["Müşteri Adı", "İşlem Sayısı", "Toplam Ürün Adeti", "Toplam Harcama"]], use_container_width=True, hide_index=True)
-        else:
-            st.info(" Henüz müşteri analizi yapılacak satış kaydı bulunmuyor.")
-
+            c_lider1, c_lider2 = st.columns(2)
+            with c_lider1:
+                st.subheader(" En Çok Alışveriş Yapanlar (Ciro)")
+                en_cok_harcayanlar = m_ozet.sort_values(by='Toplam_Harcama', ascending=False).head(5).copy()
+                en_cok_harcayanlar['Toplam Harcama'] = en_cok_harcayanlar['Toplam_Harcama'].apply(para_formatla)
+                st.dataframe(en_cok_harcayanlar.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Sipariş', 'Toplam_Adet': 'Adet'})[['Müşteri', 'Sipariş', 'Toplam Harcama']], use_container_width=True, hide_index=True)
+            with c_lider2:
+                st.subheader(" En Çok Ürün Alanlar (Adet)")
+                en_cok_alanlar = m_ozet.sort_values(by='Toplam_Adet', ascending=False).head(5).copy()
+                en_cok_alanlar['Toplam Harcama'] = en_cok_alanlar['Toplam_Harcama'].apply(para_formatla)
+                st.dataframe(
+                    en_cok_alanlar.rename(
+                        columns={
+                            'musteri': 'Müşteri',
+                            'Toplam_Siparis': 'Sipariş',
+                            'Toplam_Adet': 'Toplam Adet',
+                        }
+                    )[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+    
+            st.divider()
+            st.subheader(" Tüm Müşteriler Genel Özeti")
+            m_ozet_full = m_ozet.sort_values(by='Toplam_Harcama', ascending=False).copy()
+            m_ozet_full['Toplam Harcama'] = m_ozet_full['Toplam_Harcama'].apply(para_formatla)
+            st.dataframe(m_ozet_full.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Toplam Sipariş', 'Toplam_Adet': 'Toplam Ürün Adeti'})[['Müşteri', 'Toplam Sipariş', 'Toplam Ürün Adeti', 'Toplam Harcama']], use_container_width=True, hide_index=True)
+        else: st.info(" Müşteri verisi bulunmuyor.")
+    
     # --- 8. TANIMLAMALAR ---
     elif menu == " 8. Tanımlamalar":
-        st.header(" Sistem Tanımlamaları Yönetimi")
-        
-        t_tab1, t_tab2, t_tab3 = st.tabs([" Kategori & Markalar", " Alınan Yerler (Tedarikçiler)", " Satış Kanalları (Yerleri)"])
-        
-        with t_tab1:
-            st.subheader("Kategori ve Marka Tanımları")
-            yeni_kat = st.text_input("Yeni Kategori veya Marka Adı:", key="yeni_kat_input").strip().title()
-            if st.button("Kategori Ekle"):
-                if yeni_kat:
-                    var_mu = supabase.table("tanimlar").select("*").eq("tip", "kategori_marka").eq("deger", yeni_kat).execute()
-                    if var_mu.data:
-                        st.warning("Bu kategori zaten tanımlı!")
-                    else:
-                        supabase.table("tanimlar").insert({"tip": "kategori_marka", "deger": yeni_kat}).execute()
-                        st.success(f"'{yeni_kat}' başarıyla eklendi!")
+        st.header(" Sistem Tanımlamaları")
+        tab1, tab2, tab3 = st.tabs([" Kategori & Marka", " Satış Yeri / Kanal", " Tedarikçi"])
+        with tab1:
+            with st.form("kategori_form"):
+                yeni_kat = st.text_input("Yeni Kategori / Marka Adı")
+                if st.form_submit_button(" Kategori Ekle"):
+                    if yeni_kat:
+                        supabase.table("tanimlar").insert({"tip": "kategori_marka", "deger": yeni_kat.strip().title()}).execute()
+                        st.success(" Eklendi!")
                         st.rerun()
-                else:
-                    st.error("Lütfen geçerli bir isim girin.")
-                    
-            st.divider()
-            kat_res = supabase.table("tanimlar").select("*").eq("tip", "kategori_marka").order("deger", desc=False).execute()
-            if kat_res.data:
-                for row in kat_res.data:
-                    c_k1, c_k2 = st.columns([4, 1])
-                    c_k1.write(f"• `{row['deger']}`")
-                    if c_k2.button("Sil", key=f"del_kat_{row['id']}"):
-                        supabase.table("tanimlar").delete().eq("id", row['id']).execute()
-                        st.success("Silindi!")
+            kat_t_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger", desc=False).execute()
+            st.dataframe(pd.DataFrame(kat_t_res.data).rename(columns={"deger": "Kategori Adı"}) if kat_t_res.data else pd.DataFrame(columns=["Kategori Adı"]), use_container_width=True, hide_index=True)
+    
+        with tab2:
+            with st.form("kanal_form"):
+                yeni_yer = st.text_input("Yeni Satış Kanalı Adı")
+                if st.form_submit_button(" Kanal Ekle"):
+                    if yeni_yer:
+                        supabase.table("tanimlar").insert({"tip": "satilan_yer", "deger": yeni_yer.strip().title()}).execute()
+                        st.success(" Eklendi!")
                         st.rerun()
-            else:
-                st.info("Kayıtlı kategori bulunmuyor.")
-                
-        with t_tab2:
-            st.subheader("Alınan Yer ve Tedarikçi Tanımları")
-            yeni_yer = st.text_input("Yeni Alınan Yer / Tedarikçi Adı:", key="yeni_yer_input").strip().title()
-            if st.button("Alınan Yer Ekle"):
-                if yeni_yer:
-                    var_mu = supabase.table("tanimlar").select("*").eq("tip", "alinan_yer").eq("deger", yeni_yer).execute()
-                    if var_mu.data:
-                        st.warning("Bu tedarikçi zaten tanımlı!")
-                    else:
-                        supabase.table("tanimlar").insert({"tip": "alinan_yer", "deger": yeni_yer}).execute()
-                        st.success(f"'{yeni_yer}' başarıyla eklendi!")
+            kan_t_res = supabase.table("tanimlar").select("deger").eq("tip", "satilan_yer").order("deger", desc=False).execute()
+            st.dataframe(pd.DataFrame(kan_t_res.data).rename(columns={"deger": "Kanal Adı"}) if kan_t_res.data else pd.DataFrame(columns=["Kanal Adı"]), use_container_width=True, hide_index=True)
+    
+        with tab3:
+            with st.form("tedarikci_form"):
+                yeni_ted = st.text_input("Yeni Tedarikçi Adı")
+                if st.form_submit_button(" Tedarikçi Ekle"):
+                    if yeni_ted:
+                        supabase.table("tanimlar").insert({"tip": "alinan_yer", "deger": yeni_ted.strip().title()}).execute()
+                        st.success(" Eklendi!")
                         st.rerun()
-                else:
-                    st.error("Lütfen geçerli bir isim girin.")
-                    
-            st.divider()
-            yer_res = supabase.table("tanimlar").select("*").eq("tip", "alinan_yer").order("deger", desc=False).execute()
-            if yer_res.data:
-                for row in yer_res.data:
-                    c_y1, c_y2 = st.columns([4, 1])
-                    c_y1.write(f"• `{row['deger']}`")
-                    if c_y2.button("Sil", key=f"del_yer_{row['id']}"):
-                        supabase.table("tanimlar").delete().eq("id", row['id']).execute()
-                        st.success("Silindi!")
-                        st.rerun()
-            else:
-                st.info("Kayıtlı tedarikçi bulunmuyor.")
-                
-        with t_tab3:
-            st.subheader("Satış Yeri ve Kanal Tanımları")
-            yeni_kanal = st.text_input("Yeni Satış Kanalı Adı:", key="yeni_kanal_input").strip().title()
-            if st.button("Satış Kanalı Ekle"):
-                if yeni_kanal:
-                    var_mu = supabase.table("tanimlar").select("*").eq("tip", "satilan_yer").eq("deger", yeni_kanal).execute()
-                    if var_mu.data:
-                        st.warning("Bu kanal zaten tanımlı!")
-                    else:
-                        supabase.table("tanimlar").insert({"tip": "satilan_yer", "deger": yeni_kanal}).execute()
-                        st.success(f"'{yeni_kanal}' başarıyla eklendi!")
-                        st.rerun()
-                else:
-                    st.error("Lütfen geçerli bir isim girin.")
-                    
-            st.divider()
-            kanal_res = supabase.table("tanimlar").select("*").eq("tip", "satilan_yer").order("deger", desc=False).execute()
-            if kanal_res.data:
-                for row in kanal_res.data:
-                    c_kn1, c_kn2 = st.columns([4, 1])
-                    c_kn1.write(f"• `{row['deger']}`")
-                    if c_kn2.button("Sil", key=f"del_kanal_{row['id']}"):
-                        supabase.table("tanimlar").delete().eq("id", row['id']).execute()
-                        st.success("Silindi!")
-                        st.rerun()
-            else:
-                st.info("Kayıtlı satış kanalı bulunmuyor.")
-
+            ted_t_res = supabase.table("tanimlar").select("deger").eq("tip", "alinan_yer").order("deger", desc=False).execute()
+            st.dataframe(pd.DataFrame(ted_t_res.data).rename(columns={"deger": "Tedarikçi Adı"}) if ted_t_res.data else pd.DataFrame(columns=["Tedarikçi Adı"]), use_container_width=True, hide_index=True)
+    
     # --- 9. RAPORLAR VE ÖZET ---
     elif menu == " 9. Raporlar ve Özet":
-        st.header(" Finansal Raporlar ve Genel Özet")
-        
-        statis_res = supabase.table("satis").select("*").execute()
-        satis_listesi = statis_res.data if statis_res.data else []
-        
-        toplam_ciro = sum([para_metin_to_float(s.get("toplam_tutar")) for s in satis_listesi])
-        toplam_satis_adedi = sum([s.get("satis_adet", 0) for s in satis_listesi])
-        
-        hb_res = supabase.table("hepsi_burada").select("net_kar_zarar").eq("giderler_girildi", 1).execute()
-        web_res = supabase.table("web_sitesi").select("net_kar_zarar").eq("giderler_girildi", 1).execute()
-        dukkan_res = supabase.table("dukkan_elden").select("net_kar_zarar").eq("giderler_girildi", 1).execute()
-        
-        hb_kar = sum([r.get("net_kar_zarar", 0) for r in hb_res.data]) if hb_res.data else 0.0
-        web_kar = sum([r.get("net_kar_zarar", 0) for r in web_res.data]) if web_res.data else 0.0
-        dukkan_kar = sum([r.get("net_kar_zarar", 0) for r in dukkan_res.data]) if dukkan_res.data else 0.0
-        
-        toplam_net_kar = hb_kar + web_kar + dukkan_kar
-        
-        c_r1, c_r2, c_r3 = st.columns(3)
-        c_r1.metric(" Toplam Brüt Ciro", para_formatla(toplam_ciro))
-        c_r2.metric(" Toplam Satılan Adet", f"{toplam_satis_adedi} Adet")
-        c_r3.metric(" Hesaplanan Toplam Net Kâr", para_formatla(toplam_net_kar))
-        
-        st.divider()
-        st.subheader(" Kanal Bazlı Net Kâr Dağılımı")
-        c_k1, c_k2, c_k3 = st.columns(3)
-        c_k1.metric(" Hepsi Burada Net Kâr", para_formatla(hb_kar))
-        c_k2.metric(" Web Sitesi Net Kâr", para_formatla(web_kar))
-        c_k3.metric(" Dükkan & Elden Net Kâr", para_formatla(dukkan_kar))
+        st.header(" Detaylı Finansal Özet, Kârlılık ve Analiz Paneli")
+        satis_df = pd.DataFrame(supabase.table("satis").select("*").execute().data)
+        stok_df = pd.DataFrame(supabase.table("stok").select("*").execute().data)
+        hb_df = pd.DataFrame(supabase.table("hepsi_burada").select("*").execute().data)
+        web_df = pd.DataFrame(supabase.table("web_sitesi").select("*").execute().data)
+        dukkan_df = pd.DataFrame(supabase.table("dukkan_elden").select("*").execute().data)
+    
+        if not satis_df.empty:
+            satis_df['Tutar_Val'] = satis_df['toplam_tutar'].apply(para_metin_to_float)
+            toplam_siparis = len(satis_df)
+            toplam_satis_adet = satis_df['satis_adet'].sum()
+            toplam_genel_ciro = satis_df['Tutar_Val'].sum()
+            
+            hb_tamam = hb_df[hb_df['giderler_girildi'] == 1] if not hb_df.empty else pd.DataFrame()
+            web_tamam = web_df[web_df['giderler_girildi'] == 1] if not web_df.empty else pd.DataFrame()
+            dukkan_tamam = dukkan_df[dukkan_df['giderler_girildi'] == 1] if not dukkan_df.empty else pd.DataFrame()
+    
+            hb_net = hb_tamam['net_kar_zarar'].sum() if not hb_tamam.empty else 0.0
+            web_net = web_tamam['net_kar_zarar'].sum() if not web_tamam.empty else 0.0
+            dukkan_net = dukkan_tamam['net_kar_zarar'].sum() if not dukkan_tamam.empty else 0.0
+            toplam_net_kar = hb_net + web_net + dukkan_net
+    
+            col_r1, col_r2, col_r3, col_r4 = st.columns(4)
+            col_r1.metric(" Toplam Sipariş", f"{toplam_siparis} Adet")
+            col_r2.metric(" Satılan Ürün Adeti", f"{toplam_satis_adet} Adet")
+            col_r3.metric(" Toplam Brüt Ciro", para_formatla(toplam_genel_ciro))
+            col_r4.metric(" Toplam Net Kâr", para_formatla(toplam_net_kar))
+    
+            st.divider()
+            st.subheader(" Satış Kanallarına Göre Performans ve Ciro Dağılımı")
+            kanal_ozet = satis_df.groupby('satilan_yer').agg(
+                Siparis_Sayisi=('satis_adet', 'count'),
+                Toplam_Adet=('satis_adet', 'sum'),
+                Toplam_Ciro=('Tutar_Val', 'sum')
+            ).reset_index().sort_values(by='Toplam_Ciro', ascending=False)
+            kanal_ozet['Toplam Ciro'] = kanal_ozet['Toplam_Ciro'].apply(para_formatla)
+            st.dataframe(kanal_ozet.rename(columns={'satilan_yer': 'Satış Kanalı', 'Siparis_Sayisi': 'Sipariş Adedi', 'Toplam_Adet': 'Satılan Adet'})[['Satış Kanalı', 'Sipariş Adedi', 'Satılan Adet', 'Toplam Ciro']], use_container_width=True, hide_index=True)
+    
+            st.divider()
+            st.subheader(" En Çok Satan Ürünler (Adet) ve En Çok Ciro Getiren Ürünler")
+            
+            if not stok_df.empty:
+                stok_map_ad = {}
+                stok_map_kat = {}
+                for _, sr in stok_df.iterrows():
+                    b = str(sr.get('barkod')).strip().lower()
+                    k = str(sr.get('urun_kodu')).strip().lower()
+                    ad = sr.get('urun_adi')
+                    kat = sr.get('kategori_marka') or "-"
+                    if b:
+                        stok_map_ad[b] = ad
+                        stok_map_kat[b] = kat
+                    if k:
+                        stok_map_ad[k] = ad
+                        stok_map_kat[k] = kat
+                
+                satis_df['Urun_Adi_Genel'] = satis_df['barkod_kod'].apply(lambda x: stok_map_ad.get(str(x).strip().lower(), str(x)))
+                satis_df['Kategori_Genel'] = satis_df['barkod_kod'].apply(lambda x: stok_map_kat.get(str(x).strip().lower(), "-"))
+                
+                urun_bazli = satis_df.groupby(['Urun_Adi_Genel', 'Kategori_Genel']).agg(
+                    Toplam_Adet=('satis_adet', 'sum'),
+                    Toplam_Ciro=('Tutar_Val', 'sum')
+                ).reset_index()
+    
+                col_u1, col_u2 = st.columns(2)
+                with col_u1:
+                    st.markdown("#####  En Çok Satan Ürünler (Adet)")
+                    en_cok_satanlar = urun_bazli.sort_values(by='Toplam_Adet', ascending=False).head(5).copy()
+                    en_cok_satanlar['Toplam Ciro'] = en_cok_satanlar['Toplam_Ciro'].apply(para_formatla)
+                    st.dataframe(en_cok_satanlar.rename(columns={'Urun_Adi_Genel': 'Ürün Adı', 'Kategori_Genel': 'Kategori', 'Toplam_Adet': 'Satılan Adet'})[['Ürün Adı', 'Kategori', 'Satılan Adet', 'Toplam Ciro']], use_container_width=True, hide_index=True)
+    
+                with col_u2:
+                    st.markdown("#####  En Çok Ciro Getiren Ürünler")
+                    en_cok_ciro_getirenler = urun_bazli.sort_values(by='Toplam_Ciro', ascending=False).head(5).copy()
+                    en_cok_ciro_getirenler['Toplam Ciro'] = en_cok_ciro_getirenler['Toplam_Ciro'].apply(para_formatla)
+                    st.dataframe(en_cok_ciro_getirenler.rename(columns={'Urun_Adi_Genel': 'Ürün Adı', 'Kategori_Genel': 'Kategori', 'Toplam_Adet': 'Satılan Adet'})[['Ürün Adı', 'Kategori', 'Satılan Adet', 'Toplam Ciro']], use_container_width=True, hide_index=True)
+    
+                st.divider()
+                st.subheader(" Kategori / Marka Bazlı Satış Performansı")
+                kat_bazli = satis_df.groupby('Kategori_Genel').agg(
+                    Siparis_Sayisi=('satis_adet', 'count'),
+                    Toplam_Adet=('satis_adet', 'sum'),
+                    Toplam_Ciro=('Tutar_Val', 'sum')
+                ).reset_index().sort_values(by='Toplam_Ciro', ascending=False)
+                kat_bazli['Toplam Ciro'] = kat_bazli['Toplam_Ciro'].apply(para_formatla)
+                st.dataframe(kat_bazli.rename(columns={'Kategori_Genel': 'Kategori / Marka', 'Siparis_Sayisi': 'Sipariş Adedi', 'Toplam_Adet': 'Satılan Ürün Adeti'})[['Kategori / Marka', 'Sipariş Adedi', 'Satılan Ürün Adeti', 'Toplam Ciro']], use_container_width=True, hide_index=True)
+        else:
+            st.info(" Rapor oluşturmak için henüz satış verisi bulunmuyor.")
 
     # --- 10. AYLIK DETAYLI RAPORLAR ---
     elif menu == " 10. Aylık Detaylı Raporlar":
-        st.header(" Tarih Aralığı ve Aylık Detaylı Raporlar")
-        st.write("Belirleyeceğiniz özel tarih aralığına göre tüm işletme performansını ve kanal dökümlerini inceleyin.")
+        st.header(" Aylık Detaylı Raporlar, Kanal Kırılımı ve Stok Eğilimi")
+        st.write("Bu bölümde aylık bazda ciro, maliyet, net kâr, kârlılık oranı (%), kanal bazlı dağılımlar ve stok değişim eğilimlerini takip edebilirsiniz.")
         
         satis_res = supabase.table("satis").select("*").execute()
-        satis_data = satis_res.data if satis_res.data else []
+        satis_verileri = satis_res.data if satis_res.data else []
         
-        if satis_data:
-            df_tum_satis = pd.DataFrame(satis_data)
-            df_tum_satis['tarih_dt'] = pd.to_datetime(df_tum_satis['tarih'], format="%d.%m.%Y", errors='coerce')
-            tum_tarihler = df_tum_satis['tarih_dt'].dropna().dt.date.tolist()
-            
-            if tum_tarihler:
-                min_t = min(tum_tarihler)
-                max_t = max(tum_tarihler)
-                
-                col_tr1, col_tr2 = st.columns(2)
-                with col_tr1: rapor_bas = st.date_input("Rapor Başlangıç Tarihi", value=min_t, min_value=min_t, max_value=max_t, key="rapor_bas_tarih")
-                with col_tr2: rapor_bit = st.date_input("Rapor Bitiş Tarihi", value=max_t, min_value=min_t, max_value=max_t, key="rapor_bit_tarih")
-                
-                filtrelenmis_satislar = df_tum_satis[(df_tum_satis['tarih_dt'].dt.date >= rapor_bas) & (df_tum_satis['tarih_dt'].dt.date <= rapor_bit)]
-                
-                f_ciro = sum([para_metin_to_float(t) for t in filtrelenmis_satislar['toplam_tutar']]) if not filtrelenmis_satislar.empty else 0.0
-                f_adet = filtrelenmis_satislar['satis_adet'].sum() if not filtrelenmis_satislar.empty else 0
-                
-                st.divider()
-                st.subheader(" Seçilen Aralık Performans Özeti")
-                rc1, rc2 = st.columns(2)
-                rc1.metric(" Dönem Toplam Cirosu", para_formatla(f_ciro))
-                rc2.metric(" Dönem Satış Adeti", f"{f_adet} Adet")
-                
-                st.divider()
-                st.subheader(" Satış Detay Listesi")
-                if not filtrelenmis_satislar.empty:
-                     gosterim_ rapor = filtrelenmis_satislar[["tarih", "siparis_no", "musteri", "satilan_yer", "satis_adet", "toplam_tutar"]].copy()
-                     gosterim_rapor.columns = ["Tarih", "Sipariş No", "Müşteri", "Satış Yeri", "Adet", "Toplam Tutar"]
-                     st.dataframe(gosterim_rapor, use_container_width=True, hide_index=True)
+        stok_res = supabase.table("stok").select("*").execute()
+        stok_verileri = stok_res.data if stok_res.data else []
+        
+        hb_res = supabase.table("hepsi_burada").select("*").execute()
+        web_res = supabase.table("web_sitesi").select("*").execute()
+        dukkan_res = supabase.table("dukkan_elden").select("*").execute()
+        
+        maliyet_sozlugu = {}
+        for kanal_list in [hb_res.data, web_res.data, dukkan_res.data]:
+            if kanal_list:
+                for k_item in kanal_list:
+                    s_no = str(k_item.get("siparis_no")).strip()
+                    maliyet_degeri = float(k_item.get("maliyet") or 0.0)
+                    net_kar_degeri = float(k_item.get("net_kar_zarar") or 0.0)
+                    maliyet_sozlugu[s_no] = {
+                        "maliyet": maliyet_degeri,
+                        "net_kar": net_kar_degeri
+                    }
+
+        stok_aylik_sozlugu = {}
+        if stok_verileri:
+            for st_item in stok_verileri:
+                t_str = st_item.get("tarih")
+                dt_stk = pd.to_datetime(t_str, format="%d.%m.%Y", errors='coerce')
+                if pd.notnull(dt_stk):
+                    y_a = dt_stk.strftime("%Y-%m")
+                    if y_a not in stok_aylik_sozlugu:
+                        stok_aylik_sozlugu[y_a] = {"adet": 0, "maliyet": 0.0}
+                    stok_aylik_sozlugu[y_a]["adet"] += int(st_item.get("adet") or 0)
+                    stok_aylik_sozlugu[y_a]["maliyet"] += para_metin_to_float(st_item.get("toplam_maliyet"))
+
+        if satis_verileri:
+            aylik_liste = []
+            for s in satis_verileri:
+                tarih_str = s.get("tarih")
+                dt = pd.to_datetime(tarih_str, format="%d.%m.%Y", errors='coerce')
+                if pd.notnull(dt):
+                    yil_ay = dt.strftime("%Y-%m")
+                    Ay_Adi = dt.strftime("%B %Y")
                 else:
-                    st.info("Seçilen tarih aralığında satış kaydı bulunamadı.")
+                    yil_ay = "Bilinmeyen"
+                    Ay_Adi = "Bilinmeyen"
+                
+                s_no = str(s.get("siparis_no")).strip()
+                satis_adet = int(s.get("satis_adet") or 0)
+                satis_ciro = para_metin_to_float(s.get("toplam_tutar"))
+                
+                mal_bilgi = maliyet_sozlugu.get(s_no, {"maliyet": 0.0, "net_kar": 0.0})
+                mal_tutar = mal_bilgi["maliyet"]
+                kar_zarar = satis_ciro - mal_tutar
+                if mal_bilgi["net_kar"] != 0.0:
+                    kar_zarar = mal_bilgi["net_kar"]
+
+                aylik_liste.append({
+                    "Yil_Ay": yil_ay,
+                    "Ay": Ay_Adi,
+                    "Tarih": tarih_str,
+                    "Sipariş No": s_no,
+                    "Müşteri": s.get("musteri"),
+                    "Satış Yeri": s.get("satilan_yer"),
+                    "Satış Adeti": satis_adet,
+                    "Satış Cirosu": satis_ciro,
+                    "Malın Maliyeti": mal_tutar,
+                    "Kâr / Zarar": kar_zarar
+                })
+            
+            df_aylik_ham = pd.DataFrame(aylik_liste)
+            
+            if not df_aylik_ham.empty:
+                st.subheader(" Ay Bazında Genel Özet Tablosu")
+                df_grup_ay = df_aylik_ham.groupby(["Yil_Ay", "Ay"]).agg(
+                    Toplam_Siparis=('Sipariş No', 'count'),
+                    Toplam_Adet=('Satış Adeti', 'sum'),
+                    Toplam_Ciro=('Satış Cirosu', 'sum'),
+                    Toplam_Maliyet=('Malın Maliyeti', 'sum'),
+                    Toplam_Kar=('Kâr / Zarar', 'sum')
+                ).reset_index().sort_values(by="Yil_Ay", ascending=False)
+                
+                df_grup_ay["Alınan Ürün Adeti"] = df_grup_ay["Yil_Ay"].apply(lambda x: stok_aylik_sozlugu.get(x, {}).get("adet", 0))
+                df_grup_ay["Toplam Alınan Maliyet"] = df_grup_ay["Yil_Ay"].apply(lambda x: para_formatla(stok_aylik_sozlugu.get(x, {}).get("maliyet", 0.0)))
+                
+                # Özellik 3: Net Stok Farkı (Giren - Satılan)
+                df_grup_ay["Net Stok Farkı"] = df_grup_ay["Alınan Ürün Adeti"] - df_grup_ay["Toplam_Adet"]
+                
+                # Özellik 1: Net Kârlılık Oranı (%)
+                df_grup_ay["Net Kârlılık Oranı (%)"] = df_grup_ay.apply(
+                    lambda row: f"{(row['Toplam_Kar'] / row['Toplam_Ciro'] * 100):.1f}%" if row['Toplam_Ciro'] > 0 else "0.0%", axis=1
+                )
+                
+                df_grup_ay["Satış Cirosu"] = df_grup_ay["Toplam_Ciro"].apply(para_formatla)
+                df_grup_ay["Toplam Maliyet"] = df_grup_ay["Toplam_Maliyet"].apply(para_formatla)
+                df_grup_ay["Net Kâr / Zarar"] = df_grup_ay["Toplam_Kar"].apply(para_formatla)
+                
+                goster_grup_df = df_grup_ay[["Ay", "Toplam_Siparis", "Toplam_Adet", "Alınan Ürün Adeti", "Net Stok Farkı", "Toplam Alınan Maliyet", "Satış Cirosu", "Toplam Maliyet", "Net Kâr / Zarar", "Net Kârlılık Oranı (%)"]]
+                st.dataframe(goster_grup_df.rename(columns={"Ay": "Dönem (Ay)", "Toplam_Siparis": "Sipariş Sayısı", "Toplam_Adet": "Satılan Adet"}), use_container_width=True, hide_index=True)
+                
+                st.divider()
+                st.subheader(" Seçilen Aya Ait Satır Satır Detaylı Rapor ve Kanal Kırılımı")
+                secilen_donem = st.selectbox("İncelemek İstediğiniz Ayı Seçin:", df_grup_ay["Ay"].tolist())
+                
+                df_secilen_ay = df_aylik_ham[df_aylik_ham["Ay"] == secilen_donem].copy()
+                
+                # Özellik 2: Seçilen Aya Ait Kanal Bazlı Kırılım (Expandable / Genişletilebilir Alt Özet)
+                with st.expander(f"📊 {secilen_donem} Dönemi Satış Kanalları Kırılımı", expanded=True):
+                    kanal_kirilim = df_secilen_ay.groupby("Satış Yeri").agg(
+                        Sipariş_Adedi=('Sipariş No', 'count'),
+                        Satılan_Adet=('Satış Adeti', 'sum'),
+                        Toplam_Ciro=('Satış Cirosu', 'sum'),
+                        Toplam_Kar=('Kâr / Zarar', 'sum')
+                    ).reset_index()
+                    
+                    kanal_kirilim["Toplam Ciro"] = kanal_kirilim["Toplam_Ciro"].apply(para_formatla)
+                    kanal_kirilim["Net Kâr / Zarar"] = kanal_kirilim["Toplam_Kar"].apply(para_formatla)
+                    
+                    st.dataframe(kanal_kirilim.rename(columns={"Satış Yeri": "Satış Kanalı", "Sipariş_Adedi": "Sipariş Sayısı", "Satılan_Adet": "Satılan Adet"})[["Satış Kanalı", "Sipariş Sayısı", "Satılan Adet", "Toplam Ciro", "Net Kâr / Zarar"]], use_container_width=True, hide_index=True)
+
+                st.markdown("#### 📝 Satır Satır Satış Dökümü")
+                df_secilen_ay["Satış Cirosu"] = df_secilen_ay["Satış Cirosu"].apply(para_formatla)
+                df_secilen_ay["Malın Maliyeti"] = df_secilen_ay["Malın Maliyeti"].apply(para_formatla)
+                df_secilen_ay["Kâr / Zarar"] = df_secilen_ay["Kâr / Zarar"].apply(para_formatla)
+                
+                st.dataframe(df_secilen_ay[["Tarih", "Sipariş No", "Müşteri", "Satış Yeri", "Satış Adeti", "Satış Cirosu", "Malın Maliyeti", "Kâr / Zarar"]], use_container_width=True, hide_index=True)
             else:
-                st.info("Geçerli tarih formatına sahip satış kaydı bulunmuyor.")
+                st.info("Aylık rapor oluşturulacak veri bulunamadı.")
         else:
-            st.info("Rapor oluşturulacak satış kaydı bulunmuyor.")
+            st.info("Henüz sisteme işlenmiş satış verisi bulunmuyor.")
