@@ -835,13 +835,9 @@ if check_password():
             elif stok_siralama == "Ürün Adı (A-Z) ": df_stok_liste = df_stok_liste.sort_values(by="Ürün Adı", ascending=True)
             elif stok_siralama == "Kalan Adet (En Yüksek) ": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=False)
     
-            # --- FİLTRELENEN ÜRÜNLER İÇİN TOPLAM ADET VE SERMAYE HESABI ---
-            filtrelenmis_toplam_adet = df_stok_liste['Kalan Adet'].sum()
-            filtrelenmis_toplam_sermaye = df_stok_liste['Sermaye_Val'].sum()
-
             col_stk1, col_stk2, col_stk3 = st.columns(3)
-            col_stk1.metric(" Toplam Kalan Ürün Adeti", f"{filtrelenmis_toplam_adet} Adet")
-            col_stk2.metric(" Toplam Bağlı Sermaye", para_formatla(filtrelenmis_toplam_sermaye))
+            col_stk1.metric(" Toplam Kalan Ürün Adeti", f"{df_stok_liste['Kalan Adet'].sum()} Adet")
+            col_stk2.metric(" Toplam Bağlı Sermaye", para_formatla(toplam_bagli_sermaye))
             kritik_sayisi = len(df_stok_liste[df_stok_liste['Kalan Adet'] <= kritik_esik])
             col_stk3.metric(" Kritik/Tükenen Ürün Sayısı", f"{kritik_sayisi} Çeşit")
     
@@ -880,7 +876,7 @@ if check_password():
     
             with tab_hb1:
                 if not bekleyen_df.empty:
-                    st.subheader(" Gider and Kesinti Girişi Bekleyen Siparişler")
+                    st.subheader(" Gider ve Kesinti Girişi Bekleyen Siparişler")
                     c_bs1, c_bs2 = st.columns(2)
                     with c_bs1: bekleyen_sira = st.selectbox(" Sırala:", ["Ekleme Sırası (ID)", "Tarih (En Yeni)", "Satış Tutarı (En Yüksek)"], key="bekleyen_sira_secim")
                     with c_bs2: st.caption(" Bekleyen sipariş listesini sıralayın.")
@@ -1493,25 +1489,67 @@ if check_password():
             st.divider()
             st.subheader(" Kanal Bazlı Detaylı Net Kârlılık ve Gider Analizi")
             
-            tab_r1, tab_r2, tab_r3 = st.tabs([" Hepsi Burada Detayları", " Web Sitesi Detayları", " Dükkan & Elden Detayları"])
+            # --- GÜNCELLENEN BÖLÜM: Bütün Kanalların Detayları Alt Alta Satır/Bölüm Olarak Listeleniyor ---
             
-            with tab_r1:
-                if not hb_df.empty:
-                    h_tamamlanan = hb_df[hb_df['giderler_girildi'] == 1]
-                    st.metric("Hepsi Burada Toplam Net Kâr", para_formatla(hb_net))
-                    st.caption(f"Toplam {len(hb_df)} siparişten {len(h_tamamlanan)} tanesinin giderleri işlenmiştir.")
-                    if not h_tamamlanan.empty:
-                        hb_rapor_tablosu = []
-                        for _, r in h_tamamlanan.iterrows():
-                            hb_rapor_tablosu.append({
-                                "Tarih": r['tarih'], "Sipariş No": r['siparis_no'], "Müşteri": r['musteri'],
-                                "Ürün Adı": r['urun_adi'], "Maliyet": para_formatla(r['maliyet']), "Ciro": para_formatla(r['satis_tutari']),
-                                "Komisyon": para_formatla(r['komisyon']), "Kargo": para_formatla(r['kargo']), "Net Kâr": para_formatla(r['net_kar_zarar'])
-                            })
-                        st.dataframe(pd.DataFrame(hb_rapor_tablosu), use_container_width=True, hide_index=True)
-                else: st.info(" Hepsi Burada verisi yok.")
-    
-            with tab_r2:
-                if not web_df.empty:
-                    w_tamamlanan = web_df[web_df['giderler_girildi'] == 1]
-                    st.metric("Web Sitesi Toplam Net Kâr", para_formatla(web_net))
+            st.markdown("### 1. Hepsi Burada Detayları")
+            if not hb_df.empty:
+                h_tamamlanan = hb_df[hb_df['giderler_girildi'] == 1]
+                st.metric("Hepsi Burada Toplam Net Kâr", para_formatla(hb_net))
+                st.caption(f"Toplam {len(hb_df)} siparişten {len(h_tamamlanan)} tanesinin giderleri işlenmiştir.")
+                if not h_tamamlanan.empty:
+                    hb_rapor_tablosu = []
+                    for _, r in h_tamamlanan.iterrows():
+                        hb_rapor_tablosu.append({
+                            "Tarih": r['tarih'], "Sipariş No": r['siparis_no'], "Müşteri": r['musteri'],
+                            "Ürün Adı": r['urun_adi'], "Maliyet": para_formatla(r['maliyet']), "Ciro": para_formatla(r['satis_tutari']),
+                            "Komisyon": para_formatla(r['komisyon']), "Kargo": para_formatla(r['kargo']), "Net Kâr": para_formatla(r['net_kar_zarar'])
+                        })
+                    st.dataframe(pd.DataFrame(hb_rapor_tablosu), use_container_width=True, hide_index=True)
+                else:
+                    st.info("İşlenmiş Hepsi Burada gider kaydı bulunmuyor.")
+            else: 
+                st.info("Hepsi Burada verisi yok.")
+            
+            st.divider()
+            
+            st.markdown("### 2. Web Sitesi Detayları")
+            if not web_df.empty:
+                w_tamamlanan = web_df[web_df['giderler_girildi'] == 1]
+                st.metric("Web Sitesi Toplam Net Kâr", para_formatla(web_net))
+                st.caption(f"Toplam {len(web_df)} siparişten {len(w_tamamlanan)} tanesinin giderleri işlenmiştir.")
+                if not w_tamamlanan.empty:
+                    web_rapor_tablosu = []
+                    for _, r in w_tamamlanan.iterrows():
+                        web_rapor_tablosu.append({
+                            "Tarih": r['tarih'], "Sipariş No": r['siparis_no'], "Müşteri": r['musteri'],
+                            "Ürün Adı": r['urun_adi'], "Maliyet": para_formatla(r['maliyet']), "Ciro": para_formatla(r['satis_tutari']),
+                            "POS Kesintisi": para_formatla(r['pos_kesintisi']), "Kargo": para_formatla(r['kargo']), "Net Kâr": para_formatla(r['net_kar_zarar'])
+                        })
+                    st.dataframe(pd.DataFrame(web_rapor_tablosu), use_container_width=True, hide_index=True)
+                else:
+                    st.info("İşlenmiş Web Sitesi gider kaydı bulunmuyor.")
+            else: 
+                st.info("Web sitesi verisi yok.")
+                
+            st.divider()
+            
+            st.markdown("### 3. Dükkan & Elden Detayları")
+            if not dukkan_df.empty:
+                d_tamamlanan = dukkan_df[dukkan_df['giderler_girildi'] == 1]
+                st.metric("Dükkan & Elden Toplam Net Kâr", para_formatla(dukkan_net))
+                st.caption(f"Toplam {len(dukkan_df)} satıştan {len(d_tamamlanan)} tanesinin giderleri işlenmiştir.")
+                if not d_tamamlanan.empty:
+                    dukkan_rapor_tablosu = []
+                    for _, r in d_tamamlanan.iterrows():
+                        dukkan_rapor_tablosu.append({
+                            "Tarih": r['tarih'], "Fiş No": r['siparis_no'], "Müşteri": r['musteri'],
+                            "Ürün Adı": r['urun_adi'], "Maliyet": para_formatla(r['maliyet']), "Ciro": para_formatla(r['satis_tutari']),
+                            "POS Kesintisi": para_formatla(r['pos_kesintisi']), "Net Kâr": para_formatla(r['net_kar_zarar'])
+                        })
+                    st.dataframe(pd.DataFrame(dukkan_rapor_tablosu), use_container_width=True, hide_index=True)
+                else:
+                    st.info("İşlenmiş Dükkan gider kaydı bulunmuyor.")
+            else: 
+                st.info("Dükkan & Elden verisi yok.")
+        else:
+            st.info("Henüz satış verisi bulunmuyor.")
