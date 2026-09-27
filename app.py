@@ -1166,7 +1166,15 @@ if check_password():
                 st.subheader(" En Çok Ürün Alanlar (Adet)")
                 en_cok_alanlar = m_ozet.sort_values(by='Toplam_Adet', ascending=False).head(5).copy()
                 en_cok_alanlar['Toplam Harcama'] = en_cok_alanlar['Toplam_Harcama'].apply(para_formatla)
-                st.dataframe(en_cok_alanlar.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Sipariş', 'Toplam_Adet': 'Toplam Adet', 'Toplam Harcama'})[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']], use_container_width=True, hide_index=True)
+                st.dataframe(
+    en_cok_alanlar.rename(columns={
+        'musteri': 'Müşteri', 
+        'Toplam_Siparis': 'Sipariş', 
+        'Toplam_Adet': 'Toplam Adet', 
+        'Toplam Harcama': 'Toplam Harcama'
+    })[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']], 
+    use_container_width=True, 
+    hide_index=True
     
             st.divider()
             st.subheader(" Tüm Müşteriler Genel Özeti")
