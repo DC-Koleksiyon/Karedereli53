@@ -7,31 +7,168 @@ import pandas as pd
 
 st.set_page_config(page_title="Stok & Takip Sistemi", page_icon="", layout="wide")
 
-# --- KULLANICI GİRİŞ KONTROLÜ ---
+# --- KULLANICI GİRİŞ KONTROLÜ (RENKLİ & BENİ HATIRLA ÖZELLİKLİ) ---
 def check_password():
-    def password_entered():
-        if (
-            st.session_state["username"] == "Sedat-Burak"
-            and st.session_state["password"] == "Zeus5341"
-        ):
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  
-            del st.session_state["username"]
-        else:
-            st.session_state["password_correct"] = False
+    # Özel CSS Stilleri ile Renkli ve Modern Tasarım
+    st.markdown("""
+        <style>
+            /* Ana sayfa arka planına renkli gradient ekleme */
+            .stApp {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            
+            /* Giriş kartı tasarımı */
+            .login-card {
+                background: rgba(255, 255, 255, 0.95);
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+                backdrop-filter: blur(10px);
+                max-width: 450px;
+                margin: 0 auto;
+            }
+            
+            /* Başlık stili */
+            .login-title {
+                color: #2d3748;
+                font-size: 28px;
+                font-weight: 700;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            
+            .login-subtitle {
+                color: #718096;
+                font-size: 14px;
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            
+            /* Buton özelleştirme */
+            .stButton>button {
+                width: 100%;
+                background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+                color: #fff;
+                font-weight: 700;
+                border: none;
+                padding: 12px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(253, 160, 133, 0.4);
+                transition: all 0.3s ease;
+            }
+            
+            .stButton>button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(253, 160, 133, 0.6);
+            }
+            
+            div[data-testid="stDataEditor"] div.dvn-scroller, div[data-testid="stDataFrame"] div.dvn-scroller {
+                max-width: 100%;
+            }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+            th {
+                font-size: 15px !important;
+                padding: 16px 18px !important;
+                background-color: rgba(150, 150, 150, 0.15) !important;
+                text-align: left !important;
+            }
+            td {
+                font-size: 15px !important;
+                padding: 22px 18px !important;
+                vertical-align: middle !important;
+                height: 85px !important;
+            }
+            .zoom-img {
+                width: 60px;
+                height: 60px;
+                object-fit: cover;
+                border-radius: 8px;
+                transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+                cursor: pointer;
+                display: block;
+            }
+            .zoom-img:hover {
+                transform: scale(5) translateX(25px);
+                z-index: 99999;
+                position: relative;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            }
+            
+            section[data-testid="stSidebar"] div.stButton > button {
+                width: 100%;
+                text-align: left;
+                margin-bottom: 3px;
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.1);
+                font-weight: 600;
+                padding: 7px 12px;
+                font-size: 13.5px;
+            }
+            
+            div[data-testid="column"] div.stButton > button {
+                width: 100% !important;
+                height: 120px !important;
+                font-size: 19px !important;
+                font-weight: 700 !important;
+                border-radius: 16px !important;
+                border: none !important;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.35) !important;
+                color: white !important;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            div[data-testid="column"] div.stButton > button:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+            }
+            
+            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #00b09b, #96c93d) !important; }
+            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #11998e, #38ef7d) !important; }
+            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #f2994a, #f2c94c) !important; }
+            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #8e2de2, #4a00e0) !important; }
+            div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #0ba360, #3cba92) !important; }
+        
+            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #2193b0, #6dd5ed) !important; }
+            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #eb3349, #f45c43) !important; }
+            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #56ab2f, #a8e063) !important; }
+            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #4ca1af, #c4e0e5) !important; color: #1e293b !important; }
+            div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #512b58, #8f43ee) !important; }
+        </style>
+    """, unsafe_allow_html=True)
 
     if "password_correct" not in st.session_state:
-        st.subheader(" Stok & Takip Sistemi Girişi")
-        st.text_input("Kullanıcı Adı", key="username")
-        st.text_input("Şifre", type="password", key="password")
-        st.button("Giriş Yap", on_click=password_entered)
-        return False
-    elif not st.session_state["password_correct"]:
-        st.subheader(" Stok & Takip Sistemi Girişi")
-        st.text_input("Kullanıcı Adı", key="username")
-        st.text_input("Şifre", type="password", key="password")
-        st.button("Giriş Yap", on_click=password_entered)
-        st.error(" Kullanıcı adı veya şifre yanlış")
+        st.session_state["password_correct"] = False
+
+    if not st.session_state["password_correct"]:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.markdown('<div class="login-card">', unsafe_allow_html=True)
+            st.markdown('<p class="login-title">🚀 Stok & Takip Sistemi</p>', unsafe_allow_html=True)
+            st.markdown('<p class="login-subtitle">Devam etmek için lütfen giriş yapın</p>', unsafe_allow_html=True)
+
+            saved_user = st.session_state.get("remembered_user", "Sedat-Burak")
+
+            username = st.text_input("Kullanıcı Adı", value=saved_user)
+            password = st.text_input("Şifre", type="password")
+            remember_me = st.checkbox("Beni Hatırla", value=True)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            if st.button("Giriş Yap"):
+                if username == "Sedat-Burak" and password == "Zeus5341":
+                    st.session_state["password_correct"] = True
+                    if remember_me:
+                        st.session_state["remembered_user"] = username
+                    else:
+                        if "remembered_user" in st.session_state:
+                            del st.session_state["remembered_user"]
+                    st.success("Giriş başarılı! Yönlendiriliyorsunuz...")
+                    st.rerun()
+                else:
+                    st.error("Kullanıcı adı veya şifre yanlış!")
+            st.markdown("</div>", unsafe_allow_html=True)
         return False
     else:
         return True
@@ -45,84 +182,6 @@ if check_password():
         return create_client(url, key)
 
     supabase = init_supabase()
-
-    st.markdown("""
-        <style>
-        div[data-testid="stDataEditor"] div.dvn-scroller, div[data-testid="stDataFrame"] div.dvn-scroller {
-            max-width: 100%;
-        }
-        table {
-            width: 100% !important;
-            border-collapse: collapse !important;
-        }
-        th {
-            font-size: 15px !important;
-            padding: 16px 18px !important;
-            background-color: rgba(150, 150, 150, 0.15) !important;
-            text-align: left !important;
-        }
-        td {
-            font-size: 15px !important;
-            padding: 22px 18px !important;
-            vertical-align: middle !important;
-            height: 85px !important;
-        }
-        .zoom-img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 8px;
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            cursor: pointer;
-            display: block;
-        }
-        .zoom-img:hover {
-            transform: scale(5) translateX(25px);
-            z-index: 99999;
-            position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-        
-        section[data-testid="stSidebar"] div.stButton > button {
-            width: 100%;
-            text-align: left;
-            margin-bottom: 3px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
-            font-weight: 600;
-            padding: 7px 12px;
-            font-size: 13.5px;
-        }
-        
-        div[data-testid="column"] div.stButton > button {
-            width: 100% !important;
-            height: 120px !important;
-            font-size: 19px !important;
-            font-weight: 700 !important;
-            border-radius: 16px !important;
-            border: none !important;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.35) !important;
-            color: white !important;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        div[data-testid="column"] div.stButton > button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
-        }
-        
-        div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #00b09b, #96c93d) !important; }
-        div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #11998e, #38ef7d) !important; }
-        div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #f2994a, #f2c94c) !important; }
-        div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #8e2de2, #4a00e0) !important; }
-        div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #0ba360, #3cba92) !important; }
-    
-        div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #2193b0, #6dd5ed) !important; }
-        div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #eb3349, #f45c43) !important; }
-        div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #56ab2f, #a8e063) !important; }
-        div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #4ca1af, #c4e0e5) !important; color: #1e293b !important; }
-        div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #512b58, #8f43ee) !important; }
-        </style>
-    """, unsafe_allow_html=True)
     
     def para_formatla(miktar):
         try:
@@ -1184,7 +1243,6 @@ if check_password():
     
             with tab_w2:
                 if not tamamlanan_web.empty:
-                    # --- 5. WEB SİTESİ: DUZELTME BUTONU EKLENDI ---
                     if st.session_state.web_duzenle_id:
                         duzenlenen_w_res = tamamlanan_web[tamamlanan_web['id'] == st.session_state.web_duzenle_id]
                         if not duzenlenen_w_res.empty:
@@ -1323,7 +1381,6 @@ if check_password():
     
             with tab_d2:
                 if not tamamlanan_d.empty:
-                    # --- 6. DÜKKAN: DUZELTME BUTONU EKLENDI ---
                     if st.session_state.dukkan_duzenle_id:
                         duzenlenen_duk_res = tamamlanan_d[tamamlanan_d['id'] == st.session_state.dukkan_duzenle_id]
                         if not duzenlenen_duk_res.empty:
@@ -1598,7 +1655,6 @@ if check_password():
         web_res = supabase.table("web_sitesi").select("*").execute()
         dukkan_res = supabase.table("dukkan_elden").select("*").execute()
         
-        # Tüm kanal maliyetlerini sipariş nosuna/müşteriye göre birleştirip sözlük yapalım
         maliyet_sozlugu = {}
         for kanal_list in [hb_res.data, web_res.data, dukkan_res.data]:
             if kanal_list:
@@ -1617,8 +1673,8 @@ if check_password():
                 tarih_str = s.get("tarih")
                 dt = pd.to_datetime(tarih_str, format="%d.%m.%Y", errors='coerce')
                 if pd.notnull(dt):
-                    yil_ay = dt.strftime("%Y-%m") # Örn: 2026-09
-                    Ay_Adi = dt.strftime("%B %Y")  # Örn: September 2026
+                    yil_ay = dt.strftime("%Y-%m")
+                    Ay_Adi = dt.strftime("%B %Y")
                 else:
                     yil_ay = "Bilinmeyen"
                     Ay_Adi = "Bilinmeyen"
@@ -1627,10 +1683,9 @@ if check_password():
                 satis_adet = int(s.get("satis_adet") or 0)
                 satis_ciro = para_metin_to_float(s.get("toplam_tutar"))
                 
-                # Maliyet bilgisi ilgili kanal tablosundan çekilir, yoksa 0 alınır
                 mal_bilgi = maliyet_sozlugu.get(s_no, {"maliyet": 0.0, "net_kar": 0.0})
                 mal_tutar = mal_bilgi["maliyet"]
-                kar_zarar = satis_ciro - mal_tutar # Eğer giderler tam girilmediyse kaba kâr, girildiyse net kâr baz alınabilir
+                kar_zarar = satis_ciro - mal_tutar
                 if mal_bilgi["net_kar"] != 0.0:
                     kar_zarar = mal_bilgi["net_kar"]
 
@@ -1650,7 +1705,6 @@ if check_password():
             df_aylik_ham = pd.DataFrame(aylik_liste)
             
             if not df_aylik_ham.empty:
-                # Aylık Gruplama Özeti Tablosu
                 st.subheader(" Ay Bazında Genel Özet Tablosu")
                 df_grup_ay = df_aylik_ham.groupby(["Yil_Ay", "Ay"]).agg(
                     Toplam_Siparis=('Sipariş No', 'count'),
@@ -1673,7 +1727,6 @@ if check_password():
                 
                 df_secilen_ay = df_aylik_ham[df_aylik_ham["Ay"] == secilen_donem].copy()
                 
-                # Formatlamalar
                 df_secilen_ay["Satış Cirosu"] = df_secilen_ay["Satış Cirosu"].apply(para_formatla)
                 df_secilen_ay["Malın Maliyeti"] = df_secilen_ay["Malın Maliyeti"].apply(para_formatla)
                 df_secilen_ay["Kâr / Zarar"] = df_secilen_ay["Kâr / Zarar"].apply(para_formatla)
