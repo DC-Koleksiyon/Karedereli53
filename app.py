@@ -1108,7 +1108,7 @@ if check_password():
     
     # --- 7. MÜŞTERİ ANALİZİ ---
     elif menu == " 7. Müşteri Analizi":
-        st.header(" Müşteri Analizi ve Liderlik Tablosu")
+        st.header(" Müşteri Analizi, Liderlik Tablosu ve Sipariş Geçmişi Arama")
         s_res = supabase.table("satis").select("*").order("id", desc=True).execute()
         satis_df = pd.DataFrame(s_res.data) if s_res.data else pd.DataFrame()
     
@@ -1126,6 +1126,36 @@ if check_password():
             col_mu3.metric(" Toplam Müşteri Cirosu", para_formatla(m_ozet['Toplam_Harcama'].sum()))
     
             st.divider()
+            
+            # --- MÜŞTERİ SİPARİŞ GEÇMİŞİ ARAMA ÖZELLİĞİ ---
+            st.subheader(" Müşteri Sipariş Geçmişi Arama")
+            musteri_listesi = sorted(satis_df['musteri'].dropna().unique().tolist())
+            secilen_musteri_ara = st.selectbox("Geçmişini Görmek İstediğiniz Müşteriyi Seçin veya Arayın:", ["Seçiniz..."] + musteri_listesi, key="musteri_gecmis_secim")
+            
+            if secilen_musteri_ara and secilen_musteri_ara != "Seçiniz...":
+                mus_satislar = satis_df[satis_df['musteri'] == secilen_musteri_ara].copy()
+                st.markdown(f"#### **{secilen_musteri_ara}** Adlı Müşterinin Sipariş Geçmişi")
+                
+                mus_detay_liste = []
+                for _, ms in mus_satislar.iterrows():
+                    b_kod = ms.get('barkod_kod')
+                    stk_bul_res = supabase.table("stok").select("urun_adi, barkod, urun_kodu").or_(f"barkod.eq.{b_kod},urun_kodu.eq.{b_kod}").limit(1).execute()
+                    u_adi = b_kod
+                    if stk_bul_res.data:
+                        u_adi = stk_bul_res.data[0].get('urun_adi') or b_kod
+                        
+                    mus_detay_liste.append({
+                        "Tarih": ms.get('tarih'),
+                        "Sipariş No": ms.get('siparis_no'),
+                        "Ürün / Kod": u_adi,
+                        "Adet": ms.get('satis_adet'),
+                        "Birim Fiyat": para_formatla(para_metin_to_float(ms.get('birim_fiyat'))),
+                        "Satış Yeri": ms.get('satilan_yer'),
+                        "Toplam Tutar": para_formatla(para_metin_to_float(ms.get('toplam_tutar')))
+                    })
+                st.dataframe(pd.DataFrame(mus_detay_liste), use_container_width=True, hide_index=True)
+            
+            st.divider()
             c_lider1, c_lider2 = st.columns(2)
             with c_lider1:
                 st.subheader(" En Çok Alışveriş Yapanlar (Ciro)")
@@ -1136,7 +1166,7 @@ if check_password():
                 st.subheader(" En Çok Ürün Alanlar (Adet)")
                 en_cok_alanlar = m_ozet.sort_values(by='Toplam_Adet', ascending=False).head(5).copy()
                 en_cok_alanlar['Toplam Harcama'] = en_cok_alanlar['Toplam_Harcama'].apply(para_formatla)
-                st.dataframe(en_cok_alanlar.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Sipariş', 'Toplam_Adet': 'Toplam Adet'})[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']], use_container_width=True, hide_index=True)
+                st.dataframe(en_cok_alanlar.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Sipariş', 'Toplam_Adet': 'Toplam Adet', 'Toplam Harcama'})[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']], use_container_width=True, hide_index=True)
     
             st.divider()
             st.subheader(" Tüm Müşteriler Genel Özeti")
