@@ -835,9 +835,13 @@ if check_password():
             elif stok_siralama == "Ürün Adı (A-Z) ": df_stok_liste = df_stok_liste.sort_values(by="Ürün Adı", ascending=True)
             elif stok_siralama == "Kalan Adet (En Yüksek) ": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=False)
     
+            # --- FİLTRELENEN ÜRÜNLER İÇİN TOPLAM ADET VE SERMAYE HESABI ---
+            filtrelenmis_toplam_adet = df_stok_liste['Kalan Adet'].sum()
+            filtrelenmis_toplam_sermaye = df_stok_liste['Sermaye_Val'].sum()
+
             col_stk1, col_stk2, col_stk3 = st.columns(3)
-            col_stk1.metric(" Toplam Kalan Ürün Adeti", f"{df_stok_liste['Kalan Adet'].sum()} Adet")
-            col_stk2.metric(" Toplam Bağlı Sermaye", para_formatla(toplam_bagli_sermaye))
+            col_stk1.metric(" Toplam Kalan Ürün Adeti", f"{filtrelenmis_toplam_adet} Adet")
+            col_stk2.metric(" Toplam Bağlı Sermaye", para_formatla(filtrelenmis_toplam_sermaye))
             kritik_sayisi = len(df_stok_liste[df_stok_liste['Kalan Adet'] <= kritik_esik])
             col_stk3.metric(" Kritik/Tükenen Ürün Sayısı", f"{kritik_sayisi} Çeşit")
     
@@ -876,7 +880,7 @@ if check_password():
     
             with tab_hb1:
                 if not bekleyen_df.empty:
-                    st.subheader(" Gider ve Kesinti Girişi Bekleyen Siparişler")
+                    st.subheader(" Gider and Kesinti Girişi Bekleyen Siparişler")
                     c_bs1, c_bs2 = st.columns(2)
                     with c_bs1: bekleyen_sira = st.selectbox(" Sırala:", ["Ekleme Sırası (ID)", "Tarih (En Yeni)", "Satış Tutarı (En Yüksek)"], key="bekleyen_sira_secim")
                     with c_bs2: st.caption(" Bekleyen sipariş listesini sıralayın.")
@@ -1511,122 +1515,3 @@ if check_password():
                 if not web_df.empty:
                     w_tamamlanan = web_df[web_df['giderler_girildi'] == 1]
                     st.metric("Web Sitesi Toplam Net Kâr", para_formatla(web_net))
-                    st.caption(f"Toplam {len(web_df)} siparişten {len(w_tamamlanan)} tanesinin giderleri işlenmiştir.")
-                    if not w_tamamlanan.empty:
-                        web_rapor_tablosu = []
-                        for _, r in w_tamamlanan.iterrows():
-                            web_rapor_tablosu.append({
-                                "Tarih": r['tarih'], "Sipariş No": r['siparis_no'], "Müşteri": r['musteri'],
-                                "Ürün Adı": r['urun_adi'], "Maliyet": para_formatla(r['maliyet']), "Ciro": para_formatla(r['satis_tutari']),
-                                "POS Kesintisi": para_formatla(r['pos_kesintisi']), "Kargo": para_formatla(r['kargo']), "Net Kâr": para_formatla(r['net_kar_zarar'])
-                            })
-                        st.dataframe(pd.DataFrame(web_rapor_tablosu), use_container_width=True, hide_index=True)
-                else: st.info(" Web sitesi verisi yok.")
-    
-            with tab_r3:
-                if not dukkan_df.empty:
-                    d_tamamlanan = dukkan_df[dukkan_df['giderler_girildi'] == 1]
-                    st.metric("Dükkan & Elden Toplam Net Kâr", para_formatla(dukkan_net))
-                    st.caption(f"Toplam {len(dukkan_df)} satıştan {len(d_tamamlanan)} tanesinin giderleri işlenmiştir.")
-                    if not d_tamamlanan.empty:
-                        dukkan_rapor_tablosu = []
-                        for _, r in d_tamamlanan.iterrows():
-                            dukkan_rapor_tablosu.append({
-                                "Tarih": r['tarih'], "Fiş No": r['siparis_no'], "Müşteri": r['musteri'],
-                                "Ürün Adı": r['urun_adi'], "Maliyet": para_formatla(r['maliyet']), "Satış Tutarı": para_formatla(r['satis_tutari']),
-                                "POS Kesintisi": para_formatla(r['pos_kesintisi']), "Net Kâr": para_formatla(r['net_kar_zarar'])
-                            })
-                        st.dataframe(pd.DataFrame(dukkan_rapor_tablosu), use_container_width=True, hide_index=True)
-                else: st.info(" Dükkan verisi yok.")
-        else: 
-            st.info(" Raporlama için yeterli satış kaydı bulunmuyor.")
-    
-    # --- 10. AYLIK DETAYLI RAPORLAR ---
-    elif menu == " 10. Aylık Detaylı Raporlar":
-        st.header(" Tarih Aralıklı ve Aylık Detaylı Raporlar (Alış, Satış ve Kâr/Zarar)")
-        
-        satis_res = supabase.table("satis").select("tarih, satis_adet, toplam_tutar").execute()
-        satis_df = pd.DataFrame(satis_res.data) if satis_res.data else pd.DataFrame()
-        
-        stok_res = supabase.table("stok").select("tarih, adet, toplam_maliyet").execute()
-        stok_df = pd.DataFrame(stok_res.data) if stok_res.data else pd.DataFrame()
-        
-        hb_res = supabase.table("hepsi_burada").select("tarih, giderler_girildi, net_kar_zarar").execute()
-        hb_df = pd.DataFrame(hb_res.data) if hb_res.data else pd.DataFrame()
-        
-        web_res = supabase.table("web_sitesi").select("tarih, giderler_girildi, net_kar_zarar").execute()
-        web_df = pd.DataFrame(web_res.data) if web_res.data else pd.DataFrame()
-        
-        dukkan_res = supabase.table("dukkan_elden").select("tarih, giderler_girildi, net_kar_zarar").execute()
-        dukkan_df = pd.DataFrame(dukkan_res.data) if dukkan_res.data else pd.DataFrame()
-        
-        tum_tarihler = []
-        if not satis_df.empty:
-            satis_df['Tarih_dt'] = pd.to_datetime(satis_df['tarih'], format="%d.%m.%Y", errors='coerce')
-            tum_tarihler.extend(satis_df['Tarih_dt'].dropna().tolist())
-        if not stok_df.empty:
-            stok_df['Tarih_dt'] = pd.to_datetime(stok_df['tarih'], format="%d.%m.%Y", errors='coerce')
-            tum_tarihler.extend(stok_df['Tarih_dt'].dropna().tolist())
-            
-        if tum_tarihler:
-            min_tarih = min(tum_tarihler).date()
-            max_tarih = max(tum_tarihler).date()
-            
-            st.subheader(" Tarih Aralığı Filtreleme")
-            col_t1, col_t2 = st.columns(2)
-            with col_t1: baslangic_tarihi = st.date_input("Başlangıç Tarihi", value=min_tarih, min_value=min_tarih, max_value=max_tarih, key="rapor_bas_tarih")
-            with col_t2: bitis_tarihi = st.date_input("Bitiş Tarihi", value=max_tarih, min_value=min_tarih, max_value=max_tarih, key="rapor_bit_tarih")
-    
-            if baslangic_tarihi > bitis_tarihi:
-                st.error(" Başlangıç tarihi bitiş tarihinden sonra olamaz!")
-            else:
-                if not stok_df.empty:
-                    stok_filt = stok_df[(stok_df['Tarih_dt'].dt.date >= baslangic_tarihi) & (stok_df['Tarih_dt'].dt.date <= bitis_tarihi)].copy()
-                    stok_filt['Maliyet_Val'] = stok_filt['toplam_maliyet'].apply(para_metin_to_float)
-                    stok_filt['Ay'] = stok_filt['Tarih_dt'].dt.strftime("%m.%Y")
-                    alis_aylik = stok_filt.groupby('Ay').agg(
-                        Alinan_Urun_Adeti=('adet', 'sum'),
-                        Alinan_Maliyet_Top=('Maliyet_Val', 'sum')
-                    ).reset_index()
-                else:
-                    alis_aylik = pd.DataFrame(columns=['Ay', 'Alinan_Urun_Adeti', 'Alinan_Maliyet_Top'])
-                
-                if not satis_df.empty:
-                    satis_filt = satis_df[(satis_df['Tarih_dt'].dt.date >= baslangic_tarihi) & (satis_df['Tarih_dt'].dt.date <= bitis_tarihi)].copy()
-                    satis_filt['Tutar_Val'] = satis_filt['toplam_tutar'].apply(para_metin_to_float)
-                    satis_filt['Ay'] = satis_filt['Tarih_dt'].dt.strftime("%m.%Y")
-                    satis_aylik = satis_filt.groupby('Ay').agg(
-                        Toplam_Siparis=('satis_adet', 'count'),
-                        Satilan_Adet=('satis_adet', 'sum'),
-                        Toplam_Ciro=('Tutar_Val', 'sum')
-                    ).reset_index()
-                else:
-                    satis_aylik = pd.DataFrame(columns=['Ay', 'Toplam_Siparis', 'Satilan_Adet', 'Toplam_Ciro'])
-                
-                tum_aylar = sorted(list(set(alis_aylik['Ay'].tolist() + satis_aylik['Ay'].tolist())))
-                if tum_aylar:
-                    rapor_verisi = []
-                    for ay in tum_aylar:
-                        al_row = alis_aylik[alis_aylik['Ay'] == ay]
-                        sat_row = satis_aylik[satis_aylik['Ay'] == ay]
-                        
-                        alinan_adet = int(al_row['Alinan_Urun_Adeti'].values[0]) if not al_row.empty else 0
-                        alinan_maliyet = float(al_row['Alinan_Maliyet_Top'].values[0]) if not al_row.empty else 0.0
-                        
-                        siparis_sayisi = int(sat_row['Toplam_Siparis'].values[0]) if not sat_row.empty else 0
-                        satilan_adet = int(sat_row['Satilan_Adet'].values[0]) if not sat_row.empty else 0
-                        ciro = float(sat_row['Toplam_Ciro'].values[0]) if not sat_row.empty else 0.0
-                        
-                        rapor_verisi.append({
-                            "Ay / Dönem": ay,
-                            "Alınan Adet": alinan_adet,
-                            "Alış Maliyeti": para_formatla(alinan_maliyet),
-                            "Sipariş Sayısı": siparis_sayisi,
-                            "Satılan Adet": satilan_adet,
-                            "Toplam Ciro": para_formatla(ciro)
-                        })
-                    st.dataframe(pd.DataFrame(rapor_verisi), use_container_width=True, hide_index=True)
-                else:
-                    st.info(" Seçilen tarih aralığında veri bulunamadı.")
-        else:
-            st.info(" Sistemde kayıtlı tarih bilgisi bulunmuyor.")
