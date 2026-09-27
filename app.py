@@ -7,57 +7,48 @@ import pandas as pd
 
 st.set_page_config(page_title="Stok & Takip Sistemi", page_icon="", layout="wide")
 
-# --- KULLANICI GİRİŞ KONTROLÜ (Görsel ve Beni Hatırla Özellikli) ---
+# --- KULLANICI GİRİŞ KONTROLÜ ---
 def check_password():
-    # Beni Hatırla durumunu session_state kontrolü
-    if st.session_state.get("password_correct", False):
-        return True
-
     def password_entered():
         if (
-            st.session_state["username"] == "Sedat-Burak"
-            and st.session_state["password"] == "Zeus5341"
+            st.session_state.get("username", "") == "Sedat-Burak"
+            and st.session_state.get("password", "") == "Zeus5341"
         ):
             st.session_state["password_correct"] = True
-            # Beni hatırla seçildiyse kalıcı hale getirebiliriz veya oturum boyunca saklayabiliriz
-            if st.session_state.get("remember_me", False):
-                st.session_state["persistent_login"] = True
-            del st.session_state["password"]  
-            del st.session_state["username"]
+            if "password" in st.session_state: del st.session_state["password"]  
+            if "username" in st.session_state: del st.session_state["username"]
         else:
             st.session_state["password_correct"] = False
 
-    if st.session_state.get("persistent_login", False):
-        st.session_state["password_correct"] = True
+    if "password_correct" not in st.session_state or not st.session_state["password_correct"]:
+        # Giriş Ekranı Görseli ve Tasarımı
+        col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
+        with col_l2:
+            st.markdown("<h2 style='text-align: center;'>Stok & Takip Sistemi Girişi</h2>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align: center; color: gray;'>Lütfen kullanıcı adı ve şifrenizle giriş yapın.</p>", unsafe_allow_html=True)
+            
+            # Giriş ekranı için şık bir görsel (varsa gösterilir, yoksa şık bir ikon/banner alanı)
+            st.markdown("""
+                <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
+                    <div style='background: linear-gradient(135deg, #00b09b, #96c93d); padding: 20px; border-radius: 50px; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.2);'>
+                        📦
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            st.text_input("Kullanıcı Adı", key="username")
+            st.text_input("Şifre", type="password", key="password")
+            st.checkbox("Beni Hatırla", key="beni_hatirla")
+            
+            if st.button("Giriş Yap", use_container_width=True, type="primary"):
+                password_entered()
+                st.rerun()
+
+            if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+                st.error("Kullanıcı adı veya şifre yanlış.")
+        return False
+    else:
         return True
-
-    # Giriş Ekranı Tasarımı (Görsel ve Panel Şıklığı)
-    col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
-    with col_l2:
-        st.markdown("""
-            <div style="text-align: center; padding: 20px;">
-                <h2 style="color: #1e293b; margin-bottom: 10px;">Stok & Takip Sistemi</h2>
-                <p style="color: #64748b; font-size: 15px;">Lütfen devam etmek için giriş yapın.</p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # Şık bir giriş görseli veya ikon alanı
-        st.markdown("""
-            <div style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); padding: 25px; border-radius: 12px; color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                <h3 style="margin: 0; font-size: 20px;">Güvenli Yönetim Paneli</h3>
-                <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">E-ticaret ve Stok Takip Otomasyonu</p>
-            </div>
-        """, unsafe_allow_html=True)
-
-        if "password_correct" in st.session_state and not st.session_state["password_correct"]:
-            st.error("❌ Kullanıcı adı veya şifre yanlış")
-
-        st.text_input("Kullanıcı Adı", key="username")
-        st.text_input("Şifre", type="password", key="password")
-        st.checkbox("Beni Hatırla", key="remember_me")
-        st.button("Giriş Yap", on_click=password_entered, use_container_width=True)
-        
-    return False
 
 if check_password():
     
@@ -71,79 +62,79 @@ if check_password():
 
     st.markdown("""
         <style>
-        /* Excel Benzeri Temiz Tablo ve Sütun Yapısı */
         div[data-testid="stDataEditor"] div.dvn-scroller, div[data-testid="stDataFrame"] div.dvn-scroller {
             max-width: 100%;
         }
         table {
             width: 100% !important;
             border-collapse: collapse !important;
-            font-family: Arial, sans-serif !important;
         }
         th {
-            font-size: 14px !important;
-            padding: 12px 14px !important;
-            background-color: #f1f5f9 !important;
-            color: #1e293b !important;
-            border-bottom: 2px solid #cbd5e1 !important;
+            font-size: 15px !important;
+            padding: 16px 18px !important;
+            background-color: rgba(150, 150, 150, 0.15) !important;
             text-align: left !important;
         }
         td {
-            font-size: 14px !important;
-            padding: 14px 14px !important;
+            font-size: 15px !important;
+            padding: 22px 18px !important;
             vertical-align: middle !important;
-            border-bottom: 1px solid #e2e8f0 !important;
-            color: #334155 !important;
+            height: 85px !important;
         }
         .zoom-img {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             object-fit: cover;
-            border-radius: 6px;
-            transition: transform 0.3s ease;
+            border-radius: 8px;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             cursor: pointer;
             display: block;
         }
         .zoom-img:hover {
-            transform: scale(4);
+            transform: scale(5) translateX(25px);
             z-index: 99999;
             position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
         
         section[data-testid="stSidebar"] div.stButton > button {
             width: 100%;
             text-align: left;
             margin-bottom: 3px;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            font-weight: 500;
-            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-weight: 600;
+            padding: 7px 12px;
             font-size: 13.5px;
-            background-color: #ffffff;
-            color: #1e293b;
         }
         
-        /* Renkli grafik/buton karmaşasını kaldıran sade, şık panel butonları */
         div[data-testid="column"] div.stButton > button {
             width: 100% !important;
-            height: 90px !important;
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            border-radius: 10px !important;
-            border: 1px solid #cbd5e1 !important;
-            background: #ffffff !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
-            color: #1e293b !important;
-            transition: all 0.2s ease;
+            height: 120px !important;
+            font-size: 19px !important;
+            font-weight: 700 !important;
+            border-radius: 16px !important;
+            border: none !important;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.35) !important;
+            color: white !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         div[data-testid="column"] div.stButton > button:hover {
-            transform: translateY(-2px);
-            background: #f8fafc !important;
-            border-color: #3b82f6 !important;
-            box-shadow: 0 4px 12px rgba(59,130,246,0.15) !important;
-            color: #1d4ed8 !important;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
         }
+        
+        div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #00b09b, #96c93d) !important; }
+        div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #11998e, #38ef7d) !important; }
+        div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #f2994a, #f2c94c) !important; }
+        div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #8e2de2, #4a00e0) !important; }
+        div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #0ba360, #3cba92) !important; }
+    
+        div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #2193b0, #6dd5ed) !important; }
+        div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #eb3349, #f45c43) !important; }
+        div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #56ab2f, #a8e063) !important; }
+        div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #4ca1af, #c4e0e5) !important; color: #1e293b !important; }
+        div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #512b58, #8f43ee) !important; }
         </style>
     """, unsafe_allow_html=True)
     
@@ -204,7 +195,7 @@ if check_password():
     # --- 0. ANA PANEL (DASHBOARD) ---
     if menu == " 0. Ana Panel":
         st.title(" Ana Panel - Hızlı Erişim")
-        st.write("Sisteme hoş geldiniz! İstediğiniz bölüme geçmek için aşağıdaki butonları kullanabilirsiniz.")
+        st.write("Sisteme hoş geldiniz! İstediğiniz bölüme geçmek için aşağıdaki renkli ve büyük butonlara tıklayabilirsiniz.")
         st.divider()
     
         col_a, col_b = st.columns(2)
@@ -1010,7 +1001,7 @@ if check_password():
                     st.dataframe(pd.DataFrame(hb_bekleyen_tablo), use_container_width=True, hide_index=True)
     
                     st.divider()
-                    bekleyen_arama_input = st.text_input(" Gideri Girilecek Siparişi Arayın:", placeholder="Sipariş No atau Müşteri...", key="hb_bekleyen_arama_input").strip()
+                    bekleyen_arama_input = st.text_input(" Gideri Girilecek Siparişi Arayın:", placeholder="Sipariş No veya Müşteri...", key="hb_bekleyen_arama_input").strip()
                     secilen_bekleyen_id = None
                     if bekleyen_arama_input:
                         filt_bekleyen = bekleyen_df[bekleyen_df['siparis_no'].astype(str).str.lower().str.contains(bekleyen_arama_input.lower()) | bekleyen_df['musteri'].astype(str).str.lower().str.contains(bekleyen_arama_input.lower())]
@@ -1517,11 +1508,74 @@ if check_password():
     
     # --- 9. RAPORLAR VE ÖZET ---
     elif menu == " 9. Raporlar ve Özet":
-        st.header(" Detaylı Finansal Özet, Kârlılık ve Analiz Paneli")
+        st.header(" Detaylı Finansal Özet ve Analiz Paneli")
         satis_df = pd.DataFrame(supabase.table("satis").select("*").execute().data)
-        stok_df = pd.DataFrame(supabase.table("stok").select("*").execute().data)
         hb_df = pd.DataFrame(supabase.table("hepsi_burada").select("*").execute().data)
         web_df = pd.DataFrame(supabase.table("web_sitesi").select("*").execute().data)
         dukkan_df = pd.DataFrame(supabase.table("dukkan_elden").select("*").execute().data)
+
+        if not satis_df.empty:
+            satis_df['Tutar_Val'] = satis_df['toplam_tutar'].apply(para_metin_to_float)
+            toplam_satis_tutar = satis_df['Tutar_Val'].sum()
+            
+            toplam_hb_kar = hb_df['net_kar_zarar'].sum() if not hb_df.empty and 'net_kar_zarar' in hb_df.columns else 0.0
+            toplam_web_kar = web_df['net_kar_zarar'].sum() if not web_df.empty and 'net_kar_zarar' in web_df.columns else 0.0
+            toplam_dukkan_kar = dukkan_df['net_kar_zarar'].sum() if not dukkan_df.empty and 'net_kar_zarar' in dukkan_df.columns else 0.0
+            genel_net_kar = toplam_hb_kar + toplam_web_kar + toplam_dukkan_kar
+
+            col_r1, col_r2, col_r3 = st.columns(3)
+            col_r1.metric(" Toplam Satış Cirosu", para_formatla(toplam_satis_tutar))
+            col_r2.metric(" Toplam Sipariş Sayısı", f"{len(satis_df)} Adet")
+            col_r3.metric(" Genel Net Kâr", para_formatla(genel_net_kar))
+
+            st.divider()
+            st.subheader(" Kanal Bazlı Finansal Özet Tablosu")
+             kanal_ozet_data = [
+                {"Kanal": "Hepsi Burada", "Sipariş Sayısı": len(hb_df), "Toplam Ciro": para_formatla(hb_df['satis_tutari'].sum() if not hb_df.empty and 'satis_tutari' in hb_df.columns else 0.0), "Net Kâr/Zarar": para_formatla(toplam_hb_kar)},
+                {"Kanal": "Web Sitesi", "Sipariş Sayısı": len(web_df), "Toplam Ciro": para_formatla(web_df['satis_tutari'].sum() if not web_df.empty and 'satis_tutari' in web_df.columns else 0.0), "Net Kâr/Zarar": para_formatla(toplam_web_kar)},
+                {"Kanal": "Dükkan & Elden", "Sipariş Sayısı": len(dukkan_df), "Toplam Ciro": para_formatla(dukkan_df['satis_tutari'].sum() if not dukkan_df.empty and 'satis_tutari' in dukkan_df.columns else 0.0), "Net Kâr/Zarar": para_formatla(toplam_dukkan_kar)}
+            ]
+            st.dataframe(pd.DataFrame(kanal_ozet_data), use_container_width=True, hide_index=True)
+        else:
+            st.info(" Rapor oluşturmak için yeterli satış verisi bulunmuyor.")
+
+    # --- 10. AYLIK DETAYLI RAPORLAR ---
+    elif menu == " 10. Aylık Detaylı Raporlar":
+        st.header(" Aylık ve Dönemsel Detaylı Raporlar")
+        satis_df = pd.DataFrame(supabase.table("satis").select("*").execute().data)
         
-        # Geri kalan tüm raporlama akışları ve fonksiyonlar aynen korunmuştur.
+        if not satis_df.empty:
+            satis_df['tarih_dt'] = pd.to_datetime(satis_df['tarih'], format="%d.%m.%Y", errors='coerce')
+            satis_df['Ay_Yil'] = satis_df['tarih_dt'].dt.strftime('%m.%Y')
+            
+            aylar = sorted(satis_df['Ay_Yil'].dropna().unique().tolist(), reverse=True)
+            if aylar:
+                secilen_ay = st.selectbox("Rapor İstediğiniz Ay (Ay.Yıl):", aylar)
+                filt_ay_df = satis_df[satis_df['Ay_Yil'] == secilen_ay].copy()
+                
+                filt_ay_df['Tutar_Val'] = filt_ay_df['toplam_tutar'].apply(para_metin_to_float)
+                
+                col_ay1, col_ay2 = st.columns(2)
+                col_ay1.metric(" Seçilen Ay Toplam Satış Adeti", f"{filt_ay_df['satis_adet'].sum()} Adet")
+                col_ay2.metric(" Seçilen Ay Toplam Ciro", para_formatla(filt_ay_df['Tutar_Val'].sum()))
+                
+                st.divider()
+                st.subheader(f" {secilen_ay} Dönemi Satış Listesi")
+                
+                rapor_liste = []
+                for _, r in filt_ay_df.iterrows():
+                    rapor_liste.append({
+                        "Tarih": r.get('tarih'),
+                        "Sipariş No": r.get('siparis_no'),
+                        "Müşteri": r.get('musteri'),
+                        "Barkod/Kod": r.get('barkod_kod'),
+                        "Adet": r.get('satis_adet'),
+                        "Birim Fiyat": para_formatla(para_metin_to_float(r.get('birim_fiyat'))),
+                        "Satış Yeri": r.get('satilan_yer'),
+                        "Toplam Tutar": para_formatla(r.get('Tutar_Val'))
+                    })
+                st.dataframe(pd.DataFrame(rapor_liste), use_container_width=True, hide_index=True)
+            else:
+                st.info(" Tarih formatına uygun satış kaydı bulunamadı.")
+        else:
+            st.info(" Detaylı rapor oluşturulacak satış verisi yok.")
