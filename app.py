@@ -955,6 +955,19 @@ if check_password():
             with tab_hb2:
                 if not tamamlanan_df.empty:
                     st.subheader(" Gider ve Finans Detayları Tamamlanmış Siparişler")
+                    
+                    # --- DÜZENLEME BUTONU İŞLEMCİSİ ---
+                    for _, t_row in tamamlanan_df.iterrows():
+                        c_t1, c_t2 = st.columns([8, 2])
+                        with c_t1:
+                            st.markdown(f"**Sipariş:** {t_row['siparis_no']} | **Müşteri:** {t_row['musteri']} | **Ürün:** {t_row['urun_adi']} | **Net Kâr:** {para_formatla(t_row['net_kar_zarar'])}")
+                        with c_t2:
+                            if st.button(" ✏️ Düzenle", key=f"hb_duzenle_{t_row['id']}"):
+                                supabase.table("hepsi_burada").update({"giderler_girildi": 0}).eq("id", t_row['id']).execute()
+                                st.success(f"{t_row['siparis_no']} nolu sipariş gider düzenleme için açıldı!")
+                                st.rerun()
+                    
+                    st.divider()
                     hb_tamamlanan_tablo = []
                     for _, t_row in tamamlanan_df.iterrows():
                         hb_tamamlanan_tablo.append({
@@ -1166,16 +1179,7 @@ if check_password():
                 st.subheader(" En Çok Ürün Alanlar (Adet)")
                 en_cok_alanlar = m_ozet.sort_values(by='Toplam_Adet', ascending=False).head(5).copy()
                 en_cok_alanlar['Toplam Harcama'] = en_cok_alanlar['Toplam_Harcama'].apply(para_formatla)
-                st.dataframe(
-    en_cok_alanlar.rename(columns={
-        'musteri': 'Müşteri', 
-        'Toplam_Siparis': 'Sipariş', 
-        'Toplam_Adet': 'Toplam Adet', 
-        'Toplam Harcama': 'Toplam Harcama'
-    })[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']], 
-    use_container_width=True, 
-    hide_index=True
-)
+                st.dataframe(en_cok_alanlar.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Sipariş', 'Toplam_Adet': 'Toplam Adet', 'Toplam Harcama'})[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']], use_container_width=True, hide_index=True)
     
             st.divider()
             st.subheader(" Tüm Müşteriler Genel Özeti")
@@ -1493,4 +1497,4 @@ if check_password():
                 else:
                     st.info(" Seçilen tarih aralığında veri bulunmamaktadır.")
         else:
-            st.info(" Henüz raporlanacak kayıt bulunmuyor.")
+            st.info(" Henüz raporlanacak kayıt bulunmamaktadır.")
