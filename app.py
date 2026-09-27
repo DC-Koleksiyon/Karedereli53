@@ -285,17 +285,10 @@ if check_password():
                 st.session_state.aktif_menu = " 10. Raporlar ve Özet"
                 st.rerun()
     
-    # --- 1. ÜRÜN GİRİŞİ (HATASIZ & ANINDA GETİR ÖZELLİKLİ) ---
+    # --- 1. ÜRÜN GİRİŞİ (SEKMELİ & HATASIZ MAL KABUL SİSTEMİ) ---
     elif menu == " 1. Ürün Girişi":
-        st.header(" Ürün Girişi (Mal Kabul)")
+        st.header(" Ürün Girişi ve Mal Kabul Yönetimi")
         
-        if "form_barkod" not in st.session_state: st.session_state.form_barkod = ""
-        if "form_kod" not in st.session_state: st.session_state.form_kod = ""
-        if "form_ad" not in st.session_state: st.session_state.form_ad = ""
-        if "form_kat" not in st.session_state: st.session_state.form_kat = ""
-        if "form_resim" not in st.session_state: st.session_state.form_resim = ""
-        if "duzenlenen_kod" not in st.session_state: st.session_state.duzenlenen_kod = None
-    
         kat_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger", desc=False).execute()
         kategori_marka_listesi = [row["deger"] for row in kat_res.data] if kat_res.data else []
         
@@ -304,119 +297,165 @@ if check_password():
         
         if not kategori_marka_listesi: kategori_marka_listesi = ["Önce Tanımlamalardan Ekle"]
         if not alinan_yer_listesi: alinan_yer_listesi = ["Önce Tanımlamalardan Ekle"]
-    
+
+        if "duzenlenen_kod" not in st.session_state: st.session_state.duzenlenen_kod = None
+
         if st.session_state.duzenlenen_kod:
             st.info(f" Şu an Ürün Kodu: **{st.session_state.duzenlenen_kod}** olan ürün güncelleniyor modunda.")
             if st.button(" Düzenlemeyi İptal Et"):
                 st.session_state.duzenlenen_kod = None
-                st.session_state.form_barkod = ""
-                st.session_state.form_kod = ""
-                st.session_state.form_ad = ""
-                st.session_state.form_kat = ""
-                st.session_state.form_resim = ""
                 st.rerun()
-    
-        # HIZLI GETİR / OTOMATİK DOLDURMA ALANI
-        with st.container():
-            st.markdown("##### 🔍 Kayıtlı Ürün Hızlı Getir (Barkod veya Kod ile)")
-            col_ara1, col_ara2, col_ara3 = st.columns([2, 2, 1])
-            with col_ara1:
-                arama_barkod_input = st.text_input("Barkod ile Ara / Okut", placeholder="Barkod...", key=" hizli_barkod_ara")
-            with col_ara2:
-                arama_kod_input = st.text_input("Ürün Kodu ile Ara", placeholder="Ürün Kodu...", key="hizli_kod_ara")
-            with col_ara3:
-                st.markdown("<div style='height: 27px;'></div>", unsafe_allow_html=True)
-                if st.button("Bilgileri Getir", use_container_width=True):
-                    sorgu_degeri = arama_barkod_input.strip() if arama_barkod_input.strip() else arama_kod_input.strip()
-                    if sorgu_degeri:
-                        bul_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi, kategori_marka, resim_yolu").or_(f"barkod.eq.{sorgu_degeri},urun_kodu.eq.{sorgu_degeri}").order("id", desc=True).limit(1).execute()
-                        if bul_res.data:
-                            b_urun = bul_res.data[0]
-                            st.session_state.form_barkod = b_urun.get("barkod") or ""
-                            st.session_state.form_kod = b_urun.get("urun_kodu") or ""
-                            st.session_state.form_ad = b_urun.get("urun_adi") or ""
-                            st.session_state.form_kat = b_urun.get("kategori_marka") or ""
-                            st.session_state.form_resim = b_urun.get("resim_yolu") or ""
-                            st.success("Ürün bilgileri başarıyla getirildi!")
-                            st.rerun()
-                        else:
-                            st.warning("Bu kriterlere uygun daha önce kaydedilmiş ürün bulunamadı.")
-                    else:
-                        st.error("Lütfen aramak için barkod veya ürün kodu girin!")
-
-        st.divider()
-
-        # FORM ALANLARI
-        col_k1, col_k2 = st.columns(2)
-        with col_k1:
-            g_barkod = st.text_input("Ürün Barkodu *", value=st.session_state.form_barkod, key="g_barkod_field")
-        with col_k2:
-            g_kod = st.text_input("Ürün Kodu *", value=st.session_state.form_kod, key="g_kod_field")
-    
-        col1, col2 = st.columns(2)
-        with col1:
-            tarih = st.text_input("Ürün Giriş Tarihi (GG.AA.YYYY) *", value=datetime.now().strftime("%d.%m.%Y"), key="giris_tarih")
-            kat_secim_Index = 0
-            if st.session_state.form_kat in kategori_marka_listesi:
-                kat_secim_Index = kategori_marka_listesi.index(st.session_state.form_kat)
-            secilen_kat_marka = st.selectbox("Kategori & Marka Seçimi *", kategori_marka_listesi, index=kat_secim_Index, key="giris_kategori")
-            secilen_alinan_yer = st.selectbox("Ürünün Alındığı Yer / Tedarikçi *", alinan_yer_listesi, key="giris_alinan_yer")
-            adet = st.number_input("Ürün Adeti *", min_value=1, value=1, key="giris_adet")
-        with col2:
-            ham_urun_adi = st.text_input("Ürün Adı *", value=st.session_state.form_ad, key="giris_urun_adi")
-            birim_fiyat = st.number_input("Birim Fiyatı (TL) *", min_value=0.0, format="%.2f", key="giris_birim_fiyat")
-            st.caption(f" Girilen Birim Fiyat: **{para_formatla(birim_fiyat)}**")
-            kdv_durumu = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key="giris_kdv")
             
-        if st.session_state.form_resim and os.path.exists(st.session_state.form_resim):
-            st.image(st.session_state.form_resim, width=100, caption="Kayıtlı Ürün Görseli")
-            
-        resim_dosyasi = st.file_uploader("Ürün Görseli Yükle (Opsiyonel)", type=["png", "jpg", "jpeg"], key="giris_resim_yukle")
-        
-        buton_metni = " Ürünü Güncelle" if st.session_state.duzenlenen_kod else " Hesapla and Listeye Ekle"
-        if st.button(buton_metni, type="primary"):
-            urun_adi = ham_urun_adi.strip().title()
-            final_barkod = g_barkod.strip()
-            final_kod = g_kod.strip()
-            
-            if not tarih or not final_barkod or not final_kod or not urun_adi or birim_fiyat <= 0:
-                st.error(" Eksik alanlar var! Lütfen barkod, ürün kodu, ürün adı ve fiyat alanlarını doldurunuz.")
-            else:
-                kdvli_birim = birim_fiyat * 1.20 if kdv_durumu == "KDV'siz" else birim_fiyat
-                toplam_maliyet = kdvli_birim * adet
-                resim_yolu = st.session_state.form_resim
-                if resim_dosyasi:
-                    os.makedirs("uploads", exist_ok=True)
-                    resim_yolu = os.path.join("uploads", resim_dosyasi.name)
-                    with open(resim_yolu, "wb") as f: f.write(resim_dosyasi.getbuffer())
-                
-                veri_dict = {
-                    "tarih": tarih,
-                    "urun_kodu": final_kod,
-                    "urun_adi": urun_adi,
-                    "adet": int(adet),
-                    "alinan_yer": secilen_alinan_yer,
-                    "toplam_maliyet": para_formatla(toplam_maliyet),
-                    "resim_yolu": resim_yolu,
-                    "kategori_marka": secilen_kat_marka,
-                    "barkod": final_barkod
-                }
-
-                if st.session_state.duzenlenen_kod:
-                    supabase.table("stok").update(veri_dict).eq("urun_kodu", st.session_state.duzenlenen_kod).execute()
-                    st.session_state.duzenlenen_kod = None
-                    basari_mesaji = " Ürün başarıyla güncellendi!"
-                else:
-                    supabase.table("stok").insert(veri_dict).execute()
-                    basari_mesaji = " Ürün başarıyla eklendi!"
+            # Düzenleme formu
+            kayit_res = supabase.table("stok").select("*").eq("urun_kodu", st.session_state.duzenlenen_kod).order("id", desc=True).limit(1).execute()
+            if kayit_res.data:
+                k_item = kayit_res.data[0]
+                with st.form("duzenleme_formu"):
+                    d_barkod = st.text_input("Ürün Barkodu *", value=k_item.get("barkod") or "")
+                    d_kod = st.text_input("Ürün Kodu *", value=k_item.get("urun_kodu") or "")
+                    d_ad = st.text_input("Ürün Adı *", value=k_item.get("urun_adi") or "")
+                    d_tarih = st.text_input("Giriş Tarihi (GG.AA.YYYY) *", value=k_item.get("tarih") or datetime.now().strftime("%d.%m.%Y"))
                     
-                st.success(basari_mesaji)
-                st.session_state.form_barkod = ""
-                st.session_state.form_kod = ""
-                st.session_state.form_ad = ""
-                st.session_state.form_kat = ""
-                st.session_state.form_resim = ""
-                st.rerun()
+                    kat_idx = kategori_marka_listesi.index(k_item.get("kategori_marka")) if k_item.get("kategori_marka") in kategori_marka_listesi else 0
+                    d_kat = st.selectbox("Kategori & Marka *", kategori_marka_listesi, index=kat_idx)
+                    
+                    yer_idx = alinan_yer_listesi.index(k_item.get("alinan_yer")) if k_item.get("alinan_yer") in alinan_yer_listesi else 0
+                    d_yer = st.selectbox("Alınan Yer / Tedarikçi *", alinan_yer_listesi, index=yer_idx)
+                    
+                    d_adet = st.number_input("Adet *", min_value=1, value=int(k_item.get("adet") or 1))
+                    
+                    # Eski toplam maliyetten birim fiyatı tahmin etmeye çalışalım
+                    eski_top_mal = para_metin_to_float(k_item.get("toplam_maliyet"))
+                    eski_ birim = eski_top_mal / int(k_item.get("adet") or 1) if int(k_item.get("adet") or 1) > 0 else 0.0
+                    d_birim_fiyat = st.number_input("Birim Maliyet Fiyatı (TL) *", min_value=0.0, value=float(eski_birim), format="%.2f")
+                    
+                    if st.form_submit_button("Güncellemeyi Kaydet"):
+                        if not d_barkod or not d_kod or not d_ad or d_birim_fiyat <= 0:
+                            st.error("Lütfen tüm zorunlu alanları eksiksiz doldurun.")
+                        else:
+                            yeni_top_mal = d_birim_fiyat * d_adet
+                            supabase.table("stok").update({
+                                "barkod": d_barkod.strip(),
+                                "urun_kodu": d_kod.strip(),
+                                "urun_adi": d_ad.strip().title(),
+                                "tarih": d_tarih.strip(),
+                                "kategori_marka": d_kat,
+                                "alinan_yer": d_yer,
+                                "adet": d_adet,
+                                "toplam_maliyet": para_formatla(yeni_top_mal)
+                            }).eq("id", k_item.get("id")).execute()
+                            st.success("Ürün başarıyla güncellendi!")
+                            st.session_state.duzenlenen_kod = None
+                            st.rerun()
+        else:
+            # Sekmeli Yapı (Yeni Ürün vs Mevcut Ürüne Stok Ekle)
+            tab_yeni, tab_stok_ekle = st.tabs(["✨ 1. Sıfırdan Yeni Ürün Ekle", "📦 2. Kayıtlı Ürüne Mal Kabul / Stok Ekle"])
+            
+            with tab_yeni:
+                st.subheader("Yeni Ürün Tanımlama ve İlk Giriş")
+                with st.form("yeni_urun_form"):
+                    col_ny1, col_ny2 = st.columns(2)
+                    with col_ny1:
+                        y_barkod = st.text_input("Ürün Barkodu * (Okuyucu Uyumlu)")
+                        y_tarih = st.text_input("Giriş Tarihi (GG.AA.YYYY) *", value=datetime.now().strftime("%d.%m.%Y"))
+                        y_kat = st.selectbox("Kategori & Marka Seçimi *", kategori_marka_listesi, key="y_kat_box")
+                        y_adet = st.number_input("Ürün Adeti *", min_value=1, value=1, key="y_adet_num")
+                    with col_ny2:
+                        y_kod = st.text_input("Ürün Kodu *")
+                        y_ad = st.text_input("Ürün Adı *")
+                        y_yer = st.selectbox("Ürünün Alındığı Yer / Tedarikçi *", alinan_yer_listesi, key="y_yer_box")
+                        y_birim_fiyat = st.number_input("Birim Maliyet Fiyatı (TL) *", min_value=0.0, format="%.2f", key="y_fiyat_num")
+                        y_kdv = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key="y_kdv_box")
+                    
+                    y_dosya = st.file_uploader("Ürün Görseli Yükle (Opsiyonel)", type=["png", "jpg", "jpeg"], key="y_img_upl")
+                    
+                    if st.form_submit_button("Yeni Ürünü Kaydet"):
+                        clean_barkod = y_barkod.strip()
+                        clean_kod = y_kod.strip()
+                        clean_ad = y_ad.strip().title()
+                        
+                        if not clean_barkod or not clean_kod or not clean_ad or y_birim_fiyat <= 0:
+                            st.error("Lütfen zorunlu alanları eksiksiz doldurun!")
+                        else:
+                            kdvli_birim = y_birim_fiyat * 1.20 if y_kdv == "KDV'siz" else y_birim_fiyat
+                            toplam_mal = kdvli_birim * y_adet
+                            
+                            r_yolu = ""
+                            if y_dosya:
+                                os.makedirs("uploads", exist_ok=True)
+                                r_yolu = os.path.join("uploads", y_dosya.name)
+                                with open(r_yolu, "wb") as f: f.write(y_dosya.getbuffer())
+                                
+                            supabase.table("stok").insert({
+                                "tarih": y_tarih.strip(),
+                                "urun_kodu": clean_kod,
+                                "urun_adi": clean_ad,
+                                "adet": int(y_adet),
+                                "alinan_yer": y_yer,
+                                "toplam_maliyet": para_formatla(toplam_mal),
+                                "resim_yolu": r_yolu,
+                                "kategori_marka": y_kat,
+                                "barkod": clean_barkod
+                            }).execute()
+                            st.success("Yeni ürün başarıyla eklendi!")
+                            st.rerun()
+
+            with tab_stok_ekle:
+                st.subheader("Daha Önce Kayıtlı Ürüne Ek Mal Kabul / Stok Girişi")
+                st.write("Sistemde kayıtlı bir ürünü seçin veya barkodunu okutun; ürün adı, kodu ve kategorisi otomatik gelsin.")
+                
+                # Tüm benzersiz ürünleri çekelim
+                stk_tum_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi, kategori_marka, resim_yolu").execute()
+                kayitli_urunler = stk_tum_res.data if stk_tum_res.data else []
+                
+                if kayitli_urunler:
+                    urun_secenek_dict = {}
+                    for u in kayitli_urunler:
+                        k = u.get("urun_kodu") or "-"
+                        b = u.get("barkod") or "-"
+                        ad = u.get("urun_adi") or "-"
+                        etiket = f"{ad} | Kod: {k} | Barkod: {b}"
+                        urun_secenek_dict[etiket] = u
+                        
+                    secilen_etiket = st.selectbox("Kayıtlı Ürün Seçin:", list(urun_secenek_dict.keys()), key="stok_ekle_secim_box")
+                    secilen_veri = urun_secenek_dict[secilen_etiket]
+                    
+                    with st.form("mevcut_urun_stok_ekle_form"):
+                        st.markdown(f"**Seçilen Ürün:** {secilen_veri.get('urun_adi')}")
+                        st.markdown(f"**Mevcut Kod:** `{secilen_veri.get('urun_kodu')}` | **Barkod:** `{secilen_veri.get('barkod')}` | **Kategori:** `{secilen_veri.get('kategori_marka')}`")
+                        
+                        col_ek1, col_ek2 = st.columns(2)
+                        with col_ek1:
+                            ek_tarih = st.text_input("Giriş Tarihi (GG.AA.YYYY) *", value=datetime.now().strftime("%d.%m.%Y"))
+                            ek_adet = st.number_input("Eklenecek Adet *", min_value=1, value=1)
+                        with col_ek2:
+                            ek_yer = st.selectbox("Tedarikçi / Alınan Yer *", alinan_yer_listesi, key="ek_yer_box")
+                            ek_birim_fiyat = st.number_input("Birim Maliyet Fiyatı (TL) *", min_value=0.0, format="%.2f")
+                            ek_kdv = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key="ek_kdv_box")
+                            
+                        if st.form_submit_button("Stok Girişini Tamamla"):
+                            if ek_birim_fiyat <= 0 or ek_adet <= 0:
+                                st.error("Lütfen adet ve birim fiyat giriniz.")
+                            else:
+                                kdvli_b = ek_birim_fiyat * 1.20 if ek_kdv == "KDV'siz" else ek_birim_fiyat
+                                toplam_mal_ek = kdvli_b * ek_adet
+                                
+                                supabase.table("stok").insert({
+                                    "tarih": ek_tarih.strip(),
+                                    "urun_kodu": secilen_veri.get("urun_kodu"),
+                                    "urun_adi": secilen_veri.get("urun_adi"),
+                                    "adet": int(ek_adet),
+                                    "alinan_yer": ek_yer,
+                                    "toplam_maliyet": para_formatla(toplam_mal_ek),
+                                    "resim_yolu": secilen_veri.get("resim_yolu", ""),
+                                    "kategori_marka": secilen_veri.get("kategori_marka"),
+                                    "barkod": secilen_veri.get("barkod")
+                                }).execute()
+                                st.success("Ürüne ek stok girişi başarıyla yapıldı!")
+                                st.rerun()
+                else:
+                    st.info("Sistemde kayıtlı ürün bulunmuyor. Önce 'Yeni Ürün Ekle' sekmesinden ürün tanımlamalısınız.")
+
     
         st.divider()
         st.subheader(" Düzenlenecek veya Silinecek Ürünü Arayın")
@@ -449,16 +488,8 @@ if check_password():
             islem_col1, islem_col2 = st.columns(2)
             with islem_col1:
                 if st.button(" Seçileni Düzenle", use_container_width=True):
-                    kayit_res = supabase.table("stok").select("barkod, urun_kodu, urun_adi, kategori_marka, resim_yolu").eq("urun_kodu", secilen_islem_kod).order("id", desc=True).limit(1).execute()
-                    if kayit_res.data:
-                        secilen_kayit = kayit_res.data[0]
-                        st.session_state.duzenlenen_kod = secilen_islem_kod
-                        st.session_state.form_barkod = secilen_kayit.get("barkod") or ""
-                        st.session_state.form_kod = secilen_kayit.get("urun_kodu") or ""
-                        st.session_state.form_ad = secilen_kayit.get("urun_adi") or ""
-                        st.session_state.form_kat = secilen_kayit.get("kategori_marka") or ""
-                        st.session_state.form_resim = secilen_kayit.get("resim_yolu") or ""
-                        st.rerun()
+                    st.session_state.duzenlenen_kod = secilen_islem_kod
+                    st.rerun()
             with islem_col2:
                 if st.button(" Seçileni Sil", type="primary", use_container_width=True):
                     supabase.table("stok").delete().eq("urun_kodu", secilen_islem_kod).execute()
@@ -851,7 +882,7 @@ if check_password():
         else:
             st.info(" Kayıt bulunamadı.")
     
-    # --- 3. GÜNCEL STOK (FIFO MALİYET & 0 STOKLAR GİZLİ) ---
+    # --- 3. GÜNCEL STOK ---
     elif menu == " 3. Güncel Stok":
         st.header(" Güncel Kalan Stok ve FIFO Maliyet Özeti")
         
@@ -893,8 +924,6 @@ if check_password():
     
         for anahtar, partiler in partiler_gruplu.items():
             toplam_satis_adet = satis_dict.get(anahtar, 0)
-            
-            toplam_giris_adet = sum([p.get('adet', 0) for p in partiler])
             
             kalan_satis_dusu = toplam_satis_adet
             kalan_toplam_adet = 0
