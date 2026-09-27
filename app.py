@@ -849,6 +849,11 @@ if check_password():
     # --- 4. HEPSİ BURADA ---
     elif menu == " 4. Hepsi Burada":
         st.header(" Hepsi Burada Finans ve Kar/Zarar Yönetimi")
+        
+        # Gider düzenleme modu için session state kontrolü
+        if "hb_duzenle_id" not in st.session_state:
+            st.session_state.hb_duzenle_id = None
+
         hb_res = supabase.table("hepsi_burada").select("*").order("id", desc=True).execute()
         hb_df = pd.DataFrame(hb_res.data) if hb_res.data else pd.DataFrame()
     
@@ -872,7 +877,7 @@ if check_password():
     
             with tab_hb1:
                 if not bekleyen_df.empty:
-                    st.subheader(" Gider ve Kesinti Girişi Bekleyen Siparişler")
+                    st.subheader(" Gider and Kesinti Girişi Bekleyen Siparişler")
                     c_bs1, c_bs2 = st.columns(2)
                     with c_bs1: bekleyen_sira = st.selectbox(" Sırala:", ["Ekleme Sırası (ID)", "Tarih (En Yeni)", "Satış Tutarı (En Yüksek)"], key="bekleyen_sira_secim")
                     with c_bs2: st.caption(" Bekleyen sipariş listesini sıralayın.")
@@ -954,28 +959,65 @@ if check_password():
     
             with tab_hb2:
                 if not tamamlanan_df.empty:
-                    st.subheader(" Gider ve Finans Detayları Tamamlanmış Siparişler")
+                    st.subheader(" Gider and Finans Detayları Tamamlanmış Siparişler")
                     
-                    # --- DÜZENLEME BUTONU İŞLEMCİSİ ---
+                    # Eğer bir sipariş için düzenle butonuna basıldıysa form açalım
+                    if st.session_state.hb_duzenle_id:
+                        duzenlenen_kayit_res = tamamlanan_df[tamamlanan_df['id'] == st.session_state.hb_duzenle_id]
+                        if not duzenlenen_kayit_res.empty:
+                            d_row = duzenlenen_kayit_res.iloc[0]
+                            st.info(f"✏️ Sipariş No: **{d_row['siparis_no']}** ({d_row['musteri']}) için giderleri düzenliyorsunuz:")
+                            with st.form(key=f"hb_duzenle_form_{d_row['id']}"):
+                                f_col1, f_col2, f_col3 = st.columns(3)
+                                with f_col1:
+                                    d_gelen = st.number_input("H.B.'dan Gelen Net Ödeme (TL)", min_value=0.0, value=float(d_row['gelen_odeme']), format="%.2f")
+                                    d_kamp = st.number_input("Kampanya / Kupon Desteği (TL)", min_value=0.0, value=float(d_row['kampanya']), format="%.2f")
+                                    d_kom = st.number_input("Komisyon Bedeli (TL)", min_value=0.0, value=float(d_row['komisyon']), format="%.2f")
+                                with f_col2:
+                                    d_stop = st.number_input("Stopaj Kesintisi (TL)", min_value=0.0, value=float(d_row['stopaj']), format="%.2f")
+                                    d_karg = st.number_input("Kargo Bedeli (TL)", min_value=0.0, value=float(d_row['kargo']), format="%.2f")
+                                    d_hiz = st.number_input("Hizmet Bedeli (TL)", min_value=0.0, value=float(d_row['hizmet_bedeli']), format="%.2f")
+                                with f_col3:
+                                    d_tah = st.number_input("Tahsilat Yönetim Bedeli (TL)", min_value=0.0, value=float(d_row['tahsilat_yonetim']), format="%.2f")
+                                    st.markdown(f"**Ürün Maliyeti:** {para_formatla(d_row['maliyet'])}")
+                                    st.markdown(f"**Satış Tutarı:** {para_formatla(d_row['satis_tutari'])}")
+        
+                                col_btn1, col_btn2 = st.columns(2)
+                                with col_btn1:
+                                    if st.form_submit_button(" Güncellemeyi Kaydet"):
+                                        toplam_diger_d = d_kom + d_stop + d_karg + d_hiz + d_tah
+                                        net_kar_d = d_gelen + d_kamp - d_row['maliyet'] - toplam_diger_d
+                                        supabase.table("hepsi_burada").update({
+                                            "gelen_odeme": d_gelen, "kampanya": d_kamp, "komisyon": d_kom, 
+                                            "stopaj": d_stop, "kargo": d_karg, "hizmet_bedeli": d_hiz, 
+                                            "tahsilat_yonetim": d_tah, "net_kar_zarar": net_kar_d, "giderler_girildi": 1
+                                        }).eq("id", d_row['id']).execute()
+                                        st.session_state.hb_duzenle_id = None
+                                        st.success(" Giderler güncellendi!")
+                                        st.rerun()
+                                with col_btn2:
+                                    if st.form_submit_button(" İptal Et"):
+                                        st.session_state.hb_duzenle_id = None
+                                        st.rerun()
+                            st.divider()
+
                     for _, t_row in tamamlanan_df.iterrows():
-                        c_t1, c_t2 = st.columns([8, 2])
-                        with c_t1:
-                            st.markdown(f"**Sipariş:** {t_row['siparis_no']} | **Müşteri:** {t_row['musteri']} | **Ürün:** {t_row['urun_adi']} | **Net Kâr:** {para_formatla(t_row['net_kar_zarar'])}")
-                        with c_t2:
-                            if st.button(" ✏️ Düzenle", key=f"hb_duzenle_{t_row['id']}"):
-                                supabase.table("hepsi_burada").update({"giderler_girildi": 0}).eq("id", t_row['id']).execute()
-                                st.success(f"{t_row['siparis_no']} nolu sipariş gider düzenleme için açıldı!")
-                                st.rerun()
-                    
-                    st.divider()
-                    hb_tamamlanan_tablo = []
-                    for _, t_row in tamamlanan_df.iterrows():
-                        hb_tamamlanan_tablo.append({
-                            "Tarih": t_row['tarih'], "Sipariş No": t_row['siparis_no'], "Müşteri": t_row['musteri'],
-                            "Ürün Adı": t_row['urun_adi'], "Adet": t_row['adet'], "Maliyet": para_formatla(t_row['maliyet']),
-                            "Satış Tutarı": para_formatla(t_row['satis_tutari']), "Gelen Net Ödeme": para_formatla(t_row['gelen_odeme']), "Net Kâr / Zarar": para_formatla(t_row['net_kar_zarar'])
-                        })
-                    st.dataframe(pd.DataFrame(hb_tamamlanan_tablo), use_container_width=True, hide_index=True)
+                        cols = st.columns([1.1, 1.2, 1.3, 1.8, 0.6, 1.2, 1.4, 1.3, 1.3, 1.4, 0.6])
+                        cols[0].write(t_row['tarih'])
+                        cols[1].write(str(t_row['siparis_no']))
+                        cols[2].write(str(t_row['musteri']))
+                        cols[3].write(str(t_row['urun_adi']))
+                        cols[4].write(str(t_row['adet']))
+                        cols[5].write(para_formatla(t_row['maliyet']))
+                        cols[6].write(para_formatla(t_row['satis_tutari']))
+                        
+                        # İstediğiniz gibi Satış Tutarı sütununun yanında Kar/Zarar sütununa ek olarak ✏️ düzenleme butonu
+                        cols[7].write(para_formatla(t_row['gelen_odeme']))
+                        cols[8].write(para_formatla(t_row['net_kar_zarar']))
+                        
+                        if cols[10].button("✏️", key=f"hb_duzenle_btn_{t_row['id']}"):
+                            st.session_state.hb_duzenle_id = t_row['id']
+                            st.rerun()
                 else: st.info(" Tamamlanmış Hepsi Burada sipariş kaydı bulunmuyor.")
         else: st.info(" Hepsi Burada satış kaydı bulunmuyor.")
     
@@ -1179,7 +1221,7 @@ if check_password():
                 st.subheader(" En Çok Ürün Alanlar (Adet)")
                 en_cok_alanlar = m_ozet.sort_values(by='Toplam_Adet', ascending=False).head(5).copy()
                 en_cok_alanlar['Toplam Harcama'] = en_cok_alanlar['Toplam_Harcama'].apply(para_formatla)
-                st.dataframe(en_cok_alanlar.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Sipariş', 'Toplam_Adet': 'Toplam Adet', 'Toplam Harcama': 'Toplam Harcama'})[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']], use_container_width=True, hide_index=True)
+                st.dataframe(en_cok_alanlar.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Sipariş', 'Toplam_Adet': 'Toplam Adet', 'Toplam Harcama'})[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']], use_container_width=True, hide_index=True)
     
             st.divider()
             st.subheader(" Tüm Müşteriler Genel Özeti")
@@ -1256,7 +1298,7 @@ if check_password():
             col_r4.metric(" Toplam Net Kâr", para_formatla(toplam_net_kar))
     
             st.divider()
-            st.subheader(" Satış Kanallarına Göre Performans ve Ciro Dağılımı")
+            st.subheader(" Satış Kanallarına Göre Performans and Ciro Dağılımı")
             kanal_ozet = satis_df.groupby('satilan_yer').agg(
                 Siparis_Sayisi=('satis_adet', 'count'),
                 Toplam_Adet=('satis_adet', 'sum'),
@@ -1371,7 +1413,7 @@ if check_password():
     
     # --- 10. AYLIK DETAYLI RAPORLAR ---
     elif menu == " 10. Aylık Detaylı Raporlar":
-        st.header(" Tarih Aralıklı ve Aylık Detaylı Raporlar (Alış, Satış ve Kâr/Zarar)")
+        st.header(" Tarih Aralıklı and Aylık Detaylı Raporlar (Alış, Satış and Kâr/Zarar)")
         
         satis_res = supabase.table("satis").select("tarih, satis_adet, toplam_tutar").execute()
         satis_df = pd.DataFrame(satis_res.data) if satis_res.data else pd.DataFrame()
@@ -1463,7 +1505,7 @@ if check_password():
                 c_m5.metric(" Toplam Net Kâr", para_formatla(toplam_n_kar))
                 
                 st.divider()
-                st.subheader(" Aylık Bazda Alış, Satış ve Kâr/Zarar Tablosu")
+                st.subheader(" Aylık Bazda Alış, Satış and Kâr/Zarar Tablosu")
                 
                 tum_aylar = sorted(list(set(alis_aylik['Ay'].tolist() + satis_aylik['Ay'].tolist() + kar_aylik['Ay'].tolist())), reverse=True)
                 
@@ -1495,6 +1537,4 @@ if check_password():
                 if birlesik_tablo_veri:
                     st.dataframe(pd.DataFrame(birlesik_tablo_veri), use_container_width=True, hide_index=True)
                 else:
-                    st.info(" Seçilen tarih aralığında veri bulunmamaktadır.")
-        else:
-            st.info(" Henüz raporlanacak kayıt bulunmamaktadır.")
+                    st.info("Seçilen tarih aralığında veri bulunamadı.")
