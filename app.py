@@ -285,15 +285,15 @@ if check_password():
                 st.session_state.aktif_menu = " 10. Raporlar ve Özet"
                 st.rerun()
     
-    # --- 1. ÜRÜN GİRİŞİ (ANINDA OTOMATİK DOLDURMA ÖZELLİKLİ) ---
+    # --- 1. ÜRÜN GİRİŞİ (HATASIZ & ANINDA GETİR ÖZELLİKLİ) ---
     elif menu == " 1. Ürün Girişi":
-        st.header(" Ürün Girişi")
+        st.header(" Ürün Girişi (Mal Kabul)")
         
-        if "giris_barkod" not in st.session_state: st.session_state.giris_barkod = ""
-        if "giris_kod" not in st.session_state: st.session_state.giris_kod = ""
-        if "giris_ad" not in st.session_state: st.session_state.giris_ad = ""
-        if "giris_kat" not in st.session_state: st.session_state.giris_kat = ""
-        if "giris_resim" not in st.session_state: st.session_state.giris_resim = ""
+        if "form_barkod" not in st.session_state: st.session_state.form_barkod = ""
+        if "form_kod" not in st.session_state: st.session_state.form_kod = ""
+        if "form_ad" not in st.session_state: st.session_state.form_ad = ""
+        if "form_kat" not in st.session_state: st.session_state.form_kat = ""
+        if "form_resim" not in st.session_state: st.session_state.form_resim = ""
         if "duzenlenen_kod" not in st.session_state: st.session_state.duzenlenen_kod = None
     
         kat_res = supabase.table("tanimlar").select("deger").eq("tip", "kategori_marka").order("deger", desc=False).execute()
@@ -309,63 +309,82 @@ if check_password():
             st.info(f" Şu an Ürün Kodu: **{st.session_state.duzenlenen_kod}** olan ürün güncelleniyor modunda.")
             if st.button(" Düzenlemeyi İptal Et"):
                 st.session_state.duzenlenen_kod = None
-                st.session_state.giris_barkod = ""
-                st.session_state.giris_kod = ""
-                st.session_state.giris_ad = ""
-                st.session_state.giris_kat = ""
-                st.session_state.giris_resim = ""
+                st.session_state.form_barkod = ""
+                st.session_state.form_kod = ""
+                st.session_state.form_ad = ""
+                st.session_state.form_kat = ""
+                st.session_state.form_resim = ""
                 st.rerun()
     
+        # HIZLI GETİR / OTOMATİK DOLDURMA ALANI
+        with st.container():
+            st.markdown("##### 🔍 Kayıtlı Ürün Hızlı Getir (Barkod veya Kod ile)")
+            col_ara1, col_ara2, col_ara3 = st.columns([2, 2, 1])
+            with col_ara1:
+                arama_barkod_input = st.text_input("Barkod ile Ara / Okut", placeholder="Barkod...", key=" hizli_barkod_ara")
+            with col_ara2:
+                arama_kod_input = st.text_input("Ürün Kodu ile Ara", placeholder="Ürün Kodu...", key="hizli_kod_ara")
+            with col_ara3:
+                st.markdown("<div style='height: 27px;'></div>", unsafe_allow_html=True)
+                if st.button("Bilgileri Getir", use_container_width=True):
+                    sorgu_degeri = arama_barkod_input.strip() if arama_barkod_input.strip() else arama_kod_input.strip()
+                    if sorgu_degeri:
+                        bul_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi, kategori_marka, resim_yolu").or_(f"barkod.eq.{sorgu_degeri},urun_kodu.eq.{sorgu_degeri}").order("id", desc=True).limit(1).execute()
+                        if bul_res.data:
+                            b_urun = bul_res.data[0]
+                            st.session_state.form_barkod = b_urun.get("barkod") or ""
+                            st.session_state.form_kod = b_urun.get("urun_kodu") or ""
+                            st.session_state.form_ad = b_urun.get("urun_adi") or ""
+                            st.session_state.form_kat = b_urun.get("kategori_marka") or ""
+                            st.session_state.form_resim = b_urun.get("resim_yolu") or ""
+                            st.success("Ürün bilgileri başarıyla getirildi!")
+                            st.rerun()
+                        else:
+                            st.warning("Bu kriterlere uygun daha önce kaydedilmiş ürün bulunamadı.")
+                    else:
+                        st.error("Lütfen aramak için barkod veya ürün kodu girin!")
+
+        st.divider()
+
+        # FORM ALANLARI
         col_k1, col_k2 = st.columns(2)
         with col_k1:
-            g_barkod_input = st.text_input("Ürün Barkodu * (Barkod Okuyucu Uyumlu)", value=st.session_state.giris_barkod, key="input_giris_barkod")
+            g_barkod = st.text_input("Ürün Barkodu *", value=st.session_state.form_barkod, key="g_barkod_field")
         with col_k2:
-            g_kod_input = st.text_input("Ürün Kodu *", value=st.session_state.giris_kod, key="input_giris_kod")
-
-        # Otomatik arama ve doldurma tetikleyicisi (Arama butonlu veya anlık kontrol)
-        arama_anahtari = g_barkod_input.strip() if g_barkod_input.strip() else g_kod_input.strip()
-        if arama_anahtari:
-            bul_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi, kategori_marka, resim_yolu").or_(f"barkod.eq.{arama_anahtari},urun_kodu.eq.{arama_anahtari}").order("id", desc=True).limit(1).execute()
-            if bul_res.data:
-                bulunan = bul_res.data[0]
-                st.session_state.giris_barkod = bulunan.get("barkod") or ""
-                st.session_state.giris_kod = bulunan.get("urun_kodu") or ""
-                st.session_state.giris_ad = bulunan.get("urun_adi") or ""
-                st.session_state.giris_kat = bulunan.get("kategori_marka") or ""
-                st.session_state.giris_resim = bulunan.get("resim_yolu") or ""
+            g_kod = st.text_input("Ürün Kodu *", value=st.session_state.form_kod, key="g_kod_field")
     
         col1, col2 = st.columns(2)
         with col1:
             tarih = st.text_input("Ürün Giriş Tarihi (GG.AA.YYYY) *", value=datetime.now().strftime("%d.%m.%Y"), key="giris_tarih")
             kat_secim_Index = 0
-            if st.session_state.giris_kat in kategori_marka_listesi:
-                kat_secim_Index = kategori_marka_listesi.index(st.session_state.giris_kat)
+            if st.session_state.form_kat in kategori_marka_listesi:
+                kat_secim_Index = kategori_marka_listesi.index(st.session_state.form_kat)
             secilen_kat_marka = st.selectbox("Kategori & Marka Seçimi *", kategori_marka_listesi, index=kat_secim_Index, key="giris_kategori")
             secilen_alinan_yer = st.selectbox("Ürünün Alındığı Yer / Tedarikçi *", alinan_yer_listesi, key="giris_alinan_yer")
             adet = st.number_input("Ürün Adeti *", min_value=1, value=1, key="giris_adet")
         with col2:
-            ham_urun_adi = st.text_input("Ürün Adı *", value=st.session_state.giris_ad, key="giris_urun_adi")
+            ham_urun_adi = st.text_input("Ürün Adı *", value=st.session_state.form_ad, key="giris_urun_adi")
             birim_fiyat = st.number_input("Birim Fiyatı (TL) *", min_value=0.0, format="%.2f", key="giris_birim_fiyat")
             st.caption(f" Girilen Birim Fiyat: **{para_formatla(birim_fiyat)}**")
             kdv_durumu = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key="giris_kdv")
             
-        if st.session_state.giris_resim and os.path.exists(st.session_state.giris_resim):
-            st.image(st.session_state.giris_resim, width=100, caption="Kayıtlı Ürün Görseli")
+        if st.session_state.form_resim and os.path.exists(st.session_state.form_resim):
+            st.image(st.session_state.form_resim, width=100, caption="Kayıtlı Ürün Görseli")
             
         resim_dosyasi = st.file_uploader("Ürün Görseli Yükle (Opsiyonel)", type=["png", "jpg", "jpeg"], key="giris_resim_yukle")
         
         buton_metni = " Ürünü Güncelle" if st.session_state.duzenlenen_kod else " Hesapla and Listeye Ekle"
         if st.button(buton_metni, type="primary"):
             urun_adi = ham_urun_adi.strip().title()
-            g_barkod = g_barkod_input.strip()
-            g_kod = g_kod_input.strip()
+            final_barkod = g_barkod.strip()
+            final_kod = g_kod.strip()
             
-            if not tarih or not g_barkod or not g_kod or not urun_adi or birim_fiyat <= 0:
-                st.error(" Eksik alanlar var!")
+            if not tarih or not final_barkod or not final_kod or not urun_adi or birim_fiyat <= 0:
+                st.error(" Eksik alanlar var! Lütfen barkod, ürün kodu, ürün adı ve fiyat alanlarını doldurunuz.")
             else:
                 kdvli_birim = birim_fiyat * 1.20 if kdv_durumu == "KDV'siz" else birim_fiyat
                 toplam_maliyet = kdvli_birim * adet
-                resim_yolu = st.session_state.giris_resim
+                resim_yolu = st.session_state.form_resim
                 if resim_dosyasi:
                     os.makedirs("uploads", exist_ok=True)
                     resim_yolu = os.path.join("uploads", resim_dosyasi.name)
@@ -373,14 +392,14 @@ if check_password():
                 
                 veri_dict = {
                     "tarih": tarih,
-                    "urun_kodu": g_kod,
+                    "urun_kodu": final_kod,
                     "urun_adi": urun_adi,
                     "adet": int(adet),
                     "alinan_yer": secilen_alinan_yer,
                     "toplam_maliyet": para_formatla(toplam_maliyet),
                     "resim_yolu": resim_yolu,
                     "kategori_marka": secilen_kat_marka,
-                    "barkod": g_barkod
+                    "barkod": final_barkod
                 }
 
                 if st.session_state.duzenlenen_kod:
@@ -392,11 +411,11 @@ if check_password():
                     basari_mesaji = " Ürün başarıyla eklendi!"
                     
                 st.success(basari_mesaji)
-                st.session_state.giris_barkod = ""
-                st.session_state.giris_kod = ""
-                st.session_state.giris_ad = ""
-                st.session_state.giris_kat = ""
-                st.session_state.giris_resim = ""
+                st.session_state.form_barkod = ""
+                st.session_state.form_kod = ""
+                st.session_state.form_ad = ""
+                st.session_state.form_kat = ""
+                st.session_state.form_resim = ""
                 st.rerun()
     
         st.divider()
@@ -434,11 +453,11 @@ if check_password():
                     if kayit_res.data:
                         secilen_kayit = kayit_res.data[0]
                         st.session_state.duzenlenen_kod = secilen_islem_kod
-                        st.session_state.giris_barkod = secilen_kayit.get("barkod") or ""
-                        st.session_state.giris_kod = secilen_kayit.get("urun_kodu") or ""
-                        st.session_state.giris_ad = secilen_kayit.get("urun_adi") or ""
-                        st.session_state.giris_kat = secilen_kayit.get("kategori_marka") or ""
-                        st.session_state.giris_resim = secilen_kayit.get("resim_yolu") or ""
+                        st.session_state.form_barkod = secilen_kayit.get("barkod") or ""
+                        st.session_state.form_kod = secilen_kayit.get("urun_kodu") or ""
+                        st.session_state.form_ad = secilen_kayit.get("urun_adi") or ""
+                        st.session_state.form_kat = secilen_kayit.get("kategori_marka") or ""
+                        st.session_state.form_resim = secilen_kayit.get("resim_yolu") or ""
                         st.rerun()
             with islem_col2:
                 if st.button(" Seçileni Sil", type="primary", use_container_width=True):
@@ -877,8 +896,6 @@ if check_password():
             
             toplam_giris_adet = sum([p.get('adet', 0) for p in partiler])
             
-            # FIFO MİMARİSİNE GÖRE KALAN STOK MALİYET HESABI
-            # Satışlar kronolojik olarak ilk giren partilerden düşülür (FIFO)
             kalan_satis_dusu = toplam_satis_adet
             kalan_toplam_adet = 0
             kalan_toplam_maliyet = 0.0
@@ -889,16 +906,13 @@ if check_password():
                 p_birim_mal = p_toplam_mal / p_adet if p_adet > 0 else 0.0
                 
                 if kalan_satis_dusu >= p_adet:
-                    # Bu parti tamamen tükenmiş
                     kalan_satis_dusu -= p_adet
                 else:
-                    # Bu partiden kalan var
                     bu_partide_kalan = p_adet - kalan_satis_dusu
                     kalan_satis_dusu = 0
                     kalan_toplam_adet += bu_partide_kalan
                     kalan_toplam_maliyet += bu_partide_kalan * p_birim_mal
             
-            # Eğer kalan adet 0 veya daha az ise 0 stokları gizle kuralı gereği atla
             if kalan_toplam_adet <= 0:
                 continue
 
@@ -963,7 +977,7 @@ if check_password():
         else:
             st.info(" Aradığınız kriterlere uygun güncel ve aktif stok bulunamadı.")
     
-    # --- 4. STOK GEÇMİŞİ (YENİ ÖZELLİK) ---
+    # --- 4. STOK GEÇMİŞİ ---
     elif menu == " 4. Stok Geçmişi":
         st.header(" Ürün Bazlı Stok Hareket ve Satış Geçmişi")
         st.write("Bu bölümde seçtiğiniz bir ürünün hangi tarihte, kime, kaça alınıp kaça satıldığını ve tüm detaylı geçmişini inceleyebilirsiniz.")
