@@ -203,6 +203,7 @@ if check_password():
     
     veritabani_kontrol()
     
+    # Güncel Stok ve Stok Geçmişi menüleri yan yana (ardışık) olacak şekilde düzenlendi
     menu_listesi = [
         " 0. Ana Panel", " 1. Ürün Girişi", " 2. Satış İşlemleri", 
         " 3. Güncel Stok", " 4. Stok Geçmişi", " 5. Hepsi Burada", " 6. Web Sitesi",
@@ -285,7 +286,7 @@ if check_password():
                 st.session_state.aktif_menu = " 10. Raporlar ve Özet"
                 st.rerun()
     
-    # --- 1. ÜRÜN GİRİŞİ (SEKMELİ & HATASIZ MAL KABUL SİSTEMİ) ---
+    # --- 1. ÜRÜN GİRİŞİ ---
     elif menu == " 1. Ürün Girişi":
         st.header(" Ürün Girişi ve Mal Kabul Yönetimi")
         
@@ -407,7 +408,6 @@ if check_password():
                 if kayitli_urunler:
                     mal_kabul_arama = st.text_input("🔍 Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="mal_kabul_arama_input").strip().lower()
                     
-                    # Filtreleme işlemi
                     filtrelenmis_urunler = []
                     gorulen_benzersiz = set()
                     for u in kayitli_urunler:
@@ -416,7 +416,6 @@ if check_password():
                         ad = str(u.get("urun_adi") or "").strip()
                         kat = str(u.get("kategori_marka") or "").strip()
                         
-                        # Tekrarlayan ürün kodlarını teke düşürelim
                         benzersiz_anahtar = k if k else b
                         if benzersiz_anahtar in gorulen_benzersiz:
                             continue
@@ -453,7 +452,7 @@ if check_password():
                                 
                             if st.form_submit_button("Stok Girişini Tamamla"):
                                 if ek_birim_fiyat <= 0 or ek_adet <= 0:
-                                    st.error("Lütfen adet ve birim fiyat giriniz.")
+                                    st.error("Lütfen adet and birim fiyat giriniz.")
                                 else:
                                     kdvli_b = ek_birim_fiyat * 1.20 if ek_kdv == "KDV'siz" else ek_birim_fiyat
                                     toplam_mal_ek = kdvli_b * ek_adet
@@ -607,9 +606,9 @@ if check_password():
         else:
             st.info(" Henüz eklenmiş ürün yok.")
     
-    # --- 2. SATIŞ İŞLEMLERİ ---
+    # --- 2. SATIŞ İŞLEMLERİ (FIFO MALIYET MANTIĞI İLE) ---
     elif menu == " 2. Satış İşlemleri":
-        st.header(" Satış İşlemleri")
+        st.header(" Satış İşlemleri (FIFO / İlk Giren İlk Çıkar)")
         if "satis_duzenle_id" not in st.session_state: st.session_state.satis_duzenle_id = None
         if "satis_barkod" not in st.session_state: st.session_state.satis_barkod = ""
         if "satis_kod" not in st.session_state: st.session_state.satis_kod = ""
@@ -683,7 +682,7 @@ if check_password():
             satilan_yer = st.selectbox("Satış Yeri / Kanal *", satilan_yer_listesi, index=kanal_idx, key="satis_kanal")
             siparis_no = st.text_input("Sipariş No veya Fiş No *", value=d_siparis, key="satis_siparis_no")
             
-        buton_satis_metni = " Satışı Güncelle" if st.session_state.satis_duzenle_id else " Satışı Gerçekleştir ve Kaydet"
+        buton_satis_metni = " Satışı Güncelle" if st.session_state.satis_duzenle_id else " Satışı Gerçekleştir ve Kaydet (FIFO)"
         if st.button(buton_satis_metni, type="primary"):
             s_barkod_val = st.session_state.get("input_satis_barkod", "").strip()
             s_kod_val = st.session_state.get("input_satis_kod", "").strip()
@@ -781,7 +780,7 @@ if check_password():
                                 supabase.table(kanal_tablosu).insert(sub_data).execute()
 
                             st.session_state.satis_duzenle_id = None
-                            basari_mesaji = " Satış başarıyla güncellendi!"
+                            basari_mesaji = " Satış FIFO mantığıyla başarıyla güncellendi!"
                         else:
                             supabase.table("satis").insert(satis_dict_data).execute()
                             
@@ -797,7 +796,7 @@ if check_password():
                                     "maliyet": toplam_maliyet_fifo, "satis_tutari": toplam_tutar, "giderler_girildi": 0
                                 }
                                 supabase.table(kanal_tablosu).insert(sub_data).execute()
-                            basari_mesaji = " Satış başarıyla gerçekleştirildi!"
+                            basari_mesaji = " Satış FIFO maliyet hesaplamasıyla gerçekleştirildi!"
     
                         st.success(basari_mesaji)
                         st.session_state.satis_barkod = ""
@@ -1026,7 +1025,7 @@ if check_password():
         else:
             st.info(" Aradığınız kriterlere uygun güncel ve aktif stok bulunamadı.")
     
-    # --- 4. STOK GEÇMİŞİ ---
+    # --- 4. STOK GEÇMİŞİ (Güncel Stok ile Yan Yana Segment) ---
     elif menu == " 4. Stok Geçmişi":
         st.header(" Ürün Bazlı Stok Hareket ve Satış Geçmişi")
         st.write("Bu bölümde seçtiğiniz bir ürünün hangi tarihte, kime, kaça alınıp kaça satıldığını ve tüm detaylı geçmişini inceleyebilirsiniz.")
@@ -1099,7 +1098,7 @@ if check_password():
 
     # --- 5. HEPSİ BURADA ---
     elif menu == " 5. Hepsi Burada":
-        st.header(" Hepsi Burada Finans ve Kar/Zarar Yönetimi")
+        st.header(" Hepsi Burada Finans and Kar/Zarar Yönetimi")
         
         if "hb_duzenle_id" not in st.session_state:
             st.session_state.hb_duzenle_id = None
@@ -1142,7 +1141,7 @@ if check_password():
     
             with tab_hb1:
                 if not bekleyen_df.empty:
-                    st.subheader(" Gider and Kesinti Girişi Bekleyen Siparişler")
+                    st.subheader(" Gider ve Kesinti Girişi Bekleyen Siparişler")
                     c_bs1, c_bs2 = st.columns(2)
                     with c_bs1: bekleyen_sira = st.selectbox(" Sırala:", ["Ekleme Sırası (ID)", "Tarih (En Yeni)", "Satış Tutarı (En Yüksek)"], key="bekleyen_sira_secim")
                     with c_bs2: st.caption(" Bekleyen sipariş listesini sıralayın.")
@@ -1158,7 +1157,7 @@ if check_password():
                             with c_top2: vars_kargo = st.number_input("Kargo Bedeli (TL)", min_value=0.0, value=45.0, step=5.0)
                             with c_top3: vars_hizmet = st.number_input("Hizmet Bedeli (TL)", min_value=0.0, value=8.5, step=0.5)
                                 
-                            if st.form_submit_button(" Tüm Bekleyenlere Uygula and Kaydet"):
+                            if st.form_submit_button(" Tüm Bekleyenlere Uygula ve Kaydet"):
                                 for _, b_row in bekleyen_df.iterrows():
                                     s_tut = b_row['satis_tutari']
                                     kom = s_tut * (vars_kom_yuzde / 100.0)
@@ -1209,7 +1208,7 @@ if check_password():
                                 st.markdown(f"**Ürün Maliyeti:** {para_formatla(row['maliyet'])}")
                                 st.markdown(f"**Satış Tutarı:** {para_formatla(row['satis_tutari'])}")
     
-                            if st.form_submit_button(" Hesapla and Kaydet"):
+                            if st.form_submit_button(" Hesapla ve Kaydet"):
                                 toplam_diger = komisyon + stopaj + kargo + hizmet_bedeli + tahsilat_yonetim
                                 net_kar = gelen_odeme + kampanya - row['maliyet'] - toplam_diger
                                 supabase.table("hepsi_burada").update({
@@ -1223,7 +1222,7 @@ if check_password():
     
             with tab_hb2:
                 if not tamamlanan_df.empty:
-                    st.subheader(" Gider and Finans Detayları Tamamlanmış Siparişler")
+                    st.subheader(" Gider ve Finans Detayları Tamamlanmış Siparişler")
                     
                     if st.session_state.hb_duzenle_id:
                         duzenlenen_kayit_res = tamamlanan_df[tamamlanan_df['id'] == st.session_state.hb_duzenle_id]
@@ -1365,7 +1364,7 @@ if check_password():
                             with w_col2:
                                 st.markdown(f"**Maliyet:** {para_formatla(row['maliyet'])} | **Ciro:** {para_formatla(row['satis_tutari'])}")
     
-                            if st.form_submit_button(" Hesapla and Kaydet"):
+                            if st.form_submit_button(" Hesapla ve Kaydet"):
                                 net_kar = row['satis_tutari'] - row['maliyet'] - pos_kesintisi - kargo
                                 supabase.table("web_sitesi").update({
                                     "pos_kesintisi": pos_kesintisi, "kargo": kargo, 
@@ -1504,7 +1503,7 @@ if check_password():
                         with st.form(key=f"dukkan_form_{row['id']}"):
                             val_dukkan_pos = float(row['pos_kesintisi']) if row['pos_kesintisi'] is not None else 0.0
                             pos_kesintisi = st.number_input("POS Kesintisi (TL - Nakit ise 0)", min_value=0.0, value=val_dukkan_pos, format="%.2f", key=f"dukkan_pos_{row['id']}")
-                            if st.form_submit_button(" Hesapla and Kaydet"):
+                            if st.form_submit_button(" Hesapla ve Kaydet"):
                                 net_kar = row['satis_tutari'] - row['maliyet'] - pos_kesintisi
                                 supabase.table("dukkan_elden").update({
                                     "pos_kesintisi": pos_kesintisi, "net_kar_zarar": net_kar, "giderler_girildi": 1
