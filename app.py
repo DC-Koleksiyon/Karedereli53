@@ -1,7 +1,7 @@
 import streamlit as st
 from supabase import create_client, Client
 import os
-from datetime import datetime
+from datetime import datetime, date
 import base64
 import pandas as pd
 
@@ -835,7 +835,6 @@ if check_password():
             elif stok_siralama == "Ürün Adı (A-Z) ": df_stok_liste = df_stok_liste.sort_values(by="Ürün Adı", ascending=True)
             elif stok_siralama == "Kalan Adet (En Yüksek) ": df_stok_liste = df_stok_liste.sort_values(by="Kalan Adet", ascending=False)
     
-            # --- FİLTRELENEN ÜRÜNLER İÇİN TOPLAM ADET VE SERMAYE HESABI ---
             filtrelenmis_toplam_adet = df_stok_liste['Kalan Adet'].sum()
             filtrelenmis_toplam_sermaye = df_stok_liste['Sermaye_Val'].sum()
 
@@ -880,7 +879,7 @@ if check_password():
     
             with tab_hb1:
                 if not bekleyen_df.empty:
-                    st.subheader(" Gider and Kesinti Girişi Bekleyen Siparişler")
+                    st.subheader(" Gider ve Kesinti Girişi Bekleyen Siparişler")
                     c_bs1, c_bs2 = st.columns(2)
                     with c_bs1: bekleyen_sira = st.selectbox(" Sırala:", ["Ekleme Sırası (ID)", "Tarih (En Yeni)", "Satış Tutarı (En Yüksek)"], key="bekleyen_sira_secim")
                     with c_bs2: st.caption(" Bekleyen sipariş listesini sıralayın.")
@@ -1345,17 +1344,7 @@ if check_password():
                 st.subheader(" En Çok Ürün Alanlar (Adet)")
                 en_cok_alanlar = m_ozet.sort_values(by='Toplam_Adet', ascending=False).head(5).copy()
                 en_cok_alanlar['Toplam Harcama'] = en_cok_alanlar['Toplam_Harcama'].apply(para_formatla)
-                st.dataframe(
-                    en_cok_alanlar.rename(
-                        columns={
-                            'musteri': 'Müşteri',
-                            'Toplam_Siparis': 'Sipariş',
-                            'Toplam_Adet': 'Toplam Adet',
-                        }
-                    )[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']],
-                    use_container_width=True,
-                    hide_index=True,
-                )
+                st.dataframe(en_cok_alanlar.rename(columns={'musteri': 'Müşteri', 'Toplam_Siparis': 'Sipariş', 'Toplam_Adet': 'Toplam Adet'})[['Müşteri', 'Sipariş', 'Toplam Adet', 'Toplam Harcama']], use_container_width=True, hide_index=True)
     
             st.divider()
             st.subheader(" Tüm Müşteriler Genel Özeti")
@@ -1491,27 +1480,118 @@ if check_password():
                 st.dataframe(kat_bazli.rename(columns={'Kategori_Genel': 'Kategori / Marka', 'Siparis_Sayisi': 'Sipariş Adedi', 'Toplam_Adet': 'Satılan Ürün Adeti'})[['Kategori / Marka', 'Sipariş Adedi', 'Satılan Ürün Adeti', 'Toplam Ciro']], use_container_width=True, hide_index=True)
     
             st.divider()
-            st.subheader(" Kanal Bazlı Detaylı Net Kârlılık ve Gider Analizi")
+            st.subheader(" Kanal Bazlı Detaylı Net Kârlılık ve Gider Analizi (Hepsi Burada, Web Sitesi, Dükkan & Elden)")
             
             tab_r1, tab_r2, tab_r3 = st.tabs([" Hepsi Burada Detayları", " Web Sitesi Detayları", " Dükkan & Elden Detayları"])
             
             with tab_r1:
+                st.markdown("#### Hepsi Burada Kanalı Detaylı Kârlılık ve Gider Analizi")
                 if not hb_df.empty:
-                    h_tamamlanan = hb_df[hb_df['giderler_girildi'] == 1]
+                    h_tamamlanan = hb_df[hb_df['giderler_girildi'] == 1].copy()
                     st.metric("Hepsi Burada Toplam Net Kâr", para_formatla(hb_net))
                     st.caption(f"Toplam {len(hb_df)} siparişten {len(h_tamamlanan)} tanesinin giderleri işlenmiştir.")
                     if not h_tamamlanan.empty:
                         hb_rapor_tablosu = []
                         for _, r in h_tamamlanan.iterrows():
                             hb_rapor_tablosu.append({
-                                "Tarih": r['tarih'], "Sipariş No": r['siparis_no'], "Müşteri": r['musteri'],
-                                "Ürün Adı": r['urun_adi'], "Maliyet": para_formatla(r['maliyet']), "Ciro": para_formatla(r['satis_tutari']),
-                                "Komisyon": para_formatla(r['komisyon']), "Kargo": para_formatla(r['kargo']), "Net Kâr": para_formatla(r['net_kar_zarar'])
+                                "Tarih": r['tarih'],
+                                "Sipariş No": r['siparis_no'],
+                                "Müşteri": r['musteri'],
+                                "Ürün Adı": r['urun_adi'],
+                                "Adet": r['adet'],
+                                "Maliyet": para_formatla(r['maliyet']),
+                                "Satış Tutarı": para_formatla(r['satis_tutari']),
+                                "Komisyon": para_formatla(r['komisyon']),
+                                "Kargo": para_formatla(r['kargo']),
+                                "Stopaj": para_formatla(r['stopaj']),
+                                "Net Kâr": para_formatla(r['net_kar_zarar'])
                             })
                         st.dataframe(pd.DataFrame(hb_rapor_tablosu), use_container_width=True, hide_index=True)
-                else: st.info(" Hepsi Burada verisi yok.")
-    
+                    else:
+                        st.info("İşlenmiş Hepsi Burada gider kaydı bulunmuyor.")
+                else:
+                    st.info("Hepsi Burada verisi yok.")
+
             with tab_r2:
+                st.markdown("#### Web Sitesi Kanalı Detaylı Kârlılık ve Gider Analizi")
                 if not web_df.empty:
-                    w_tamamlanan = web_df[web_df['giderler_girildi'] == 1]
+                    w_tamamlanan = web_df[web_df['giderler_girildi'] == 1].copy()
                     st.metric("Web Sitesi Toplam Net Kâr", para_formatla(web_net))
+                    st.caption(f"Toplam {len(web_df)} siparişten {len(w_tamamlanan)} tanesinin giderleri işlenmiştir.")
+                    if not w_tamamlanan.empty:
+                        web_rapor_tablosu = []
+                        for _, r in w_tamamlanan.iterrows():
+                            web_rapor_tablosu.append({
+                                "Tarih": r['tarih'],
+                                "Sipariş No": r['siparis_no'],
+                                "Müşteri": r['musteri'],
+                                "Ürün Adı": r['urun_adi'],
+                                "Adet": r['adet'],
+                                "Maliyet": para_formatla(r['maliyet']),
+                                "Satış Tutarı": para_formatla(r['satis_tutari']),
+                                "POS Komisyonu": para_formatla(r['pos_kesintisi']),
+                                "Kargo": para_formatla(r['kargo']),
+                                "Net Kâr": para_formatla(r['net_kar_zarar'])
+                            })
+                        st.dataframe(pd.DataFrame(web_rapor_tablosu), use_container_width=True, hide_index=True)
+                    else:
+                        st.info("İşlenmiş Web Sitesi gider kaydı bulunmuyor.")
+                else:
+                    st.info("Web sitesi verisi yok.")
+
+            with tab_r3:
+                st.markdown("#### Dükkan & Elden Satışlar Kanalı Detaylı Kârlılık ve Gider Analizi")
+                if not dukkan_df.empty:
+                    d_tamamlanan = dukkan_df[dukkan_df['giderler_girildi'] == 1].copy()
+                    st.metric("Dükkan & Elden Toplam Net Kâr", para_formatla(dukkan_net))
+                    st.caption(f"Toplam {len(dukkan_df)} satıştan {len(d_tamamlanan)} tanesinin giderleri işlenmiştir.")
+                    if not d_tamamlanan.empty:
+                        dukkan_rapor_tablosu = []
+                        for _, r in d_tamamlanan.iterrows():
+                            dukkan_rapor_tablosu.append({
+                                "Tarih": r['tarih'],
+                                "Fiş No": r['siparis_no'],
+                                "Müşteri": r['musteri'],
+                                "Ürün Adı": r['urun_adi'],
+                                "Adet": r['adet'],
+                                "Maliyet": para_formatla(r['maliyet']),
+                                "Satış Tutarı": para_formatla(r['satis_tutari']),
+                                "POS Kesintisi": para_formatla(r['pos_kesintisi']),
+                                "Net Kâr": para_formatla(r['net_kar_zarar'])
+                            })
+                        st.dataframe(pd.DataFrame(dukkan_rapor_tablosu), use_container_width=True, hide_index=True)
+                    else:
+                        st.info("İşlenmiş Dükkan gider kaydı bulunmuyor.")
+                else:
+                    st.info("Dükkan verisi yok.")
+
+    # --- 10. AYLIK DETAYLI RAPORLAR (TARİH ARALIĞI FİLTRESİ) ---
+    elif menu == " 10. Aylık Detaylı Raporlar":
+        st.header(" Tarih Aralığı Bazlı Detaylı Raporlar")
+        st.write("Belirleyeceğiniz tarih aralığına göre ürün girişleri, satış işlemleri ve kanal detaylarını inceleyebilirsiniz.")
+
+        c_t1, c_t2 = st.columns(2)
+        with c_t1:
+            baslangic_tarihi = st.date_input("Başlangıç Tarihi", value=date(2026, 1, 1))
+        with c_t2:
+            bitis_tarihi = st.date_input("Bitiş Tarihi", value=date.today())
+
+        satis_res = supabase.table("satis").select("*").execute()
+        satis_tum = satis_res.data if satis_res.data else []
+
+        tarihli_satislar = []
+        for s in satis_tum:
+            t_str = s.get("tarih")
+            try:
+                dt = datetime.strptime(str(t_str).strip(), "%d.%m.%Y").date()
+                if baslangic_tarihi <= dt <= bitis_tarihi:
+                    tarihli_satislar.append(s)
+            except:
+                pass
+
+        st.subheader(f" Seçilen Tarih Aralığındaki Satışlar ({baslangic_tarihi.strftime('%d.%m.%Y')} - {bitis_tarihi.strftime('%d.%m.%Y')})")
+        if tarihli_satislar:
+            df_tarih_satis = pd.DataFrame(tarihli_satislar)
+            st.dataframe(df_tarih_satis, use_container_width=True, hide_index=True)
+        else:
+            st.info("Seçilen tarih aralığında satış kaydı bulunamadı.")
