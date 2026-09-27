@@ -203,7 +203,6 @@ if check_password():
     
     veritabani_kontrol()
     
-    # Stok Geçmişi menüden çıkarıldı, artık Güncel Stok altında sekme olarak yer alıyor
     menu_listesi = [
         " 0. Ana Panel", " 1. Ürün Girişi", " 2. Satış İşlemleri", 
         " 3. Güncel Stok & Geçmiş", " 4. Hepsi Burada", " 5. Web Sitesi",
@@ -397,78 +396,57 @@ if check_password():
                 st.subheader("Daha Önce Kayıtlı Ürüne Ek Mal Kabul / Stok Girişi")
                 st.write("Aşağıdaki arama kutusuna ürün adı, kodu veya barkod yazarak ürünü hızlıca bulabilirsiniz.")
                 
-                stk_tum_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi, kategori_marka, resim_yolu").execute()
-                kayitli_urunler = stk_tum_res.data if stk_tum_res.data else []
+                mal_kabul_arama = st.text_input("🔍 Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="mal_kabul_arama_input").strip()
                 
-                if kayitli_urunler:
-                    mal_kabul_arama = st.text_input("🔍 Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="mal_kabul_arama_input").strip().lower()
+                if mal_kabul_arama:
+                    stk_tum_res = supabase.table("stok").select("*").or_(f"urun_kodu.ilike.%{mal_kabul_arama}%,barkod.ilike.%{mal_kabul_arama}%,urun_adi.ilike.%{mal_kabul_arama}%").order("id", desc=True).limit(5).execute()
+                    bulunanlar = stk_tum_res.data if stk_tum_res.data else []
                     
-                    filtrelenmis_urunler = []
-                    gorulen_benzersiz = set()
-                    for u in kayitli_urunler:
-                        k = str(u.get("urun_kodu") or "").strip()
-                        b = str(u.get("barkod") or "").strip()
-                        ad = str(u.get("urun_adi") or "").strip()
-                        kat = str(u.get("kategori_marka") or "").strip()
-                        
-                        benzersiz_anahtar = k if k else b
-                        if benzersiz_anahtar in gorulen_benzersiz:
-                            continue
-                        
-                        birlesik_metin = f"{ad} {k} {b} {kat}".lower()
-                        if not mal_kabul_arama or mal_kabul_arama in birlesik_metin:
-                            gorulen_benzersiz.add(benzersiz_anahtar)
-                            filtrelenmis_urunler.append(u)
-                    
-                    if filtrelenmis_urunler:
-                        urun_secenek_dict = {}
-                        for u in filtrelenmis_urunler:
-                            k = u.get("urun_kodu") or "-"
-                            b = u.get("barkod") or "-"
-                            ad = u.get("urun_adi") or "-"
-                            etiket = f"{ad} | Kod: {k} | Barkod: {b}"
-                            urun_secenek_dict[etiket] = u
-                            
-                        secilen_etiket = st.selectbox("Eşleşen Ürünler Arasından Seçin:", list(urun_secenek_dict.keys()), key="stok_ekle_secim_box")
-                        secilen_veri = urun_secenek_dict[secilen_etiket]
-                        
-                        with st.form("mevcut_urun_stok_ekle_form"):
-                            st.markdown(f"**Seçilen Ürün:** {secilen_veri.get('urun_adi')}")
-                            st.markdown(f"**Mevcut Kod:** `{secilen_veri.get('urun_kodu')}` | **Barkod:** `{secilen_veri.get('barkod')}` | **Kategori:** `{secilen_veri.get('kategori_marka')}`")
-                            
-                            col_ek1, col_ek2 = st.columns(2)
-                            with col_ek1:
-                                ek_tarih = st.text_input("Giriş Tarihi (GG.AA.YYYY) *", value=datetime.now().strftime("%d.%m.%Y"))
-                                ek_adet = st.number_input("Eklenecek Adet *", min_value=1, value=1)
-                            with col_ek2:
-                                ek_yer = st.selectbox("Tedarikçi / Alınan Yer *", alinan_yer_listesi, key="ek_yer_box")
-                                ek_birim_fiyat = st.number_input("Birim Maliyet Fiyatı (TL) *", min_value=0.0, format="%.2f")
-                                ek_kdv = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key="ek_kdv_box")
+                    if bulunanlar:
+                        benzersiz_urunler = {}
+                        for b_item in bulunanlar:
+                            b_anahtar = b_item.get("urun_kodu") or b_item.get("barkod")
+                            if b_anahtar not in benzersiz_urunler:
+                                benzersiz_urunler[b_anahtar] = b_item
                                 
-                            if st.form_submit_button("Stok Girişini Tamamla"):
-                                if ek_birim_fiyat <= 0 or ek_adet <= 0:
-                                    st.error("Lütfen adet ve birim fiyat giriniz.")
-                                else:
-                                    kdvli_b = ek_birim_fiyat * 1.20 if ek_kdv == "KDV'siz" else ek_birim_fiyat
-                                    toplam_mal_ek = kdvli_b * ek_adet
+                        for b_anahtar, secilen_veri in benzersiz_urunler.items():
+                            with st.expander(f"📦 {secilen_veri.get('urun_adi')} | Kod: {secilen_veri.get('urun_kodu')} | Barkod: {secilen_veri.get('barkod')}", expanded=True):
+                                with st.form(f"stok_ekle_form_{secilen_veri.get('id')}"):
+                                    st.markdown(f"**Kategori:** `{secilen_veri.get('kategori_marka')}`")
                                     
-                                    supabase.table("stok").insert({
-                                        "tarih": ek_tarih.strip(),
-                                        "urun_kodu": secilen_veri.get("urun_kodu"),
-                                        "urun_adi": secilen_veri.get("urun_adi"),
-                                        "adet": int(ek_adet),
-                                        "alinan_yer": ek_yer,
-                                        "toplam_maliyet": para_formatla(toplam_mal_ek),
-                                        "resim_yolu": secilen_veri.get("resim_yolu", ""),
-                                        "kategori_marka": secilen_veri.get("kategori_marka"),
-                                        "barkod": secilen_veri.get("barkod")
-                                    }).execute()
-                                    st.success("Ürüne ek stok girişi başarıyla yapıldı!")
-                                    st.rerun()
+                                    col_ek1, col_ek2 = st.columns(2)
+                                    with col_ek1:
+                                        ek_tarih = st.text_input("Giriş Tarihi (GG.AA.YYYY) *", value=datetime.now().strftime("%d.%m.%Y"), key=f"tarih_{secilen_veri.get('id')}")
+                                        ek_adet = st.number_input("Eklenecek Adet *", min_value=1, value=1, key=f"adet_{secilen_veri.get('id')}")
+                                    with col_ek2:
+                                        ek_yer = st.selectbox("Tedarikçi / Alınan Yer *", alinan_yer_listesi, key=f"yer_{secilen_veri.get('id')}")
+                                        ek_birim_fiyat = st.number_input("Birim Maliyet Fiyatı (TL) *", min_value=0.0, format="%.2f", key=f"fiyat_{secilen_veri.get('id')}")
+                                        ek_kdv = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key=f"kdv_{secilen_veri.get('id')}")
+                                        
+                                    if st.form_submit_button("Stok Girişini Tamamla"):
+                                        if ek_birim_fiyat <= 0 or ek_adet <= 0:
+                                            st.error("Lütfen adet ve geçerli birim fiyat giriniz.")
+                                        else:
+                                            kdvli_b = ek_birim_fiyat * 1.20 if ek_kdv == "KDV'siz" else ek_birim_fiyat
+                                            toplam_mal_ek = kdvli_b * ek_adet
+                                            
+                                            supabase.table("stok").insert({
+                                                "tarih": ek_tarih.strip(),
+                                                "urun_kodu": secilen_veri.get("urun_kodu"),
+                                                "urun_adi": secilen_veri.get("urun_adi"),
+                                                "adet": int(ek_adet),
+                                                "alinan_yer": ek_yer,
+                                                "toplam_maliyet": para_formatla(toplam_mal_ek),
+                                                "resim_yolu": secilen_veri.get("resim_yolu", ""),
+                                                "kategori_marka": secilen_veri.get("kategori_marka"),
+                                                "barkod": secilen_veri.get("barkod")
+                                            }).execute()
+                                            st.success(f"'{secilen_veri.get('urun_adi')}' adlı ürüne ek stok girişi başarıyla yapıldı!")
+                                            st.rerun()
                     else:
                         st.warning("Aradığınız kriterlere uygun kayıtlı ürün bulunamadı.")
                 else:
-                    st.info("Sistemde kayıtlı ürün bulunmuyor. Önce 'Yeni Ürün Ekle' sekmesinden ürün tanımlamalısınız.")
+                    st.info("Mal kabul yapmak istediğiniz ürünün adını, kodunu veya barkodunu yukarıdaki arama kutusuna yazın.")
 
     
         st.divider()
@@ -1027,28 +1005,25 @@ if check_password():
                 
         with tab_gecmis:
             st.subheader("Ürün Bazlı Stok Hareket ve Satış Geçmişi")
-            st.write("Seçtiğiniz bir ürünün hangi tarihte, kime, kaça alınıp kaça satıldığını bu sekmeden inceleyebilirsiniz.")
+            st.write("Aşağıdaki arama çubuğuna ürün adı, kodu veya barkod yazarak hem mal kabul (giriş) hem de satış geçmişini anında listeleyebilirsiniz.")
             
-            stok_Tum_res = supabase.table("stok").select("urun_kodu, barkod, urun_adi").execute()
-            stok_kayitlari_tum = stok_Tum_res.data if stok_Tum_res.data else []
+            gecmis_arama_metni = st.text_input("🔍 Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="stok_gecmis_arama_input").strip()
             
-            if stok_kayitlari_tum:
-                urun_secenek_dict = {}
-                for st_item in stok_kayitlari_tum:
-                    u_kod = st_item.get("urun_kodu") or "-"
-                    u_barkod = st_item.get("barkod") or "-"
-                    u_ad = st_item.get("urun_adi") or "-"
-                    etiket = f"{u_ad} | Kod: {u_kod} | Barkod: {u_barkod}"
-                    urun_secenek_dict[etiket] = (u_kod, u_barkod)
-                    
-                secilen_gecmis_urun = st.selectbox("Geçmişini İncelemek İstediğiniz Ürünü Seçin:", list(urun_secenek_dict.keys()), key="stok_gecmis_secim_box")
+            if gecmis_arama_metni:
+                stok_eslesme_res = supabase.table("stok").select("*").or_(f"urun_kodu.ilike.%{gecmis_arama_metni}%,barkod.ilike.%{gecmis_arama_metni}%,urun_adi.ilike.%{gecmis_arama_metni}%").order("id", desc=True).execute()
+                eslesen_stoklar = stok_eslesme_res.data if stok_eslesme_res.data else []
                 
-                if secilen_gecmis_urun:
-                    secilen_kod, secilen_barkod = urun_secenek_dict[secilen_gecmis_urun]
-                    
+                if eslesen_stoklar:
+                    aranacak_kodlar = set()
+                    aranacak_barkodlar = set()
+                    for st_item in eslesen_stoklar:
+                        if st_item.get("urun_kodu"): aranacak_kodlar.add(str(st_item.get("urun_kodu")).strip())
+                        if st_item.get("barkod"): aranacak_barkodlar.add(str(st_item.get("barkod")).strip())
+                        
                     st.divider()
-                    st.subheader(" Ürün Mal Kabul / Giriş Geçmişi")
-                    giris_gecmis_res = supabase.table("stok").select("*").or_(f"urun_kodu.eq.{secilen_kod},barkod.eq.{secilen_barkod}").order("id", desc=True).execute()
+                    st.subheader("📦 Ürün Mal Kabul / Giriş Geçmişi")
+                    
+                    giris_gecmis_res = supabase.table("stok").select("*").or_(f"urun_kodu.ilike.%{gecmis_arama_metni}%,barkod.ilike.%{gecmis_arama_metni}%,urun_adi.ilike.%{gecmis_arama_metni}%").order("id", desc=True).execute()
                     giris_gecmis_data = giris_gecmis_res.data if giris_gecmis_res.data else []
                     
                     if giris_gecmis_data:
@@ -1058,6 +1033,9 @@ if check_password():
                             g_top_mal = para_metin_to_float(g.get("toplam_maliyet"))
                             g_birim_mal = g_top_mal / g_adet if g_adet > 0 else 0.0
                             g_liste.append({
+                                "Ürün Adı": g.get("urun_adi"),
+                                "Kod": g.get("urun_kodu") or "-",
+                                "Barkod": g.get("barkod") or "-",
                                 "Giriş Tarihi": g.get("tarih"),
                                 "Tedarikçi": g.get("alinan_yer"),
                                 "Kategori": g.get("kategori_marka"),
@@ -1067,11 +1045,17 @@ if check_password():
                             })
                         st.dataframe(pd.DataFrame(g_liste), use_container_width=True, hide_index=True)
                     else:
-                        st.info("Bu ürüne ait mal kabul (giriş) kaydı bulunamadı.")
+                        st.info("Bu kriterlere ait mal kabul (giriş) kaydı bulunamadı.")
                     
                     st.divider()
-                    st.subheader(" Ürün Satış Geçmişi")
-                    satis_gecmis_res = supabase.table("satis").select("*").or_(f"barkod_kod.eq.{secilen_kod},barkod_kod.eq.{secilen_barkod}").order("id", desc=True).execute()
+                    st.subheader("🛒 Ürün Satış Geçmişi")
+                    
+                    satis_sorgu_kosullari = []
+                    for k in aranacak_kodlar: satis_sorgu_kosullari.append(f"barkod_kod.eq.{k}")
+                    for b in aranacak_barkodlar: satis_sorgu_kosullari.append(f"barkod_kod.eq.{b}")
+                    satis_sorgu_kosullari.append(f"barkod_kod.ilike.%{gecmis_arama_metni}%")
+                    
+                    satis_gecmis_res = supabase.table("satis").select("*").or_(",".join(satis_sorgu_kosullari)).order("id", desc=True).execute()
                     satis_gecmis_data = satis_gecmis_res.data if satis_gecmis_res.data else []
                     
                     if satis_gecmis_data:
@@ -1085,6 +1069,7 @@ if check_password():
                                 "Sipariş No": s.get("siparis_no"),
                                 "Müşteri": s.get("musteri"),
                                 "Satış Kanalı": s.get("satilan_yer"),
+                                "Barkod/Kod": s.get("barkod_kod"),
                                 "Satış Adeti": s_adet,
                                 "Birim Satış Fiyatı": para_formatla(s_birim_fiyat),
                                 "Toplam Satış Tutarı": para_formatla(s_top_tutar)
@@ -1092,8 +1077,10 @@ if check_password():
                         st.dataframe(pd.DataFrame(s_liste), use_container_width=True, hide_index=True)
                     else:
                         st.info("Bu ürüne ait satış kaydı bulunamadı.")
+                else:
+                    st.warning("Aradığınız kriterlere uygun ürün bulunamadı.")
             else:
-                st.info("Sistemde kayıtlı ürün bulunmuyor.")
+                st.info("Geçmişini incelemek istediğiniz ürünün adını, kodunu veya barkodunu yukarıdaki arama kutusuna yazın.")
 
     # --- 4. HEPSİ BURADA ---
     elif menu == " 4. Hepsi Burada":
