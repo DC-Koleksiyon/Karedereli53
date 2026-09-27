@@ -280,9 +280,11 @@ if check_password():
                 st.session_state.aktif_menu = " 10. Aylık Detaylı Raporlar"
                 st.rerun()
     
-    # --- 1. ÜRÜN GİRİŞİ (OTOMATİK DOLDURMA ÖZELLİKLİ) ---
+    # --- 1. ÜRÜN GİRİŞİ (ANINDA OTOMATİK DOLDURMA ÖZELLİKLİ) ---
     elif menu == " 1. Ürün Girişi":
         st.header(" Ürün Girişi")
+        
+        # State tanımları
         if "giris_barkod" not in st.session_state: st.session_state.giris_barkod = ""
         if "giris_kod" not in st.session_state: st.session_state.giris_kod = ""
         if "giris_ad" not in st.session_state: st.session_state.giris_ad = ""
@@ -350,6 +352,7 @@ if check_password():
             secilen_alinan_yer = st.selectbox("Ürünün Alındığı Yer / Tedarikçi *", alinan_yer_listesi, key="giris_alinan_yer")
             adet = st.number_input("Ürün Adeti *", min_value=1, value=1, key="giris_adet")
         with col2:
+            # Otomatik dolan ürün adı alanını state'ten besliyoruz
             ham_urun_adi = st.text_input("Ürün Adı *", value=st.session_state.giris_ad, key="giris_urun_adi")
             birim_fiyat = st.number_input("Birim Fiyatı (TL) *", min_value=0.0, format="%.2f", key="giris_birim_fiyat")
             st.caption(f" Girilen Birim Fiyat: **{para_formatla(birim_fiyat)}**")
@@ -838,7 +841,7 @@ if check_password():
         else:
             st.info(" Kayıt bulunamadı.")
     
-    # --- 3. GÜNCEL STOK (ÜRÜN BAZINDA TOPLAM GÖRÜNÜM) ---
+    # --- 3. GÜNCEL STOK (TOPLAM STOK GÖRÜNÜMÜ) ---
     elif menu == " 3. Güncel Stok":
         st.header(" Güncel Kalan Stok ve Finansal Özet")
         
@@ -1007,7 +1010,7 @@ if check_password():
                             with c_top2: vars_kargo = st.number_input("Kargo Bedeli (TL)", min_value=0.0, value=45.0, step=5.0)
                             with c_top3: vars_hizmet = st.number_input("Hizmet Bedeli (TL)", min_value=0.0, value=8.5, step=0.5)
                                 
-                            if st.form_submit_button(" Tüm Bekleyenlere Uygula ve Kaydet"):
+                            if st.form_submit_button(" Tüm Bekleyenlere Uygula and Kaydet"):
                                 for _, b_row in bekleyen_df.iterrows():
                                     s_tut = b_row['satis_tutari']
                                     kom = s_tut * (vars_kom_yuzde / 100.0)
