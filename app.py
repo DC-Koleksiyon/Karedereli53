@@ -1770,6 +1770,9 @@ if check_password():
         satis_res = supabase.table("satis").select("*").execute()
         satis_verileri = satis_res.data if satis_res.data else []
         
+        stok_res = supabase.table("stok").select("*").execute()
+        stok_verileri = stok_res.data if stok_res.data else []
+        
         hb_res = supabase.table("hepsi_burada").select("*").execute()
         web_res = supabase.table("web_sitesi").select("*").execute()
         dukkan_res = supabase.table("dukkan_elden").select("*").execute()
@@ -1785,6 +1788,19 @@ if check_password():
                         "maliyet": maliyet_degeri,
                         "net_kar": net_kar_degeri
                     }
+
+        # Stok girişlerini aylık bazda gruplayalım
+        stok_aylik_sozlugu = {}
+        if stok_verileri:
+            for st_item in stok_verileri:
+                t_str = st_item.get("tarih")
+                dt_stk = pd.to_datetime(t_str, format="%d.%m.%Y", errors='coerce')
+                if pd.notnull(dt_stk):
+                    y_a = dt_stk.strftime("%Y-%m")
+                    if y_a not in stok_aylik_sozlugu:
+                        stok_aylik_sozlugu[y_a] = {"adet": 0, "maliyet": 0.0}
+                    stok_aylik_sozlugu[y_a]["adet"] += int(st_item.get("adet") or 0)
+                    stok_aylik_sozlugu[y_a]["maliyet"] += para_metin_to_float(st_item.get("toplam_maliyet"))
 
         if satis_verileri:
             aylik_liste = []
@@ -1833,11 +1849,15 @@ if check_password():
                     Toplam_Kar=('Kâr / Zarar', 'sum')
                 ).reset_index().sort_values(by="Yil_Ay", ascending=False)
                 
+                # Stok giriş bilgilerini genel özet tablosuna ekleyelim
+                df_grup_ay["Alınan Ürün Adeti"] = df_grup_ay["Yil_Ay"].apply(lambda x: stok_aylik_sozlugu.get(x, {}).get("adet", 0))
+                df_grup_ay["Toplam Alınan Maliyet"] = df_grup_ay["Yil_Ay"].apply(lambda x: para_formatla(stok_aylik_sozlugu.get(x, {}).get("maliyet", 0.0)))
+                
                 df_grup_ay["Satış Cirosu"] = df_grup_ay["Toplam_Ciro"].apply(para_formatla)
                 df_grup_ay["Toplam Maliyet"] = df_grup_ay["Toplam_Maliyet"].apply(para_formatla)
                 df_grup_ay["Net Kâr / Zarar"] = df_grup_ay["Toplam_Kar"].apply(para_formatla)
                 
-                goster_grup_df = df_grup_ay[["Ay", "Toplam_Siparis", "Toplam_Adet", "Satış Cirosu", "Toplam Maliyet", "Net Kâr / Zarar"]]
+                goster_grup_df = df_grup_ay[["Ay", "Toplam_Siparis", "Toplam_Adet", "Alınan Ürün Adeti", "Toplam Alınan Maliyet", "Satış Cirosu", "Toplam Maliyet", "Net Kâr / Zarar"]]
                 st.dataframe(goster_grup_df.rename(columns={"Ay": "Dönem (Ay)", "Toplam_Siparis": "Sipariş Sayısı", "Toplam_Adet": "Satılan Adet"}), use_container_width=True, hide_index=True)
                 
                 st.divider()
