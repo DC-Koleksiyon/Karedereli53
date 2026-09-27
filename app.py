@@ -9,15 +9,11 @@ st.set_page_config(page_title="Stok & Takip Sistemi", page_icon="", layout="wide
 
 # --- KULLANICI GİRİŞ KONTROLÜ (RENKLİ & BENİ HATIRLA ÖZELLİKLİ) ---
 def check_password():
-    # Özel CSS Stilleri ile Renkli ve Modern Tasarım
     st.markdown("""
         <style>
-            /* Ana sayfa arka planına renkli gradient ekleme */
             .stApp {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             }
-            
-            /* Giriş kartı tasarımı */
             .login-card {
                 background: rgba(255, 255, 255, 0.95);
                 padding: 40px;
@@ -27,8 +23,6 @@ def check_password():
                 max-width: 450px;
                 margin: 0 auto;
             }
-            
-            /* Başlık stili */
             .login-title {
                 color: #2d3748;
                 font-size: 28px;
@@ -36,15 +30,12 @@ def check_password():
                 text-align: center;
                 margin-bottom: 10px;
             }
-            
             .login-subtitle {
                 color: #718096;
                 font-size: 14px;
                 text-align: center;
                 margin-bottom: 30px;
             }
-            
-            /* Buton özelleştirme */
             .stButton>button {
                 width: 100%;
                 background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
@@ -56,12 +47,10 @@ def check_password():
                 box-shadow: 0 4px 15px rgba(253, 160, 133, 0.4);
                 transition: all 0.3s ease;
             }
-            
             .stButton>button:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 6px 20px rgba(253, 160, 133, 0.6);
             }
-            
             div[data-testid="stDataEditor"] div.dvn-scroller, div[data-testid="stDataFrame"] div.dvn-scroller {
                 max-width: 100%;
             }
@@ -96,7 +85,6 @@ def check_password():
                 position: relative;
                 box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             }
-            
             section[data-testid="stSidebar"] div.stButton > button {
                 width: 100%;
                 text-align: left;
@@ -107,7 +95,6 @@ def check_password():
                 padding: 7px 12px;
                 font-size: 13.5px;
             }
-            
             div[data-testid="column"] div.stButton > button {
                 width: 100% !important;
                 height: 120px !important;
@@ -123,13 +110,11 @@ def check_password():
                 transform: translateY(-3px);
                 box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
             }
-            
             div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #00b09b, #96c93d) !important; }
             div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #11998e, #38ef7d) !important; }
             div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #f2994a, #f2c94c) !important; }
             div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(4) button { background: linear-gradient(135deg, #8e2de2, #4a00e0) !important; }
             div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"]:nth-of-type(5) button { background: linear-gradient(135deg, #0ba360, #3cba92) !important; }
-        
             div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(1) button { background: linear-gradient(135deg, #2193b0, #6dd5ed) !important; }
             div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(2) button { background: linear-gradient(135deg, #eb3349, #f45c43) !important; }
             div[data-testid="column"]:nth-of-type(2) div[data-testid="stButton"]:nth-of-type(3) button { background: linear-gradient(135deg, #56ab2f, #a8e063) !important; }
@@ -295,7 +280,7 @@ if check_password():
                 st.session_state.aktif_menu = " 10. Aylık Detaylı Raporlar"
                 st.rerun()
     
-    # --- 1. ÜRÜN GİRİŞİ ---
+    # --- 1. ÜRÜN GİRİŞİ (OTOMATİK DOLDURMA ÖZELLİKLİ) ---
     elif menu == " 1. Ürün Girişi":
         st.header(" Ürün Girişi")
         if "giris_barkod" not in st.session_state: st.session_state.giris_barkod = ""
@@ -375,7 +360,7 @@ if check_password():
             
         resim_dosyasi = st.file_uploader("Ürün Görseli Yükle (Opsiyonel)", type=["png", "jpg", "jpeg"], key="giris_resim_yukle")
         
-        buton_metni = " Ürünü Güncelle" if st.session_state.duzenlenen_kod else " Hesapla ve Listeye Ekle"
+        buton_metni = " Ürünü Güncelle" if st.session_state.duzenlenen_kod else " Hesapla and Listeye Ekle"
         if st.button(buton_metni, type="primary"):
             urun_adi = ham_urun_adi.strip().title()
             g_barkod = st.session_state.get("input_giris_barkod", "").strip()
@@ -853,7 +838,7 @@ if check_password():
         else:
             st.info(" Kayıt bulunamadı.")
     
-    # --- 3. GÜNCEL STOK ---
+    # --- 3. GÜNCEL STOK (ÜRÜN BAZINDA TOPLAM GÖRÜNÜM) ---
     elif menu == " 3. Güncel Stok":
         st.header(" Güncel Kalan Stok ve Finansal Özet")
         
@@ -895,48 +880,47 @@ if check_password():
     
         for anahtar, partiler in partiler_gruplu.items():
             toplam_satis_adet = satis_dict.get(anahtar, 0)
-            for r in partiler:
-                barkod, kod, ad, kategori, alinan_yer, parti_adet, giris_tarihi_str, t_maliyet = (
-                    r.get('barkod') or "", r.get('urun_kodu') or "", r.get('urun_adi'), 
-                    r.get('kategori_marka') or "-", r.get('alinan_yer') or "-", r.get('adet', 0), 
-                    r.get('tarih'), r.get('toplam_maliyet')
-                )
-                mal_val = para_metin_to_float(t_maliyet)
-                birim_maliyet = mal_val / parti_adet if parti_adet > 0 else 0.0
+            
+            toplam_giris_adet = sum([p.get('adet', 0) for p in partiler])
+            toplam_maliyet_val = sum([para_metin_to_float(p.get('toplam_maliyet')) for p in partiler])
+            
+            kalan_toplam_adet = max(0, toplam_giris_adet - toplam_satis_adet)
+            ortalama_birim_maliyet = toplam_maliyet_val / toplam_giris_adet if toplam_giris_adet > 0 else 0.0
+            
+            sermaye_val = kalan_toplam_adet * ortalama_birim_maliyet
+            toplam_bagli_sermaye += sermaye_val
+            
+            en_eski_gun = 0
+            ilk_parti = partiler[0]
+            barkod = ilk_parti.get('barkod') or ""
+            kod = ilk_parti.get('urun_kodu') or ""
+            ad = ilk_parti.get('urun_adi')
+            kategori = ilk_parti.get('kategori_marka') or "-"
+            alinan_yer = ilk_parti.get('alinan_yer') or "-"
+            
+            try:
+                g_tarih = datetime.strptime(ilk_parti.get('tarih', '').strip(), "%d.%m.%Y")
+                en_eski_gun = max(0, (bugun - g_tarih).days)
+            except: pass
     
-                if toplam_satis_adet >= parti_adet:
-                    kalan_parti_adet = 0
-                    toplam_satis_adet -= parti_adet
-                else:
-                    kalan_parti_adet = parti_adet - toplam_satis_adet
-                    toplam_satis_adet = 0
+            durum = " Tükendi" if kalan_toplam_adet <= 0 else (" Kritik / Azalıyor" if kalan_toplam_adet <= kritik_esik else " Normal")
     
-                sermaye_val = kalan_parti_adet * birim_maliyet
-                toplam_bagli_sermaye += sermaye_val
-                gun_farki = 0
-                try:
-                    g_tarih = datetime.strptime(giris_tarihi_str.strip(), "%d.%m.%Y")
-                    gun_farki = max(0, (bugun - g_tarih).days)
-                except: pass
+            if secilen_kategori_filtre != "Tümü" and kategori != secilen_kategori_filtre: continue
+            arama_metni_birlesik = f"{ad} {kod} {barkod} {kategori} {alinan_yer}".lower()
+            if stok_arama and stok_arama not in arama_metni_birlesik: continue
     
-                durum = " Tükendi" if kalan_parti_adet <= 0 else (" Kritik / Azalıyor" if kalan_parti_adet <= kritik_esik else " Normal")
-    
-                if secilen_kategori_filtre != "Tümü" and kategori != secilen_kategori_filtre: continue
-                arama_metni_birlesik = f"{ad} {kod} {barkod} {kategori} {alinan_yer}".lower()
-                if stok_arama and stok_arama not in arama_metni_birlesik: continue
-    
-                islenmis_stoklar.append({
-                    "Ürün Adı": ad,
-                    "Kategori": kategori,
-                    "Alınan Yer": alinan_yer,
-                    "Kod": kod.strip() if kod else "-",
-                    "Barkod": barkod.strip() if barkod else "-",
-                    "Rafta Gün": gun_farki,
-                    "Kalan Adet": kalan_parti_adet,
-                    "Sermaye_Val": sermaye_val,
-                    "Bağlı Sermaye": para_formatla(sermaye_val),
-                    "Durum": durum
-                })
+            islenmis_stoklar.append({
+                "Ürün Adı": ad,
+                "Kategori": kategori,
+                "Alınan Yer": alinan_yer,
+                "Kod": kod.strip() if kod else "-",
+                "Barkod": barkod.strip() if barkod else "-",
+                "Rafta Gün": en_eski_gun,
+                "Kalan Adet": kalan_toplam_adet,
+                "Sermaye_Val": sermaye_val,
+                "Bağlı Sermaye": para_formatla(sermaye_val),
+                "Durum": durum
+            })
     
         df_stok_liste = pd.DataFrame(islenmis_stoklar)
         if not df_stok_liste.empty:
@@ -952,7 +936,6 @@ if check_password():
             kritik_sayisi = len(df_stok_liste[df_stok_liste['Kalan Adet'] <= kritik_esik])
             col_stk3.metric(" Kritik/Tükenen Ürün Sayısı", f"{kritik_sayisi} Çeşit")
             
-            # --- 3. GÜNCEL STOK: KATEGORI MARKA FILTRESI SECILDIGINDE TOPLAM ADET VE MALIYET ---
             if secilen_kategori_filtre != "Tümü":
                 filtrelenmis_toplam_adet = df_stok_liste['Kalan Adet'].sum()
                 filtrelenmis_toplam_maliyet = df_stok_liste['Sermaye_Val'].sum()
