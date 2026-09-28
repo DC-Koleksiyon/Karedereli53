@@ -322,11 +322,36 @@ if check_password():
                     eski_birim = eski_top_mal / int(k_item.get("adet") or 1) if int(k_item.get("adet") or 1) > 0 else 0.0
                     d_birim_fiyat = st.number_input("Birim Maliyet Fiyatı (TL) *", min_value=0.0, value=float(eski_birim), format="%.2f")
                     
+                    # Düzenleme ekranına görsel yükleme alanı eklendi
+                    d_dosya = st.file_uploader("Ürün Görselini Değiştir / Yükle (Opsiyonel)", type=["png", "jpg", "jpeg", "webp"], key="d_img_upl")
+                    
                     if st.form_submit_button("Güncellemeyi Kaydet"):
                         if not d_barkod or not d_kod or not d_ad or d_birim_fiyat <= 0:
                             st.error("Lütfen tüm zorunlu alanları eksiksiz doldurun.")
                         else:
                             yeni_top_mal = d_birim_fiyat * d_adet
+                            
+                            # Eğer yeni bir görsel seçildiyse Supabase Storage'a yükle
+                            guncel_resim_yolu = k_item.get("resim_yolu", "")
+                            if d_dosya:
+                                try:
+                                    dosya_adi = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{d_dosya.name}"
+                                    dosya_bytes = d_dosya.getvalue()
+                                    
+                                    supabase.storage.from_("urun-gorselleri").upload(
+                                        path=dosya_adi,
+                                        file=dosya_bytes,
+                                        file_options={"content-type": d_dosya.type}
+                                    )
+                                    
+                                    public_url_res = supabase.storage.from_("urun-gorselleri").get_public_url(dosya_adi)
+                                    if isinstance(public_url_res, dict):
+                                        guncel_resim_yolu = public_url_res.get("publicUrl") or public_url_res.get("public_url", "")
+                                    else:
+                                        guncel_resim_yolu = str(public_url_res)
+                                except Exception as e:
+                                    st.warning(f"Görsel Supabase Storage'a yüklenirken hata oluştu: {e}")
+
                             supabase.table("stok").update({
                                 "barkod": d_barkod.strip(),
                                 "urun_kodu": d_kod.strip(),
@@ -335,7 +360,8 @@ if check_password():
                                 "kategori_marka": d_kat,
                                 "alinan_yer": d_yer,
                                 "adet": d_adet,
-                                "toplam_maliyet": para_formatla(yeni_top_mal)
+                                "toplam_maliyet": para_formatla(yeni_top_mal),
+                                "resim_yolu": guncel_resim_yolu
                             }).eq("id", k_item.get("id")).execute()
                             st.success("Ürün başarıyla güncellendi!")
                             st.session_state.duzenlenen_kod = None
@@ -378,14 +404,12 @@ if check_password():
                                     dosya_adi = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{y_dosya.name}"
                                     dosya_bytes = y_dosya.getvalue()
                                     
-                                    # Supabase Storage 'urun-gorselleri' bucket'ına yükleme
                                     supabase.storage.from_("urun-gorselleri").upload(
                                         path=dosya_adi,
                                         file=dosya_bytes,
                                         file_options={"content-type": y_dosya.type}
                                     )
                                     
-                                    # Yüklenen dosyanın public URL adresini güvenli şekilde alma
                                     public_url_res = supabase.storage.from_("urun-gorselleri").get_public_url(dosya_adi)
                                     if isinstance(public_url_res, dict):
                                         r_yolu = public_url_res.get("publicUrl") or public_url_res.get("public_url", "")
@@ -1508,7 +1532,7 @@ if check_password():
                         with st.form(key=f"dukkan_form_{row['id']}"):
                             val_dukkan_pos = float(row['pos_kesintisi']) if row['pos_kesintisi'] is not None else 0.0
                             pos_kesintisi = st.number_input("POS Kesintisi (TL - Nakit ise 0)", min_value=0.0, value=val_dukkan_pos, format="%.2f", key=f"dukkan_pos_{row['id']}")
-                            if st.form_submit_button(" Hesapla und Kaydet"):
+                            if st.form_submit_button(" Hesapla ve Kaydet"):
                                 net_kar = row['satis_tutari'] - row['maliyet'] - pos_kesintisi
                                 supabase.table("dukkan_elden").update({
                                     "pos_kesintisi": pos_kesintisi, "net_kar_zarar": net_kar, "giderler_girildi": 1
