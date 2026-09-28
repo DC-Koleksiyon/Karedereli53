@@ -130,7 +130,7 @@ def check_password():
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             st.markdown('<div class="login-card">', unsafe_allow_html=True)
-            st.markdown('<p class="login-title">🚀 Stok & Takip Sistemi</p>', unsafe_allow_html=True)
+            st.markdown('<p class="login-title"> Stok & Takip Sistemi</p>', unsafe_allow_html=True)
             st.markdown('<p class="login-subtitle">Devam etmek için lütfen giriş yapın</p>', unsafe_allow_html=True)
 
             saved_user = st.session_state.get("remembered_user", "Sedat-Burak")
@@ -341,7 +341,7 @@ if check_password():
                             st.session_state.duzenlenen_kod = None
                             st.rerun()
         else:
-            tab_yeni, tab_stok_ekle = st.tabs(["✨ 1. Sıfırdan Yeni Ürün Ekle", "📦 2. Kayıtlı Ürüne Mal Kabul / Stok Ekle"])
+            tab_yeni, tab_stok_ekle = st.tabs([" 1. Sıfırdan Yeni Ürün Ekle", " 2. Kayıtlı Ürüne Mal Kabul / Stok Ekle"])
             
             with tab_yeni:
                 st.subheader("Yeni Ürün Tanımlama ve İlk Giriş")
@@ -359,7 +359,7 @@ if check_password():
                         y_birim_fiyat = st.number_input("Birim Maliyet Fiyatı (TL) *", min_value=0.0, format="%.2f", key="y_fiyat_num")
                         y_kdv = st.selectbox("KDV Durumu *", ["KDV'li", "KDV'siz"], key="y_kdv_box")
                     
-                    y_dosya = st.file_uploader("Ürün Görseli Yükle (Opsiyonel)", type=["png", "jpg", "jpeg"], key="y_img_upl")
+                    y_dosya = st.file_uploader("Ürün Görseli Yükle (Opsiyonel)", type=["png", "jpg", "jpeg", "webp"], key="y_img_upl")
                     
                     if st.form_submit_button("Yeni Ürünü Kaydet"):
                         clean_barkod = y_barkod.strip()
@@ -374,9 +374,21 @@ if check_password():
                             
                             r_yolu = ""
                             if y_dosya:
-                                os.makedirs("uploads", exist_ok=True)
-                                r_yolu = os.path.join("uploads", y_dosya.name)
-                                with open(r_yolu, "wb") as f: f.write(y_dosya.getbuffer())
+                                try:
+                                    dosya_adi = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{y_dosya.name}"
+                                    dosya_bytes = y_dosya.getvalue()
+                                    
+                                    # Supabase Storage 'urun-gorselleri' bucket'ına yükleme
+                                    supabase.storage.from_("urun-gorselleri").upload(
+                                        path=dosya_adi,
+                                        file=dosya_bytes,
+                                        file_options={"content-type": y_dosya.type}
+                                    )
+                                    
+                                    # Yüklenen dosyanın public URL adresini alma
+                                    r_yolu = supabase.storage.from_("urun-gorselleri").get_public_url(dosya_adi)
+                                except Exception as e:
+                                    st.warning(f"Görsel Supabase Storage'a yüklenirken hata oluştu: {e}")
                                 
                             supabase.table("stok").insert({
                                 "tarih": y_tarih.strip(),
@@ -396,7 +408,7 @@ if check_password():
                 st.subheader("Daha Önce Kayıtlı Ürüne Ek Mal Kabul / Stok Girişi")
                 st.write("Aşağıdaki arama kutusuna ürün adı, kodu veya barkod yazarak ürünü hızlıca bulabilirsiniz.")
                 
-                mal_kabul_arama = st.text_input("🔍 Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="mal_kabul_arama_input").strip()
+                mal_kabul_arama = st.text_input(" Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="mal_kabul_arama_input").strip()
                 
                 if mal_kabul_arama:
                     stk_tum_res = supabase.table("stok").select("*").or_(f"urun_kodu.ilike.%{mal_kabul_arama}%,barkod.ilike.%{mal_kabul_arama}%,urun_adi.ilike.%{mal_kabul_arama}%").order("id", desc=True).limit(5).execute()
@@ -410,7 +422,7 @@ if check_password():
                                 benzersiz_urunler[b_anahtar] = b_item
                                 
                         for b_anahtar, secilen_veri in benzersiz_urunler.items():
-                            with st.expander(f"📦 {secilen_veri.get('urun_adi')} | Kod: {secilen_veri.get('urun_kodu')} | Barkod: {secilen_veri.get('barkod')}", expanded=True):
+                            with st.expander(f" {secilen_veri.get('urun_adi')} | Kod: {secilen_veri.get('urun_kodu')} | Barkod: {secilen_veri.get('barkod')}", expanded=True):
                                 with st.form(f"stok_ekle_form_{secilen_veri.get('id')}"):
                                     st.markdown(f"**Kategori:** `{secilen_veri.get('kategori_marka')}`")
                                     
@@ -530,9 +542,13 @@ if check_password():
             for r in tum_urunler:
                 resim_html = ""
                 r_yolu = r.get("resim_yolu")
-                if r_yolu and os.path.exists(r_yolu):
-                    b64_img = image_to_base64(r_yolu)
-                    if b64_img: resim_html = f'<img src="{b64_img}" class="zoom-img">'
+                if r_yolu:
+                    # Eğer URL ise direkt img tag içine koyuyoruz, değilse eski local base64 fonksiyonunu kullanıyoruz
+                    if r_yolu.startswith("http"):
+                        resim_html = f'<img src="{r_yolu}" class="zoom-img">'
+                    elif os.path.exists(r_yolu):
+                        b64_img = image_to_base64(r_yolu)
+                        if b64_img: resim_html = f'<img src="{b64_img}" class="zoom-img">'
                 
                 maliyet_num = para_metin_to_float(r.get("toplam_maliyet"))
                 tarih_str = str(r.get("tarih")).strip()
@@ -878,7 +894,7 @@ if check_password():
     elif menu == " 3. Güncel Stok & Geçmiş":
         st.header(" Stok Yönetim Paneli")
         
-        tab_guncel, tab_gecmis = st.tabs(["📦 Güncel Kalan Stoklar", "📈 Ürün Bazlı Stok & Satış Geçmişi"])
+        tab_guncel, tab_gecmis = st.tabs([" Güncel Kalan Stoklar", " Ürün Bazlı Stok & Satış Geçmişi"])
         
         with tab_guncel:
             st.subheader("Güncel Kalan Stok ve FIFO Maliyet Özeti")
@@ -1007,7 +1023,7 @@ if check_password():
             st.subheader("Ürün Bazlı Stok Hareket ve Satış Geçmişi")
             st.write("Aşağıdaki arama çubuğuna ürün adı, kodu veya barkod yazarak hem mal kabul (giriş) hem de satış geçmişini anında listeleyebilirsiniz.")
             
-            gecmis_arama_metni = st.text_input("🔍 Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="stok_gecmis_arama_input").strip()
+            gecmis_arama_metni = st.text_input(" Ürün Arama (İsim, Kod veya Barkod):", placeholder="Örn: Mini GT, KOD123 veya Barkod...", key="stok_gecmis_arama_input").strip()
             
             if gecmis_arama_metni:
                 stok_eslesme_res = supabase.table("stok").select("*").or_(f"urun_kodu.ilike.%{gecmis_arama_metni}%,barkod.ilike.%{gecmis_arama_metni}%,urun_adi.ilike.%{gecmis_arama_metni}%").order("id", desc=True).execute()
@@ -1021,7 +1037,7 @@ if check_password():
                         if st_item.get("barkod"): aranacak_barkodlar.add(str(st_item.get("barkod")).strip())
                         
                     st.divider()
-                    st.subheader("📦 Ürün Mal Kabul / Giriş Geçmişi")
+                    st.subheader(" Ürün Mal Kabul / Giriş Geçmişi")
                     
                     giris_gecmis_res = supabase.table("stok").select("*").or_(f"urun_kodu.ilike.%{gecmis_arama_metni}%,barkod.ilike.%{gecmis_arama_metni}%,urun_adi.ilike.%{gecmis_arama_metni}%").order("id", desc=True).execute()
                     giris_gecmis_data = giris_gecmis_res.data if giris_gecmis_res.data else []
@@ -1048,7 +1064,7 @@ if check_password():
                         st.info("Bu kriterlere ait mal kabul (giriş) kaydı bulunamadı.")
                     
                     st.divider()
-                    st.subheader("🛒 Ürün Satış Geçmişi")
+                    st.subheader(" Ürün Satış Geçmişi")
                     
                     satis_sorgu_kosullari = []
                     for k in aranacak_kodlar: satis_sorgu_kosullari.append(f"barkod_kod.eq.{k}")
@@ -1873,7 +1889,7 @@ if check_password():
                 df_secilen_ay = df_aylik_ham[df_aylik_ham["Ay"] == secilen_donem].copy()
                 
                 # Özellik 2: Seçilen Aya Ait Kanal Bazlı Kırılım (Expandable / Genişletilebilir Alt Özet)
-                with st.expander(f"📊 {secilen_donem} Dönemi Satış Kanalları Kırılımı", expanded=True):
+                with st.expander(f" {secilen_donem} Dönemi Satış Kanalları Kırılımı", expanded=True):
                     kanal_kirilim = df_secilen_ay.groupby("Satış Yeri").agg(
                         Sipariş_Adedi=('Sipariş No', 'count'),
                         Satılan_Adet=('Satış Adeti', 'sum'),
@@ -1886,7 +1902,7 @@ if check_password():
                     
                     st.dataframe(kanal_kirilim.rename(columns={"Satış Yeri": "Satış Kanalı", "Sipariş_Adedi": "Sipariş Sayısı", "Satılan_Adet": "Satılan Adet"})[["Satış Kanalı", "Sipariş Sayısı", "Satılan Adet", "Toplam Ciro", "Net Kâr / Zarar"]], use_container_width=True, hide_index=True)
 
-                st.markdown("#### 📝 Satır Satır Satış Dökümü")
+                st.markdown("####  Satır Satır Satış Dökümü")
                 df_secilen_ay["Satış Cirosu"] = df_secilen_ay["Satış Cirosu"].apply(para_formatla)
                 df_secilen_ay["Malın Maliyeti"] = df_secilen_ay["Malın Maliyeti"].apply(para_formatla)
                 df_secilen_ay["Kâr / Zarar"] = df_secilen_ay["Kâr / Zarar"].apply(para_formatla)
