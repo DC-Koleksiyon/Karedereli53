@@ -385,8 +385,12 @@ if check_password():
                                         file_options={"content-type": y_dosya.type}
                                     )
                                     
-                                    # Yüklenen dosyanın public URL adresini alma
-                                    r_yolu = supabase.storage.from_("urun-gorselleri").get_public_url(dosya_adi)
+                                    # Yüklenen dosyanın public URL adresini güvenli şekilde alma
+                                    public_url_res = supabase.storage.from_("urun-gorselleri").get_public_url(dosya_adi)
+                                    if isinstance(public_url_res, dict):
+                                        r_yolu = public_url_res.get("publicUrl") or public_url_res.get("public_url", "")
+                                    else:
+                                        r_yolu = str(public_url_res)
                                 except Exception as e:
                                     st.warning(f"Görsel Supabase Storage'a yüklenirken hata oluştu: {e}")
                                 
@@ -543,7 +547,6 @@ if check_password():
                 resim_html = ""
                 r_yolu = r.get("resim_yolu")
                 if r_yolu:
-                    # Eğer URL ise direkt img tag içine koyuyoruz, değilse eski local base64 fonksiyonunu kullanıyoruz
                     if r_yolu.startswith("http"):
                         resim_html = f'<img src="{r_yolu}" class="zoom-img">'
                     elif os.path.exists(r_yolu):
@@ -1505,7 +1508,7 @@ if check_password():
                         with st.form(key=f"dukkan_form_{row['id']}"):
                             val_dukkan_pos = float(row['pos_kesintisi']) if row['pos_kesintisi'] is not None else 0.0
                             pos_kesintisi = st.number_input("POS Kesintisi (TL - Nakit ise 0)", min_value=0.0, value=val_dukkan_pos, format="%.2f", key=f"dukkan_pos_{row['id']}")
-                            if st.form_submit_button(" Hesapla ve Kaydet"):
+                            if st.form_submit_button(" Hesapla und Kaydet"):
                                 net_kar = row['satis_tutari'] - row['maliyet'] - pos_kesintisi
                                 supabase.table("dukkan_elden").update({
                                     "pos_kesintisi": pos_kesintisi, "net_kar_zarar": net_kar, "giderler_girildi": 1
